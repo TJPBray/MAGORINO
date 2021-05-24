@@ -18,7 +18,7 @@ tesla=3;
 %% Specify SNR
 % Define noise parameters (NB MAGO paper reports typical SNR in vivo of 40
 % at 1.5T and 60 at 3T. However, may be lower in the presence of iron or
-% marrow. The SNR is a function input. 
+% marrow. 
 
 SNR=60;
 
