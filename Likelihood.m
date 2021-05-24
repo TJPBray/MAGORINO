@@ -2,7 +2,25 @@
 
 function [outparams] = Likelihood(FF,v,figshow)
 
-%% Specify parametersfor signal simulation
+% function [outparams] = Likelihood(FF,v,figshow)
+
+% Description:
+% Enables visualisation of likelihood plots for signal intensities
+% generated from specified FF and R2* values
+
+% Input: 
+% Specified FF and R2* (v); figshow specifies whether likelihood map is
+% displayed
+
+% Output: 
+% Outparams structure showing fitting results from two initialisations and
+% chosen parameter values as well as MLE from grid search
+
+% Author:
+% Tim Bray, t.bray@ucl.ac.uk
+
+
+%% Specify parameters for signal simulation
 
 %Set parameters depending on specified FF
 p = [FF 100-FF v 0];

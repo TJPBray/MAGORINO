@@ -1,4 +1,4 @@
-%Visualise likelihood
+%Visualise likelihood in 3D
 
 %% Specify parametersfor signal simulation
 
