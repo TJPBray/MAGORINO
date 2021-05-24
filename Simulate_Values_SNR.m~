@@ -1,3 +1,8 @@
+% Can use the following to simulate  parameters and visualise signal for testing:
+% Input: v
+% Output: FF error maps relative for each FF and SNR value
+% Tim Bray
+% t.bray@ucl.ac.uk
 
 function [FFmaps,errormaps,sdmaps] = Simulate_Values_SNR(v)
 %function [FFmaps,errormaps,sdmaps] = Simulate_Values_SNR(v)
@@ -13,7 +18,7 @@ function [FFmaps,errormaps,sdmaps] = Simulate_Values_SNR(v)
 % FF maps, error maps and standard deviation maps over a range of FF and SNR values
 
 % Author:
-% Tim Bray, t.bray@ucl.ac.uk
+% 
 
 %% Create vector of FF values
 

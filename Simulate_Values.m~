@@ -1,19 +1,15 @@
+% Can use the following to simulate  parameters and visualise signal for testing:
+% Input: SNR
+% Output: Error maps in R2* and FF relative to simulated value
+% Tim Bray
+% t.bray@ucl.ac.uk
 
 function [FFmaps,errormaps,sdmaps] = Simulate_Values(SNR)
 % function [FFmaps,errormaps,sdmaps] = Simulate_Values(SNR)
 
-% Description:
-% Enables visualisation of FF accuracy and precision over a range of FF and
-% R2* values
+%Input: SNR
 
-% Input: 
-% SNR
 
-% Output: 
-% FF maps, error maps and standard deviation maps over a range of FF and R2* values
-
-% Author:
-% Tim Bray, t.bray@ucl.ac.uk
 
 %% Create grid for different options of each param
 
