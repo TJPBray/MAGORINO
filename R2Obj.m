@@ -19,7 +19,7 @@ function [sse] = R2Obj(p,echotimes,tesla,Smeasured)
 %   the Rician distribution.
 %
 % Model:
-%   normalisedSignals = exp(-p(1)*bValues + p(2)*bValues^2*p(1)^2/6)
+%   
 %
 %
 % Output:
