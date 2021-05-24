@@ -25,7 +25,6 @@ Wgrid=100-Fgrid;
 % Fgrid=repelem([0:20:100]',1,6);
 % Wgrid=100-Fgrid;
 
-
 % Add echotime values
 % MAGO paper at 3T used 12 echoes (TE1 1.1, dTE 1.1)
 % MAGO paper at 1.5T used 6 echoes (TE1 1.2, dTE 2)

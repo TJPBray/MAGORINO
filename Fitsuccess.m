@@ -1,9 +1,17 @@
-%Minimisation success
-%Measures the frequency of correct minimisation with two fitting methods
-%(Gaussian and Rician)
+
+
 function Fitsuccess(FF,v)
 
-% Specify FF and R2*
+% Description:
+% Measures the frequency of correct minimisation with two fitting methods
+% (Gaussian and Rician)
+
+% Input: 
+% FF and R2*
+
+% Output:
+% Generates histograms showing frequency of estimates in relation to ground
+% truth
 
 %Specify reps
 R=30;
