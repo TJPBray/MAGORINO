@@ -47,7 +47,7 @@ noiseSD=100/SNR; %here assume total signal is 100 for simplicity (since FF maps 
 %Loop through SNR values, finding noise SD for each
 
 %Specify repetitions 
-reps=5;
+reps=3;
 
 %Turn figure show setting on/off
 figshow=0;
@@ -131,13 +131,11 @@ end
 %For R2*
 vhat_standard(y,x,r)=outparams.standard.R2;
 vhat_Rician(y,x,r)=outparams.Rician.R2;
-vhat_dual(y,x,r)=outparams.dual.R2;
 vhat_complex(y,x,r)=outparams.complex.R2;
 
 %For FF
 FF_standard(y,x,r)=outparams.standard.F/(outparams.standard.W+outparams.standard.F);
 FF_Rician(y,x,r)=outparams.Rician.F/(outparams.Rician.W+outparams.Rician.F);
-FF_dual(y,x,r)=outparams.dual.F/(outparams.dual.W+outparams.dual.F);
 FF_complex(y,x,r)=outparams.complex.F/(outparams.complex.W+outparams.complex.F);
 
 %% Determine if true or swapped
@@ -154,12 +152,10 @@ close all
 %% Average grids over repetitions
 vhat_standard_mean=mean(vhat_standard,3);
 vhat_Rician_mean=mean(vhat_Rician,3);
-vhat_dual_mean=mean(vhat_dual,3);
 vhat_complex_mean=mean(vhat_complex,3);
 
 FF_standard_mean=100*mean(FF_standard,3); %Convert to percentage
 FF_Rician_mean=100*mean(FF_Rician,3);
-FF_dual_mean=100*mean(FF_dual,3);
 FF_complex_mean=100*mean(FF_complex,3);
 
 errormaps.FFstandard_true=mean(FF_standard_true,3);
@@ -169,50 +165,41 @@ errormaps.FFcomplex_true=mean(FF_complex_true,3);
 %% Get SD of grids over repetitions
 vhat_standard_sd=std(vhat_standard,0,3);
 vhat_Rician_sd=std(vhat_Rician,0,3);
-vhat_dual_sd=std(vhat_dual,0,3);
 vhat_complex_sd=std(vhat_complex,0,3);
 
 FF_standard_sd=100*std(FF_standard,0,3); %Convert to percentage
 FF_Rician_sd=100*std(FF_Rician,0,3);
-FF_dual_sd=100*std(FF_dual,0,3);
 FF_complex_sd=100*std(FF_complex,0,3);
 
 
 %% Create error grids
 R2error_standard=vhat_standard_mean-vgrid;
 R2error_Rician=vhat_Rician_mean-vgrid;
-R2error_dual=vhat_dual_mean-vgrid;
 R2error_Complex=vhat_complex_mean-vgrid;
 
 FFerror_standard=FF_standard_mean-Fgrid;
 FFerror_Rician=FF_Rician_mean-Fgrid;
-FFerror_dual=FF_dual_mean-Fgrid;
 FFerror_Complex=FF_complex_mean-Fgrid;
 
 %% Add to structure
 FFmaps.standard=FF_standard_mean; %Convert to percentage
 FFmaps.Rician=FF_Rician_mean;
-FFmaps.dual=FF_dual_mean;
 FFmaps.complex=FF_complex_mean;
 
 errormaps.R2standard=R2error_standard;
 errormaps.R2rician=R2error_Rician;
-errormaps.R2dual=R2error_dual;
 errormaps.R2complex=R2error_Complex;
 
 errormaps.FFstandard=FFerror_standard;
 errormaps.FFrician=FFerror_Rician;
-errormaps.FFdual=FFerror_dual;
 errormaps.FFerror_Complex=FFerror_Complex;
 
 sdmaps.R2standard=vhat_standard_sd;
 sdmaps.R2rician=vhat_Rician_sd;
-sdmaps.R2dual=vhat_dual_sd;
 sdmaps.R2complex=vhat_complex_sd;
 
 sdmaps.FFstandard=FF_standard_sd;
 sdmaps.FFrician=FF_Rician_sd;
-sdmaps.FFdual=FF_dual_sd;
 sdmaps.FFcomplex=FF_complex_sd;
 
 %% Create figures
