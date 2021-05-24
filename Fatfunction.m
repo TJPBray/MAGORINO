@@ -1,6 +1,4 @@
 %Function describing interactions of water and multiple fat components
-%Spectrum is based on Dieckmayer et al. NMR Biomed 2015;28:432-439 and
-%magnitudes are based on Karampinos et al. MRM 2014;71(3):1158-1165
 
 function S=Fatfunction(t,tesla,F,W,v,fB);
 %t is a matrix of echo times
@@ -16,6 +14,9 @@ gyro=42.58; %MHz/Tesla
 larmor=tesla*gyro;
 
 %% Specify fat shifts and amplitudes, calculate signal
+
+%Spectrum based on on Karampinos et al. MRM 2014;71(3):1158-1165:
+
 %F1: Methyl peak at 0.9ppm has relative magnitude 0.087: for w in ms, w=0.9*128*2*pi/1000
 %F2: Methylene peak at 1.3ppm has relative magnitude 0.568: for w in ms, w=1.3*128*2*pi/1000
 %F3: Beta carboxyl peak at 1.59ppm has relative magnitude 0.058: for w in ms, w=1.59*128*2*pi/1000
@@ -38,12 +39,22 @@ larmor=tesla*gyro;
 % F*0.073*exp((i*4.27)*t)+...
 % W*exp((i*3.94)*t)
 
-Fatamps = [0.087; 0.568; 0.058; 0.092; 0.058; 0.027; 0.038; 0.073]; %relative fat amplitudes
-Fatshift = [0.9; 1.3; 1.59; 2.00; 2.25; 2.77; 4.20; 5.31];
+% Fatamps = [0.087; 0.568; 0.058; 0.092; 0.058; 0.027; 0.038; 0.073]; %relative fat amplitudes
+% Fatshift = [0.9; 1.3; 1.59; 2.00; 2.25; 2.77; 4.20; 5.31];
+% Fatw= Fatshift*larmor*2*pi/1000; %Fatw is angular frequency
+% 
+% Watershift = 4.9;
+% Waterw=Watershift*larmor*2*pi/1000; %Waterw is angular frequency
+
+%Spectrum based on Hernando et al. multisite: 
+
+Fatamps = [0.087; 0.694; 0.128; 0.004; 0.039; 0.048]; %relative fat amplitudes
+Fatshift = [-3.9; -3.5; -2.7; -2.04; -0.49; 0.50 ];
 Fatw= Fatshift*larmor*2*pi/1000; %Fatw is angular frequency
 
-Watershift = 4.9;
+Watershift = 0;
 Waterw=Watershift*larmor*2*pi/1000; %Waterw is angular frequency
+
 
 S=  F*Fatamps(1)*exp((i*Fatw(1))*t)+...
     F*Fatamps(2)*exp((i*Fatw(2))*t)+...
@@ -51,8 +62,6 @@ S=  F*Fatamps(1)*exp((i*Fatw(1))*t)+...
     F*Fatamps(4)*exp((i*Fatw(4))*t)+...
     F*Fatamps(5)*exp((i*Fatw(5))*t)+...
     F*Fatamps(6)*exp((i*Fatw(6))*t)+...
-    F*Fatamps(7)*exp((i*Fatw(7))*t)+...
-    F*Fatamps(8)*exp((i*Fatw(8))*t)+...
     W*exp((i*Waterw)*t);
 
 
