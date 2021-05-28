@@ -38,7 +38,7 @@ tesla=3;
 % at 1.5T and 60 at 3T. However, may be lower in the presence of iron or
 % marrow. The SNR is a function input. 
 
-SNR=100;
+SNR=60;
 
 noiseSD=100/SNR; %here assume total signal is 100 for simplicity (since FF maps are used as input)
 
@@ -209,7 +209,7 @@ plot(pmin2S_xdim+1,pmin2S_ydim+1,'rx','MarkerSize',12,'LineWidth',2)
 plot(outR2+1,outFF+1,'ro','MarkerSize',12,'LineWidth',2) %NB
 
 %Add legend
-lgnd=legend('contour','MLE', 'GT', 'min1', 'min2', 'Fit output');
+lgnd=legend('MLE', 'GT', 'min1', 'min2', 'Fit output');
 set(lgnd,'color','none');
 hold off
 
@@ -245,7 +245,7 @@ plot(pmin2R_xdim+1,pmin2R_ydim+1,'rx','MarkerSize',12,'LineWidth',2)
 plot(outR2ric+1,outFFric+1,'ro','MarkerSize',12,'LineWidth',2) %NB
 
 %Add legend
-lgnd=legend('contour','MLE', 'GT', 'min1', 'min2', 'Fit output');
+lgnd=legend('MLE', 'GT', 'min1', 'min2', 'Fit output');
 set(lgnd,'color','none');
 
 hold off
