@@ -17,21 +17,23 @@ R2fitting.solver = 'fmincon';
 R2fitting.options = optimoptions('fmincon', 'Algorithm', 'interior-point');
 
 % set the parameter lower bound
-R2fitting.lb = [0, 0, -0.01, 0]'; %Set R2* < 0 as R2*=0 is used in simulations (?penalisation at boundary)
+R2fitting.lb = [0, 0, 0, 0]';
 
 % % set the parameter upper bound
 R2fitting.ub = [5*max(abs(Smeasured)), 5*max(abs(Smeasured)), 1, 0]'; %constrain fB0 to 0 for now
 
-%% Set constant for S initialisation
+%% Set constants for initialisation
 %This constant accounts for lack of true in-phase echo and R2* decay to
 %approximate S0; can be set separately if desired
-%Initialisation R2*=vinit
+
+%R2* initialisation
 vinit=0.01;
 
 %C1 for Gaussian
 C1=exp(vinit); %C1=exp(R2* initialisation);
 %C2 for Rician
-C2=exp(vinit); %C2=exp(R2* initialisation);
+C2=exp(0.05); %C2=exp(R2* initialisation);
+
 
 %% Implement standard magnitude fitting for both water-dominant and fat-dominant initialisations
 % [F W R2* fB0]
