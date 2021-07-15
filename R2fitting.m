@@ -8,12 +8,14 @@ Smeasured=abs(Smeasured); %otherwise use magnitude
 %% Set constants for initialisation
 
 %Set initialisation value for R2*: vinit
-vinit=0.01;
+vinit=0.1;
+vmax=1;
+vmin=0; %negative value for min to avoid penalisation at boundary
 
 %Set signal initialisation for fat and water: Sinit
-C=exp(vinit);
-Sinit=C*max(abs(Smeasured)); %partially compensates for R2* to improve initialisation
-
+% C=exp(vinit);
+% Sinit=C*max(abs(Smeasured)); %partially compensates for R2* to improve initialisation
+Sinit=100;
 
 %% Set up the optimisation framework for standard magnitude fitting
 
@@ -24,13 +26,15 @@ R2fitting.objective = @(p) R2Obj(p,echotimes,tesla,Smeasured);
 R2fitting.solver = 'fmincon';
 
 % use interior-point
-R2fitting.options = optimoptions('fmincon', 'Algorithm', 'interior-point');
+R2fitting.options = optimoptions('fmincon', 'Algorithm', 'interior-point','InitBarrierParam',100000,'ScaleProblem',true,'FiniteDifferenceType','central');
+%Barrier parameter might reduce step size and avoid bypassing of correct
+%minimum; can include 'InitBarrierParam',100, in options
 
 % set the parameter lower bound
-R2fitting.lb = [0, 0, -0.01, 0]'; %Set R2* < 0 as R2*=0 is used in simulations (?penalisation at boundary)
+R2fitting.lb = [0, 0, vmin, 0]'; 
 
 % % set the parameter upper bound
-R2fitting.ub = [3*Sinit, 3*Sinit, 1, 0]'; %constrain fB0 to 0 for now
+R2fitting.ub = [3*Sinit, 3*Sinit, vmax, 0]'; %constrain fB0 to 0 for now
 
 
 %% Implement standard magnitude fitting for both water-dominant and fat-dominant initialisations
@@ -56,6 +60,10 @@ outparams.standard.pmin2=pmin2_mag;
 
 outparams.standard.fmin1=fmin1_mag;
 outparams.standard.fmin2=fmin2_mag;
+
+%Convert sse to likelihood for each solution
+outparams.standard.likmax1=-numel(echotimes)*log(sqrt(2*pi*sig*sig))-outparams.standard.fmin1/(2*sig^2);
+outparams.standard.likmax2=-numel(echotimes)*log(sqrt(2*pi*sig*sig))-outparams.standard.fmin2/(2*sig^2);
 
 % Choose the estimates from the best residual and add those to the
 % outparams structure
@@ -153,9 +161,9 @@ R2complexfitting.x0 = [0, Sinit, vinit, 0]';
 
 %allow fB0 to vary:
 % set the parameter lower bound
-R2complexfitting.lb = [0, 0, -0.01, -1]'; %Set R2* < 0 as R2*=0 is used in simulations (?penalisation at boundary)
+R2complexfitting.lb = [0, 0, vmin, -1]';
 % % set the parameter upper bound
-R2complexfitting.ub = [3*Sinit, 3*Sinit, 1, 1]'; 
+R2complexfitting.ub = [3*Sinit, 3*Sinit, vmax, 1]'; 
 
 % run the optimisation
 [pmin1, fmin1] = fmincon(R2complexfitting); %fmin is the minimised SSE
