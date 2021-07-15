@@ -1,5 +1,5 @@
 
-function [FFmaps,errormaps,sdmaps] = Simulate_Values_SNR(v)
+function [FFmaps,errormaps,sdmaps] = Simulate_Values_SNR(v,reps)
 %function [FFmaps,errormaps,sdmaps] = Simulate_Values_SNR(v)
 
 % Description:
@@ -7,7 +7,7 @@ function [FFmaps,errormaps,sdmaps] = Simulate_Values_SNR(v)
 % SNR values
 
 % Input: 
-% R2* (labelled v)
+% R2* (labelled v), reps
 
 % Output: 
 % FF maps, error maps and standard deviation maps over a range of FF and SNR values
@@ -37,6 +37,11 @@ tesla=3;
 % at 1.5T and 60 at 3T. However, may be lower in the presence of iron or
 % marrow. The SNR is a function input. 
 
+
+%% Turn figure show setting on/off
+figshow=0;
+
+
 %% Loop over SNR values
 
 for SNR=1:100
@@ -45,14 +50,8 @@ noiseSD=100/SNR; %here assume total signal is 100 for simplicity (since FF maps 
 
 %Loop through SNR values, finding noise SD for each
 
-%Specify repetitions 
-reps=3;
 
-%Turn figure show setting on/off
-figshow=0;
-
-
-%% Loop through values
+%% Loop through FF values
 
 for a=1:size(Fgrid,2)
 
@@ -82,7 +81,7 @@ sig=std(real(NoiseROI));
 %% Implement fitting with noisy data
 % This will implement both standard magnitude fitting and with Rician noise
 % modelling
-outparams = R2fitting(echotimes,3,Snoisy,sig); %Need to take magnitude here; NB fitting will still work without!
+outparams = R2fitting(echotimes,3,Snoisy,sig); %Pass Snoisy to fitting as complex data
 
 
 %% Add parameter estimates to grid
