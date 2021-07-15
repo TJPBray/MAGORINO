@@ -2,9 +2,9 @@
 
 %% Specify parametersfor signal simulation
 
-%Choose parameters
-FF=30;
-v=0.3;
+function Likelihood3D(FF,v)
+
+%Define parameter vector
 p = [FF 100-FF v 0];
 
 %  Specify echotime values
@@ -70,4 +70,8 @@ for y=1:size(Fgrid3d,1)
 %Show in 3D
 newanal2(exp(loglikRic))
 colormap('parula')
+
+end
+
+
     
