@@ -1,6 +1,6 @@
 %Visualise likelihood
 
-function [outparams] = Likelihood(FF,v,figshow)
+function [outparams] = Likelihood(FF,v,SNR,figshow)
 
 % function [outparams] = Likelihood(FF,v,figshow)
 
@@ -9,8 +9,8 @@ function [outparams] = Likelihood(FF,v,figshow)
 % generated from specified FF and R2* values
 
 % Input: 
-% Specified FF and R2* (v); figshow specifies whether likelihood map is
-% displayed
+% Specified FF, R2* (v) and SNR 
+% figshow specifies whether likelihood map is displayed
 
 % Output: 
 % Outparams structure showing fitting results from two initialisations and
@@ -36,9 +36,9 @@ tesla=3;
 %% Specify SNR
 % Define noise parameters (NB MAGO paper reports typical SNR in vivo of 40
 % at 1.5T and 60 at 3T. However, may be lower in the presence of iron or
-% marrow. The SNR is a function input. 
+% marrow. 
 
-SNR=60;
+% The SNR is a function input. SNR=60 is typical for 3T.
 
 noiseSD=100/SNR; %here assume total signal is 100 for simplicity (since FF maps are used as input)
 
@@ -90,7 +90,20 @@ end
 %Perform fitting
 outparams = R2fitting (echotimes, tesla, Snoisy, noiseSD);
 
-%Find coords for fat fraction and R2*
+%Set options to perform with search history
+searchhist=1;
+
+%Perform fit with searchist
+if searchhist==1
+[outparams_hist,searchdir] = runfmincon(echotimes, tesla, Snoisy, noiseSD);
+
+else ;
+end
+
+
+%Perform fitting with search history
+
+%% Find coords for fat fraction and R2*
 %Standard
 outFF=100*outparams.standard.F/(outparams.standard.F+outparams.standard.W);
 outR2=100*outparams.standard.R2;
@@ -175,11 +188,11 @@ ylabel('Signal');
 
 % A = A( ~any( isnan( A ) | isinf( A ), 2 ),: )
 %Display
-figure
+f=figure
 
 subplot(1,2,1)
 % image(abs(loglikMag),'CDataMapping','scaled')
-imshow(loglikMag,[10*max(loglikMag,[],'all') 0])
+imshow(loglikMag,[3*max(loglikMag,[],'all') max(loglikMag,[],'all')])
 
 % ax.CLim=[];
 axis on
@@ -192,8 +205,14 @@ ylabel('Fat fraction (%)','FontSize',12)
 title(strcat('Standard: Log likelihood for true FF =  ',num2str(p(1)),', and true R2star =  ', num2str(p(3))))
 colorbar
 hold on
-% contour(loglikMag,[10*max(loglikMag,[],'all'):-max(loglikMag,[],'all'):0],'red')
+ contour(loglikMag,[2*max(loglikMag,[],'all'):-0.1*max(loglikMag,[],'all'):max(loglikRic,[],'all')],'red')
 colormap('parula')
+
+
+%Add path on objective function
+plot(100*outparams_hist.standard.R2_1+1,outparams_hist.standard.FF1+1,'--b.','MarkerSize',12,'LineWidth',2,'Color','black') %NB
+%Add path on objective function
+plot(100*outparams_hist.standard.R2_2+1,outparams_hist.standard.FF2+1,'--b.','MarkerSize',12,'LineWidth',2,'Color','black') %NB
 
 % Add MLE
 plot(col2,row2,'kd','MarkerFaceColor','black','MarkerSize',12,'LineWidth',2) %NB
@@ -208,15 +227,16 @@ plot(pmin2S_xdim+1,pmin2S_ydim+1,'rx','MarkerSize',12,'LineWidth',2)
 %Add solution from fitting
 plot(outR2+1,outFF+1,'ro','MarkerSize',12,'LineWidth',2) %NB
 
+
 %Add legend
-lgnd=legend('MLE', 'GT', 'min1', 'min2', 'Fit output');
+lgnd=legend('contour','path1','path2','MLE', 'GT', 'min1', 'min2', 'Fit output');
 set(lgnd,'color','none');
 hold off
 
 
 subplot(1,2,2)
 % image(exp(loglikRic),'CDataMapping','scaled')
-imshow(loglikRic,[10*max(loglikRic,[],'all') 0])
+imshow(loglikRic,[3*max(loglikMag,[],'all') max(loglikMag,[],'all')])
 ax=gca;
 % ax.CLim=[];
 axis on
@@ -229,8 +249,9 @@ ylabel('Fat fraction (%)','FontSize',12)
 title(strcat('Rician: Log likelihood for true FF =  ',num2str(p(1)),', and true R2star =  ', num2str(p(3))))
 colorbar
 hold on
-% contour(loglikRic,[10*max(loglikRic,[],'all'):-max(loglikRic,[],'all'):0],'red')
+ contour(loglikRic,[2*max(loglikRic,[],'all'):-0.1*max(loglikRic,[],'all'):max(loglikRic,[],'all')],'red')
 colormap('parula')
+
 %Plot MLE
 plot(col1,row1,'kd','MarkerFaceColor','black','MarkerSize',12,'LineWidth',2) 
 
@@ -245,10 +266,12 @@ plot(pmin2R_xdim+1,pmin2R_ydim+1,'rx','MarkerSize',12,'LineWidth',2)
 plot(outR2ric+1,outFFric+1,'ro','MarkerSize',12,'LineWidth',2) %NB
 
 %Add legend
-lgnd=legend('MLE', 'GT', 'min1', 'min2', 'Fit output');
+lgnd=legend('contour','MLE', 'GT', 'min1', 'min2', 'Fit output');
 set(lgnd,'color','none');
 
 hold off
+
+print(gcf,'-dtiff',fullfile('/Users/tjb57/Dropbox/MATLAB/Rician FW/Figures',strcat('FF Estimates for FF= ',num2str(FF),'  R2star= ',num2str(v),'.tiff')))
 
 else ;
 end
