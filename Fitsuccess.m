@@ -1,45 +1,43 @@
 
 
-function Fitsuccess(FF,v)
+function Fitsuccess(FF,v,SNR,reps)
 
 % Description:
 % Measures the frequency of correct minimisation with two fitting methods
 % (Gaussian and Rician)
 
 % Input: 
-% FF and R2*
+% FF, R2*, SNR, repetitions
 
 % Output:
 % Generates histograms showing frequency of estimates in relation to ground
 % truth
 
-%Specify reps
-R=30;
 
-parfor reps =1:R
+
+parfor r =1:reps
     
-    [outparams] = Likelihood(FF,v,0);
+    [outparams] = Likelihood(FF,v,SNR,0);
     
     %Get FF and v for standard fitting
-    fittedFF_mag(reps,1)=100*outparams.standard.F/(outparams.standard.F+outparams.standard.W);
-    fittedv_mag(reps,1)=outparams.standard.R2;
+    fittedFF_mag(r,1)=100*outparams.standard.F/(outparams.standard.F+outparams.standard.W);
+    fittedv_mag(r,1)=outparams.standard.R2;
     
     %Get MLE for standard fitting
-    MLE_FF_standard(reps,1)=outparams.standard.MLE_FF;
+    MLE_FF_standard(r,1)=outparams.standard.MLE_FF;
     
     %Get likelihood difference for standard fitting
-    likdiff_mag(reps,1)=outparams.standard.fmin1-outparams.standard.fmin2;
+    likdiff_mag(r,1)=outparams.standard.likmax1-outparams.standard.likmax2;
 
-    
     %Get FF for Rician fitting
-    fittedFF_Ric(reps,1)=100*outparams.Rician.F/(outparams.Rician.F+outparams.Rician.W);
-    fittedv_Ric(reps,1)=outparams.Rician.R2;
+    fittedFF_Ric(r,1)=100*outparams.Rician.F/(outparams.Rician.F+outparams.Rician.W);
+    fittedv_Ric(r,1)=outparams.Rician.R2;
     
     %Get likelihood difference for Rician
-    likdiff_Ric(reps,1)=outparams.Rician.fmin1-outparams.Rician.fmin2;
+    likdiff_Ric(r,1)=-(outparams.Rician.fmin1-outparams.Rician.fmin2); % -sign needed here to enable like-for-like comparison, because Gaussian fitting minimises SSE whereas Rician fitting minimised NEGATIVE likelihood
     
     %Get MLE for Rician fitting
-    MLE_FF_Rician(reps,1)=outparams.Rician.MLE_FF;
+    MLE_FF_Rician(r,1)=outparams.Rician.MLE_FF;
     
     
 end
