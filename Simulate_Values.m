@@ -1,5 +1,5 @@
 
-function [FFmaps,errormaps,sdmaps] = Simulate_Values(SNR)
+function [FFmaps,errormaps,sdmaps] = Simulate_Values(SNR,reps)
 % function [FFmaps,errormaps,sdmaps] = Simulate_Values(SNR)
 
 % Description:
@@ -7,7 +7,7 @@ function [FFmaps,errormaps,sdmaps] = Simulate_Values(SNR)
 % R2* values
 
 % Input: 
-% SNR
+% SNR, reps
 
 % Output: 
 % FF maps, error maps and standard deviation maps over a range of FF and R2* values
@@ -44,9 +44,6 @@ tesla=3;
 noiseSD=100/SNR; %here assume total signal is 100 for simplicity (since FF maps are used as input)
 
 %Loop through SNR values, finding noise SD for each
-
-%Specify repetitions 
-reps=3;
 
 %Turn figure show setting on/off
 figshow=0;

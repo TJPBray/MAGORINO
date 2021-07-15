@@ -46,9 +46,11 @@ end
 %Generate histogram for FF
 figure('name',strcat('FF Estimates for FF= ',num2str(FF),'  R2*= ',num2str(v)))
 
-subplot(2,2,1)
+title(strcat('FF Estimates for FF= ',num2str(FF),'  R2*= ',num2str(v)))
+
+subplot(3,2,1)
 histogram(fittedFF_mag,[0:2:100])
-title(strcat('Standard fitting estimates, ground truth FF =  ',num2str(FF),'  R2*= ',num2str(v)))
+title('Fitting estimates (Gaussian)')
 xticks([0 10 20 30 40 50 60 70 80 90 100]);
 xticklabels({'0','10', '20', '30', '40', '50', '60', '70', '80', '90','100'});
 xlabel('FF estimate','FontSize',12)
@@ -60,9 +62,9 @@ plot([FF FF],[yl(1) yl(2)],'LineWidth',2,'color','red','Linestyle','--') %..add 
 hold off
 legend('Estimates','Ground truth')
 
-subplot(2,2,2)
+subplot(3,2,2)
 histogram(fittedFF_Ric,[0:2:100])
-title(strcat('Rician fitting estimates, ground truth FF =  ',num2str(FF),'  R2*= ',num2str(v)))
+title('Fitting estimates (Rician)')
 xticks([0 10 20 30 40 50 60 70 80 90 100]);
 xticklabels({'0','10', '20', '30', '40', '50', '60', '70', '80', '90','100'});
 xlabel('FF estimate','FontSize',12)
@@ -73,12 +75,12 @@ plot([FF FF],[yl(1) yl(2)],'LineWidth',2,'color','red','Linestyle','--') %..add 
 hold off
 legend('Estimates','Ground truth')
 
-subplot(2,2,3)
+subplot(3,2,3)
 histogram( MLE_FF_standard,[0:2:100])
-title(strcat('Gaussian MLE from grid search, ground truth FF =  ',num2str(FF),'  R2*= ',num2str(v)))
+title('Maximum likelihood estimate from grid search (Gaussian)')
 xticks([0 10 20 30 40 50 60 70 80 90 100]);
 xticklabels({'0','10', '20', '30', '40', '50', '60', '70', '80', '90','100'});
-xlabel('FF estimate','FontSize',12)
+xlabel('FF estimate (%)','FontSize',12)
 ylabel('Frequency of estimate','FontSize',12)
 yl=1.5*ylim;%get y limit from histogram, then..
 ylim(yl)
@@ -87,12 +89,12 @@ plot([FF FF],[yl(1) yl(2)],'LineWidth',2,'color','red','Linestyle','--') %..add 
 hold off
 legend('Estimates','Ground truth')
 
-subplot(2,2,4)
+subplot(3,2,4)
 histogram(MLE_FF_Rician,[0:2:100])
-title(strcat('Rician MLE from grid search, ground truth FF =  ',num2str(FF),'  R2*= ',num2str(v)))
+title('Maximum likelihood estimate from grid search (Rician)')
 xticks([0 10 20 30 40 50 60 70 80 90 100]);
 xticklabels({'0','10', '20', '30', '40', '50', '60', '70', '80', '90','100'});
-xlabel('FF estimate','FontSize',12)
+xlabel('FF estimate (%)','FontSize',12)
 ylabel('Frequency of estimate','FontSize',12)
 ylim(yl)
 hold on
@@ -103,19 +105,33 @@ legend('Estimates','Ground truth')
 
 
 %Generate likelihood difference plot
-figure
 
-s1=subplot(1,2,1)
+s1=subplot(3,2,5)
 scatter(fittedFF_mag,likdiff_mag)
-set(s1,'YGrid','on')
-title('Standard magnitude fitting')
-ylabel('min1 - min2 (water dominant vs fat dominant, SSE from fit)','FontSize',12)
+set(s1,'YGrid','on','GridAlpha',0.5)
+title('Likelihood difference plot (Gaussian)')
+ylabel('Likelihood difference','FontSize',12)
+xlabel('FF estimate (%)','FontSize',12)
+xlim([0 100])
+yl=ylim*1.5; %get ylim to enable setting for next plot
+ylim(yl)
+hold on
+plot([FF FF],[yl(1) yl(2)],'LineWidth',2,'color','red','Linestyle','--') %..add ground truth as line
+hold off
+legend('Estimates','Ground truth')
 
-s2=subplot(1,2,2)
+s2=subplot(3,2,6)
 scatter(fittedFF_Ric,likdiff_Ric)
-set(s2,'YGrid','on')
-title('Rician fitting')
-ylabel('min1 - min2 (water dominant vs fat dominant, negative likelihood from fit)','FontSize',12)
+set(s2,'YGrid','on','GridAlpha',0.5)
+title('Likelihood difference plot (Rician)')
+ylabel('Likelihood difference','FontSize',12)
+xlabel('FF estimate (%)','FontSize',12)
+xlim([0 100])
+ylim(yl) %set ylim to match previous plot
+hold on
+plot([FF FF],[yl(1) yl(2)],'LineWidth',2,'color','red','Linestyle','--') %..add ground truth as line
+hold off
+legend('Estimates','Ground truth')
 
 % %Generate histogram for v
 % figure('name',strcat('R2* Estimates for FF= ',num2str(FF),'  R2*= ',num2str(v)))
