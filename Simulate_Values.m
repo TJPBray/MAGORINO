@@ -1,16 +1,16 @@
 
-function [FFmaps,errormaps,sdmaps] = Simulate_Values(SNR,reps)
+function [FFmaps,errormaps,sdmaps,residuals] = Simulate_Values(SNR,reps)
 % function [FFmaps,errormaps,sdmaps] = Simulate_Values(SNR)
 
 % Description:
-% Enables visualisation of FF accuracy and precision over a range of FF and
+% Enables visualisation of FF accuracy and precision over a range of simulated FF and
 % R2* values
 
 % Input: 
 % SNR, reps
 
 % Output: 
-% FF maps, error maps and standard deviation maps over a range of FF and R2* values
+% FF, error, standard deviation and residuals over a range of FF and R2* values
 
 % Author:
 % Tim Bray, t.bray@ucl.ac.uk
@@ -134,10 +134,20 @@ FF_standard(y,x,r)=outparams.standard.F/(outparams.standard.W+outparams.standard
 FF_Rician(y,x,r)=outparams.Rician.F/(outparams.Rician.W+outparams.Rician.F);
 FF_complex(y,x,r)=outparams.complex.F/(outparams.complex.W+outparams.complex.F);
 
-%% Determine if true or swapped
-FF_standard_true(y,x,r)= (FF_standard(y,x,r)<=0.58)==(Fgrid(y,x)<=58);
-FF_Rician_true(y,x,r)= (FF_Rician(y,x,r)<=0.58)==(Fgrid(y,x)<=58);
-FF_complex_true(y,x,r)= (FF_complex(y,x,r)<=0.58)==(Fgrid(y,x)<=58);
+% %% Determine if true or swapped
+% FF_standard_true(y,x,r)= (FF_standard(y,x,r)<=0.58)==(Fgrid(y,x)<=58);
+% FF_Rician_true(y,x,r)= (FF_Rician(y,x,r)<=0.58)==(Fgrid(y,x)<=58);
+% FF_complex_true(y,x,r)= (FF_complex(y,x,r)<=0.58)==(Fgrid(y,x)<=58);
+
+%% Add fitting residuals to grid
+fmin1standard(y,x,r)=outparams.standard.fmin1;
+fmin2standard(y,x,r)=outparams.standard.fmin2;
+
+fmin1Rician(y,x,r)=outparams.Rician.fmin1;
+fmin2Rician(y,x,r)=outparams.Rician.fmin2;
+
+SSEstandard(y,x,r)=outparams.standard.SSE; %NB SSE matches the lower of the two residuals above (i.e. the chosen likelihood maximum / error minimum)
+SSERician(y,x,r)=outparams.Rician.SSE;
 
     end
 end
@@ -154,9 +164,17 @@ FF_standard_mean=100*mean(FF_standard,3); %Convert to percentage
 FF_Rician_mean=100*mean(FF_Rician,3);
 FF_complex_mean=100*mean(FF_complex,3);
 
-errormaps.FFstandard_true=mean(FF_standard_true,3);
-errormaps.FFRician_true=mean(FF_Rician_true,3);
-errormaps.FFcomplex_true=mean(FF_complex_true,3);
+% errormaps.FFstandard_true=mean(FF_standard_true,3);
+% errormaps.FFRician_true=mean(FF_Rician_true,3);
+% errormaps.FFcomplex_true=mean(FF_complex_true,3);
+
+residuals.standard.fmin1=mean(fmin1standard,3);
+residuals.standard.fmin2=mean(fmin2standard,3);
+residuals.standard.SSE=mean(SSEstandard,3);
+
+residuals.Rician.fmin1=mean(fmin1Rician,3);
+residuals.Rician.fmin2=mean(fmin2Rician,3);
+residuals.Rician.SSE=mean(SSERician,3);
 
 %% Get SD of grids over repetitions
 vhat_standard_sd=std(vhat_standard,0,3);
@@ -198,5 +216,10 @@ sdmaps.FFstandard=FF_standard_sd;
 sdmaps.FFrician=FF_Rician_sd;
 sdmaps.FFcomplex=FF_complex_sd;
 
+
+%% Find mean parameter error values
+meanerror.standard=mean(abs(errormaps.FFstandard),'all')
+meanerror.Rician=mean(abs(errormaps.FFrician),'all')
+
 %% Create figures
-Createfig(FFmaps,errormaps,sdmaps)
+Createfig(FFmaps,errormaps,sdmaps,residuals)
