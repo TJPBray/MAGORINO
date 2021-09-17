@@ -147,4 +147,4 @@ errormaps.FFrician_median=FFmaps.Rician_median-Fgrid;
 errormaps.FFcomplex_median=FFmaps.complex_median-Fgrid;
 
 %% Create figures
-CreatefigSNR(FFmaps,errormaps,sdmaps)
+CreatefigSNR(FFmaps,errormaps,sdmaps,Fgrid)
