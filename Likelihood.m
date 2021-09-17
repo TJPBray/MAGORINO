@@ -91,7 +91,7 @@ end
 outparams = R2fitting (echotimes, tesla, Snoisy, noiseSD);
 
 %Set options to perform with search history
-searchhist=1;
+searchhist=0;
 
 %Perform fit with searchist
 if searchhist==1
@@ -177,9 +177,98 @@ xlabel('Echo Time (ms)');
 ylabel('Signal');
 
 
+%% Display likelihood for different FF values for chosen R2*
+% May not be useful for higher R2* as the R2* values for the two minima are different -
+% would need to plot a sloping line through both
+% Use to generate figures for illustration of concept
+
+figure
+subplot(1,2,1)
+
+%Get log likelihood for Gaussian fitting (profile across 3D plot)
+
+%First get gradient and y-intercept for profile line 
+grad=[(pmin2S_ydim-pmin1S_ydim)/(pmin2S_xdim-pmin1S_xdim)];%gradient specified in terms of y/x
+
+yint=pmin1S_ydim-pmin1S_xdim*grad;
+yhigh=100*grad+yint;
+
+%Get profile
+profile_standard=improfile(loglikMag,[0 100], [yint yhigh]); %get profile 
+profile_standard_smooth=smoothdata(profile_standard,'loess',30); %smooth for visualisation (loess -> quadratic regression over each window)
+
+xvals_standard=improfile(Fgrid,[0 100], [yint yhigh]); %get profile 
+
+%Plot profile against FF
+plot(xvals_standard,profile_standard_smooth,'LineWidth',2,'color','black','Linestyle','-')
+ylabel('Likelihood','FontSize',12)
+xlabel('Fat fraction (%)','FontSize',12)
+
+%Add GT
+hold on
+yl=ylim; %Get xlim
+plot([FF FF],[yl(1) yl(2)],'LineWidth',2,'color','red','Linestyle','--') %..add ground truth as line
+lgnd=legend('Likehood','Ground truth FF');
 
 
-%% Display likelihood
+%Add horiz line at max
+yl=ylim; %Get xlim
+plot([0 100],[max(profile_standard) max(profile_standard)],'LineWidth',2,'color','blue','Linestyle','--') %..add ground truth as line
+lgnd=legend('Likehood','Ground truth FF','Likelihood maximum');
+hold off
+
+subplot(1,2,2)
+
+%Get log likelihood for Rician (profile across 3D plot)
+
+%First get gradient and y-intercept for profile line 
+grad=[(pmin2R_ydim-pmin1R_ydim)/(pmin2R_xdim-pmin1R_xdim)];%gradient specified in terms of y/x
+
+yint=pmin1R_ydim-pmin1R_xdim*grad;
+yhigh=100*grad+yint;
+
+%Get profile
+profile_Rician=improfile(loglikRic,[0 100], [yint yhigh]); %get profile 
+profile_Rician_smooth=smoothdata(profile_Rician,'loess',30); %smooth for visualisation (loess -> quadratic regression over each window)
+
+xvals_Rician=improfile(Fgrid,[0 100], [yint yhigh]); %get profile 
+
+%Plot profile against FF
+plot(xvals_Rician,profile_Rician_smooth,'LineWidth',2,'color','black','Linestyle','-')
+ylabel('Likelihood','FontSize',12)
+xlabel('Fat fraction (%)','FontSize',12)
+
+%Add GT
+hold on
+yl=ylim; %Get xlim
+plot([FF FF],[yl(1) yl(2)],'LineWidth',2,'color','red','Linestyle','--') %..add ground truth as line
+
+%Add horiz line at max
+yl=ylim; %Get xlim
+plot([0 100],[max(profile_Rician) max(profile_Rician)],'LineWidth',2,'color','blue','Linestyle','--') %..add ground truth as line
+lgnd=legend('Likehood','Ground truth FF','Likelihood maximum');
+hold off
+
+% Below is previous implementation along row of likelihood plot (not
+% accounting for 'staggering' of optima
+% plot(Fgrid(:,100*v+1),loglikMag(:,100*v+1),'LineWidth',2,'color','black','Linestyle','-') %Select column in loglikMag matching specified R2* 
+% ylabel('Likelihood','FontSize',12)
+% xlabel('Fat fraction (%)','FontSize',12)
+% 
+
+% %Plot log likelihood for Rician
+% plot(Fgrid(:,100*v+1),loglikRic(:,100*v+1),'LineWidth',2,'color','blue','Linestyle','-') %Select column in loglikRic matching specified R2* 
+% 
+% lgnd=legend('Gaussian','Rician');
+% set(lgnd,'color','none');
+
+% % Add lines showing maximum likelihood for Gaussian
+% xl=xlim; %Get xlim
+% plot([xl(1) xl(2)],[max(loglikMag(:,100*v+1)) max(loglikMag(:,100*v+1))],'LineWidth',2,'color','red','Linestyle','--') 
+% plot([xl(1) xl(2)],[max(loglikRic(:,100*v+1)) max(loglikRic(:,100*v+1))],'LineWidth',2,'color','blue','Linestyle','--') 
+% hold off
+
+%% Display likelihood for FF and R2* combinations
 
 %First convert SSE to loglikelihood for viewing on similar scales (NB first
 %time is constant so can be excluded)
@@ -197,7 +286,7 @@ imshow(loglikMag,[3*max(loglikMag,[],'all') max(loglikMag,[],'all')])
 % ax.CLim=[];
 axis on
 xticks([1 11 21 31 41 51 61 71 81 91 101]);
-xticklabels({'0','0.1', '0.2', '0.3', '0.4', '0.5', '0.6', '0.7', '0.8', '0.9','1.0'});
+xticklabels({'0','.1', '.2', '.3', '.4', '.5', '.6', '.7', '.8', '.9','1.0'});
 xlabel('R2* (ms^-^1)','FontSize',12)
 yticks([1 11 21 31 41 51 61 71 81 91 101]);
 yticklabels({'0','10','20','30','40','50','60','70','80','90','100'});
@@ -205,20 +294,25 @@ ylabel('Fat fraction (%)','FontSize',12)
 title(strcat('Standard: Log likelihood for true FF =  ',num2str(p(1)),', and true R2star =  ', num2str(p(3))))
 colorbar
 hold on
- contour(loglikMag,[2*max(loglikMag,[],'all'):-0.1*max(loglikMag,[],'all'):max(loglikRic,[],'all')],'red')
 colormap('parula')
 
+%Add ground truth
+plot(100*v+1,FF+1,'k.','MarkerFaceColor','white','MarkerSize',12,'LineWidth',4)
 
+% Add MLE
+plot(col2,row2,'rd','MarkerFaceColor','red','MarkerSize',8,'LineWidth',2) %NB
+
+
+%Breakpoint here to generate simplified figure without contours and labels
+
+contour(loglikMag,[2*max(loglikMag,[],'all'):-0.2*max(loglikMag,[],'all'):max(loglikRic,[],'all')],'color',[0.5 0.5 0.5],'LineWidth',1)
+try 
 %Add path on objective function
 plot(100*outparams_hist.standard.R2_1+1,outparams_hist.standard.FF1+1,'--b.','MarkerSize',12,'LineWidth',2,'Color','black') %NB
 %Add path on objective function
 plot(100*outparams_hist.standard.R2_2+1,outparams_hist.standard.FF2+1,'--b.','MarkerSize',12,'LineWidth',2,'Color','black') %NB
-
-% Add MLE
-plot(col2,row2,'kd','MarkerFaceColor','black','MarkerSize',12,'LineWidth',2) %NB
-
-%Add ground truth
-plot(100*v+1,FF+1,'rd','MarkerFaceColor','white','MarkerSize',12,'LineWidth',2)
+catch
+end
 
 %Add two candidate solutions from fitting
 plot(pmin1S_xdim+1,pmin1S_ydim+1,'rx','MarkerSize',12,'LineWidth',2)
@@ -229,7 +323,8 @@ plot(outR2+1,outFF+1,'ro','MarkerSize',12,'LineWidth',2) %NB
 
 
 %Add legend
-lgnd=legend('contour','path1','path2','MLE', 'GT', 'min1', 'min2', 'Fit output');
+% lgnd=legend('GT','MLE','contour','path1','path2', 'min1', 'min2', 'Fit output');
+lgnd=legend('GT','MLE (grid search)','contour', 'opt1', 'opt2', 'Fit output');
 set(lgnd,'color','none');
 hold off
 
@@ -241,7 +336,7 @@ ax=gca;
 % ax.CLim=[];
 axis on
 xticks([1 11 21 31 41 51 61 71 81 91 101]);
-xticklabels({'0','0.1', '0.2', '0.3', '0.4', '0.5', '0.6', '0.7', '0.8', '0.9','1.0'});
+xticklabels({'0','.1', '.2', '.3', '.4', '.5', '.6', '.7', '.8', '.9','1.0'});
 xlabel('R2* (ms^-^1)','FontSize',12)
 yticks([1 11 21 31 41 51 61 71 81 91 101]);
 yticklabels({'0','10','20','30','40','50','60','70','80','90','100'});
@@ -249,14 +344,19 @@ ylabel('Fat fraction (%)','FontSize',12)
 title(strcat('Rician: Log likelihood for true FF =  ',num2str(p(1)),', and true R2star =  ', num2str(p(3))))
 colorbar
 hold on
- contour(loglikRic,[2*max(loglikRic,[],'all'):-0.1*max(loglikRic,[],'all'):max(loglikRic,[],'all')],'red')
 colormap('parula')
 
-%Plot MLE
-plot(col1,row1,'kd','MarkerFaceColor','black','MarkerSize',12,'LineWidth',2) 
 
 %Add ground truth
-plot(100*v+1,FF+1,'rd','MarkerFaceColor','white','MarkerSize',12,'LineWidth',2)
+plot(100*v+1,FF+1,'k.','MarkerFaceColor','white','MarkerSize',12,'LineWidth',4)
+
+%Plot MLE
+plot(col1,row1,'rd','MarkerFaceColor','red','MarkerSize',8,'LineWidth',2) 
+
+%Breakpoint here to generate simplified figure without contours and labels
+
+%Add contours
+contour(loglikRic,[2*max(loglikRic,[],'all'):-0.2*max(loglikRic,[],'all'):max(loglikRic,[],'all')],'color',[0.5 0.5 0.5],'LineWidth',1)
 
 %Add two candidate solutions from fitting
 plot(pmin1R_xdim+1,pmin1R_ydim+1,'rx','MarkerSize',12,'LineWidth',2)
@@ -266,13 +366,16 @@ plot(pmin2R_xdim+1,pmin2R_ydim+1,'rx','MarkerSize',12,'LineWidth',2)
 plot(outR2ric+1,outFFric+1,'ro','MarkerSize',12,'LineWidth',2) %NB
 
 %Add legend
-lgnd=legend('contour','MLE', 'GT', 'min1', 'min2', 'Fit output');
+lgnd=legend('GT', 'MLE (grid search)','contour',  'opt1', 'opt2', 'Fit output');
+% lgnd=legend('GT', 'MLE','contour', 'Fit output');
 set(lgnd,'color','none');
 
 hold off
 
-print(gcf,'-dtiff',fullfile('/Users/tjb57/Dropbox/MATLAB/Rician FW/Figures',strcat('FF Estimates for FF= ',num2str(FF),'  R2star= ',num2str(v),'.tiff')))
+% print(gcf,'-dtiff',fullfile('/Users/tjb57/Dropbox/MATLAB/Rician FW/Figures',strcat('FF Estimates for FF= ',num2str(FF),'  R2star= ',num2str(v),'.tiff')))
 
 else ;
 end
+end
+
 
