@@ -2,7 +2,7 @@
 
 function Fitsuccess(FF,v,SNR,reps)
 
-% Description:
+%  Description:
 % Measures the frequency of correct minimisation with two fitting methods
 % (Gaussian and Rician)
 
@@ -14,7 +14,7 @@ function Fitsuccess(FF,v,SNR,reps)
 % truth
 
 
-
+%% Loop over repetitions
 parfor r =1:reps
     
     [outparams] = Likelihood(FF,v,SNR,0);
@@ -39,9 +39,22 @@ parfor r =1:reps
     %Get MLE for Rician fitting
     MLE_FF_Rician(r,1)=outparams.Rician.MLE_FF;
     
-    
 end
 
+%% Find mean of low FF (water dominant) solution 
+%Gaussian low
+fittedFF_mag_low=fittedFF_mag(likdiff_mag>0);
+magFF_low=mean(fittedFF_mag_low);
+%Gaussian high
+fittedFF_mag_high=fittedFF_mag(likdiff_mag<0);
+magFF_high=mean(fittedFF_mag_high);
+
+%Rician low
+fittedFF_Ric_low=fittedFF_Ric(likdiff_Ric>0);
+RicFF_low=mean(fittedFF_Ric_low);
+%Rician high
+fittedFF_Ric_high=fittedFF_mag(likdiff_mag<0);
+RicFF_high=mean(fittedFF_Ric_high);
 
 %Generate histogram for FF
 figure('name',strcat('FF Estimates for FF= ',num2str(FF),'  R2*= ',num2str(v)))
@@ -59,6 +72,8 @@ yl=1.5*ylim; %get y limit from histogram, then..
 ylim(yl)
 hold on
 plot([FF FF],[yl(1) yl(2)],'LineWidth',2,'color','red','Linestyle','--') %..add ground truth as line
+% plot([magFF_low magFF_low],[yl(1) yl(2)],'LineWidth',2,'color','blue','Linestyle','--') %..add lowmean as line
+% plot([magFF_high magFF_high],[yl(1) yl(2)],'LineWidth',2,'color','black','Linestyle','--') %..add highmean as line
 hold off
 legend('Estimates','Ground truth')
 
@@ -72,6 +87,8 @@ ylabel('Frequency of estimate','FontSize',12)
 ylim(yl)
 hold on
 plot([FF FF],[yl(1) yl(2)],'LineWidth',2,'color','red','Linestyle','--') %..add ground truth as line
+% plot([RicFF_low RicFF_low],[yl(1) yl(2)],'LineWidth',2,'color','blue','Linestyle','--') %..add lowmean as line
+% plot([RicFF_high RicFF_high],[yl(1) yl(2)],'LineWidth',2,'color','black','Linestyle','--') %..add highmean as line
 hold off
 legend('Estimates','Ground truth')
 
@@ -102,10 +119,44 @@ plot([FF FF],[yl(1) yl(2)],'LineWidth',2,'color','red','Linestyle','--') %..add 
 hold off
 legend('Estimates','Ground truth')
 
+%Generate histogram for R2*
+figure('name',strcat('R2* Estimates for FF= ',num2str(FF),'  R2*= ',num2str(v)))
 
+title(strcat('R2* Estimates for FF= ',num2str(FF),'  R2*= ',num2str(v)))
+
+subplot(1,2,1)
+histogram(fittedv_mag,[0:0.05:1])
+title('Fitting estimates (Gaussian)')
+xticks([0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0]);
+xticklabels({'0','.1', '.2', '.3', '.4', '.5', '.6', '.7', '.8', '.9','1.0'});
+xlabel('R2* estimate','FontSize',12)
+ylabel('Frequency of estimate','FontSize',12)
+yl=1.5*ylim; %get y limit from histogram, then..
+ylim(yl)
+hold on
+plot([v v],[yl(1) yl(2)],'LineWidth',2,'color','red','Linestyle','--') %..add ground truth as line
+% plot([magFF_low magFF_low],[yl(1) yl(2)],'LineWidth',2,'color','blue','Linestyle','--') %..add lowmean as line
+% plot([magFF_high magFF_high],[yl(1) yl(2)],'LineWidth',2,'color','black','Linestyle','--') %..add highmean as line
+hold off
+legend('Estimates','Ground truth')
+
+subplot(1,2,2)
+histogram(fittedv_Ric,[0:0.05:1])
+title('Fitting estimates (Rician)')
+xticks([0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0]);
+xticklabels({'0','.1', '.2', '.3', '.4', '.5', '.6', '.7', '.8', '.9','1.0'});
+xlabel('R2* estimate','FontSize',12)
+ylabel('Frequency of estimate','FontSize',12)
+yl=1.5*ylim; %get y limit from histogram, then..
+ylim(yl)
+hold on
+plot([v v],[yl(1) yl(2)],'LineWidth',2,'color','red','Linestyle','--') %..add ground truth as line
+% plot([magFF_low magFF_low],[yl(1) yl(2)],'LineWidth',2,'color','blue','Linestyle','--') %..add lowmean as line
+% plot([magFF_high magFF_high],[yl(1) yl(2)],'LineWidth',2,'color','black','Linestyle','--') %..add highmean as line
+hold off
+legend('Estimates','Ground truth')
 
 %Generate likelihood difference plot
-
 s1=subplot(3,2,5)
 scatter(fittedFF_mag,likdiff_mag)
 set(s1,'YGrid','on','GridAlpha',0.5)
