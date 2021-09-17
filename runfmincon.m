@@ -33,6 +33,8 @@ R2fitting.ub = [3*Sinit, 3*Sinit, vmax, 0]'; %constrain fB0 to 0 for now
 R2fitting.options = optimoptions('fmincon','OutputFcn',@outfun, 'Algorithm', 'interior-point','InitBarrierParam',100000,'ScaleProblem',true,'FiniteDifferenceType','central');
 %Barrier parameter might reduce step size and avoid bypassing of correct
 %minimum; can include 'InitBarrierParam',100, in options
+%'FiniteDifferenceType','central' might improve accuracy of derivative
+%estimation
 
 %% Implement standard magnitude fitting for both water-dominant and fat-dominant initialisations
 
