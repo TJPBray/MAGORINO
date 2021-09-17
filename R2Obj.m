@@ -15,9 +15,6 @@ function [sse] = R2Obj(p,echotimes,tesla,Smeasured)
 %
 %   Smeasured - the measured signals for each echo time 
 %
-%   sig is the standard deviation of the Gaussian distributions underlying
-%   the Rician distribution.
-%
 % Model:
 %   
 %

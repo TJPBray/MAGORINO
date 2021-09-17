@@ -13,9 +13,9 @@ vmax=1;
 vmin=0; %negative value for min to avoid penalisation at boundary
 
 %Set signal initialisation for fat and water: Sinit
-% C=exp(vinit);
-% Sinit=C*max(abs(Smeasured)); %partially compensates for R2* to improve initialisation
-Sinit=100;
+C=exp(vinit);
+Sinit=C*max(abs(Smeasured)); %partially compensates for R2* to improve initialisation
+% Sinit=100;
 
 %% Set up the optimisation framework for standard magnitude fitting
 
@@ -29,6 +29,8 @@ R2fitting.solver = 'fmincon';
 R2fitting.options = optimoptions('fmincon', 'Algorithm', 'interior-point','InitBarrierParam',100000,'ScaleProblem',true,'FiniteDifferenceType','central');
 %Barrier parameter might reduce step size and avoid bypassing of correct
 %minimum; can include 'InitBarrierParam',100, in options
+%'FiniteDifferenceType','central' might improve accuracy of derivative
+%estimation
 
 % set the parameter lower bound
 R2fitting.lb = [0, 0, vmin, 0]'; 
@@ -127,7 +129,7 @@ outparams.Rician.F = pmin1_Ric(1);
 outparams.Rician.W = pmin1_Ric(2);
 outparams.Rician.R2 = pmin1_Ric(3);
 
-outparams.Rician.SSE = fmin1_Ric;
+outparams.Rician.fmin = fmin1_Ric; %For Rician fitting, fmin corresponds to the maximum likelihood (i.e. lowest value of -fmin)
 
 else
     
@@ -135,10 +137,12 @@ outparams.Rician.F = pmin2_Ric(1);
 outparams.Rician.W = pmin2_Ric(2);
 outparams.Rician.R2 = pmin2_Ric(3);
 
-outparams.Rician.SSE = fmin2_Ric;
+outparams.Rician.fmin = fmin2_Ric; %For Rician fitting, fmin corresponds to the maximum likelihood (i.e. lowest value of -fmin)
 
 end
 
+% Calculate SSE for Rician fitting (NB this is different to fmin above, which corresponds to likelihood)
+outparams.Rician.SSE = R2Obj([outparams.Rician.F, outparams.Rician.W, outparams.Rician.R2, 0],echotimes,tesla,Smeasured);
 
 
 %% Set up the optimisation framework for  complex fitting

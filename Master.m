@@ -32,6 +32,6 @@ reps=10;
     
 % Combination 3 (Largest R2*, challenging case but Rician best): 
     %Run likelihood function analysis
-    [outparams] = Likelihood(20,0.3,60,1)
+    [outparams] = Likelihood(20,0.5,60,1)
     %Show proportion of successful fits
     Fitsuccess(20,0.5,60,200) %Can use larger number of reps here as only one value pair / set
