@@ -34,11 +34,11 @@ squaredErrors = (measurements - predictions).^2;
 % sigma squared
 sigmaSquared = sigma.^2;
 
-% chi-square errors - by normalising squared errors by sigma
+% chi-square errors - by normalising squared errors by sigma squared
 chiSquaredErrors = squaredErrors./sigmaSquared;
 
 % log likelihoods (of each measurement)
-logliks = -0.5*log((2*pi)*sigmaSquared) - chiSquaredErrors;
+logliks = -0.5*log((2*pi)*sigmaSquared) - 0.5*chiSquaredErrors;
 
 % total log likelihood
 loglik = sum(logliks);
