@@ -30,7 +30,7 @@ Swater = S0*(1 - fatFraction);
 fieldStrength = 3;
 
 % echo times (ms) - densely sampled here for visualisation purposes
-echoTimes = 0:0.1:10;
+echoTimes = (0:0.1:10)';
 
 % number of measurements
 numOfMeas = length(echoTimes);
@@ -73,8 +73,8 @@ SNR = 10;
 sigma = S0/SNR;
 
 % 2.3 generate the real and imaginary noises
-noiseReal = sigma*randn(1, numOfMeas);
-noiseImag = sigma*randn(1, numOfMeas);
+noiseReal = sigma*randn(numOfMeas, 1);
+noiseImag = sigma*randn(numOfMeas, 1);
 noise = noiseReal + 1i*noiseImag;
 
 % 2.4 visualise the noises
