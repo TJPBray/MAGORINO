@@ -42,11 +42,22 @@ signalNoiseFree = Fatfunction(echoTimes, fieldStrength, Sfat, Swater, R2star, fi
 figure;
 h1 = subplot(2, 2, 1);
 hold on;
-plot(echoTimes, real(signalNoiseFree), 'r-.');
-plot(echoTimes, imag(signalNoiseFree), 'b-.');
+plot(echoTimes, real(signalNoiseFree), 'r-');
+plot(echoTimes, imag(signalNoiseFree), 'b-');
 xlabel('echo time (ms)');
-ylabel('noise-free signal');
-legend('real', 'imag');
+ylabel('signal');
+legend('noise-free real', 'noise-free imag');
+
+% 1.5 convert to magnitude and phase
+signalMagnNoiseFree = abs(signalNoiseFree);
+h3 = subplot(2, 2, 3);
+hold on;
+plot(echoTimes, signalMagnNoiseFree, 'r-');
+xlabel('echo time (ms)');
+ylabel('signal');
+legend('noise-free magnitude');
+
+signalPhaseNoiseFree = angle(signalNoiseFree);
 
 %% 2. Simulate noisy measured signal from noise free data
 
@@ -64,6 +75,7 @@ sigma = S0/SNR;
 % 2.3 generate the real and imaginary noises
 noiseReal = sigma*randn(1, numOfMeas);
 noiseImag = sigma*randn(1, numOfMeas);
+noise = noiseReal + 1i*noiseImag;
 
 % 2.4 visualise the noises
 h2 = subplot(2, 2, 2);
@@ -75,7 +87,8 @@ ylabel('count');
 legend('real', 'imag');
 
 % 2.5 add noise to the noise-free signals
-signalNoisy = signalNoiseFree + noiseReal + 1i*noiseImag;
+signalNoisy = signalNoiseFree + noise;
+signalMagnNoisy = abs(signalNoisy);
 
 % 2.6 visualise the noisy signals
 plot(h1, echoTimes, real(signalNoisy), 'r*');
@@ -83,7 +96,20 @@ hold on;
 plot(h1, echoTimes, imag(signalNoisy), 'b*');
 xlabel(h1, 'echo time (ms)');
 ylabel(h1, 'noisy signal');
-legend(h1, 'real', 'imag');
+legend(h1, 'noise-free real', 'noise-free imag', 'noisy real', 'noisy imag');
+plot(h3, echoTimes, signalMagnNoisy, 'r*');
+legend(h3, 'noise-free magnitude', 'noisy magnitude');
+
+% 2.7 rotate the complex noise by the phase angle of the corresponding
+% measurements - to check Rician assumption
+noiseRotated = noise.*exp(-1i*signalPhaseNoiseFree);
+h4 = subplot(2, 2, 4);
+histogram(real(noiseRotated));
+hold on;
+histogram(imag(noiseRotated));
+xlabel('noise (rotated)');
+ylabel('count');
+legend('real', 'imag');
 
 %% 3. Fit the model to the data
 
