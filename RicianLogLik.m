@@ -1,22 +1,50 @@
-function loglik = RicianLogLik(meas, signals, sig)
-% Computes the log likelihood of the measurements given the model signals
-% for the Rician noise model.
+function [loglik, logliks] = RicianLogLik(measurements, predictions, sigma)
+% function [loglik, logliks] = RicianLogLik(measurements, predictions, sigma)
+% 
+% Computes the log likelihood of the measurements given the model
+% predictions for the Rician noise model with the noise standard
+% deviation sigma.
 %
-% loglik = RicianLogLik(meas, signals, sig) returns the likelihood of
-% measuring meas given the signals and the noise standard deviation sig. 
 %
-% meas are the measurements
+% INPUT:
 %
-% signals are computed from a model
+% 1. measurements - a N-by-1 array storing the measurements
+%                    (inclusive of noise)
 %
-% sig is the standard deviation of the Gaussian distributions underlying
-% the Rician distribution.
+% 2. predictions  - a N-by-1 array, the same size as the measurements,
+%                   storing the predictions computed from a model
 %
-% author: Daniel C Alexander (d.alexander@ucl.ac.uk)
+% 3. sigma -  the standard deviation of the Gaussian distributions
+%             underlying the Gaussian distribution. this can either be a
+%             single (positive) value or a N-by-1 array.
+%
+% OUTPUT:
+%
+% 1. loglik - the total log likelihood
+%
+% 2. logliks - the log likelihood for individual measurements
+%
+%
+% Author: Daniel C Alexander (d.alexander@ucl.ac.uk)
+%
+%         Gary Zhang (gary.zhang@ucl.ac.uk)
 %
 
-sumsqsc = (signals.^2 + meas.^2)./(2*sig.^2);
-scp = meas.*signals./(sig.^2);
+% squared sigma(s)
+sigmaSquared = sigma.^2;
+
+% sum of squared measurements and predictions, normalised by squared
+% sigma(s) (halved)
+sumsqsc = (measurements.^2 + predictions.^2)./(2*sigmaSquared);
+
+% product of measurements and predictions, normalised by squared sigma(s)
+scp = measurements.*predictions./sigmaSquared;
+
+% logarithm of the product just computed
 lb0 = logbesseli0(scp);
-logliks = - 2*log(sig) - sumsqsc + log(signals) + lb0;
+
+% log likelihoods (of each measurement)
+logliks = log(predictions) - log(sigmaSquared) - sumsqsc + lb0;
+
+% total log likelihood
 loglik = sum(logliks);
