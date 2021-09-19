@@ -9,7 +9,7 @@ function [sse] = R2ComplexObj(p,echotimes,tesla,Smeasured)
 %   p(1) is fat density
 %   p(2) is water density
 %   p(3) is R2*
-%   p(4) is fB0
+%   p(4) is fB0 - ignored for now
 %
 %   echotimes - the n-by-1 echo times
 %
@@ -31,20 +31,13 @@ function [sse] = R2ComplexObj(p,echotimes,tesla,Smeasured)
 %% Compute predicted outcomes from model parameters and the parameters
 % Spredicted is computed from the fat model (amplitudes and frequencies) given in fatfunction
 
-Spredicted = Fatfunction(echotimes,tesla,p(1),p(2),p(3),p(4));
-
-Spred_comp(1,:)=real(Spredicted);
-Spred_comp(2,:)=imag(Spredicted);
-
-%%Convert S measured to two rows
-Smeasured_comp(1,:)=real(Smeasured);
-Smeasured_comp(2,:)=imag(Smeasured);
+Spredicted = Fatfunction(echotimes,tesla,p(1),p(2),p(3),0);
 
 %% Calculate SSE
 
-errors = abs(Spred_comp) - abs(Smeasured_comp); %use magnitude
+errors = Smeasured - Spredicted;
 
-sse = sum(errors.^2,'all');
+sse = errors'*errors;
 
 end
 
