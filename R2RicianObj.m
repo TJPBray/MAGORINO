@@ -40,12 +40,7 @@ Smeasured = abs(Smeasured);
 
 %% Calculate log likelihood
 
-sumsqsc = (Spredicted.^2 + Smeasured.^2)./(2*sig.^2);
-scp = Smeasured.*Spredicted./(sig.^2);
-lb0 = logbesseli0(scp)';  %transpose added here as I presume this should be a row vector (previously a column)
-logliks = - 2*log(sig) - sumsqsc + log(Smeasured) + lb0;
-loglik = sum(logliks);
-
+loglik = RicianLogLik(Smeasured, Spredicted, sig);
 
 end
 
