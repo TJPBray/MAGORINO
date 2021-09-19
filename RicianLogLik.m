@@ -44,7 +44,7 @@ scp = measurements.*predictions./sigmaSquared;
 lb0 = logbesseli0(scp);
 
 % log likelihoods (of each measurement)
-logliks = log(predictions) - log(sigmaSquared) - sumsqsc + lb0;
+logliks = log(measurements) - log(sigmaSquared) - sumsqsc + lb0;
 
 % total log likelihood
 loglik = sum(logliks);
