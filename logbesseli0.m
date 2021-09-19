@@ -13,7 +13,7 @@ function lb0 = logbesseli0(x)
 % app=regress(log(besseli(0,500:700))',[ones(201,1) (500:700)']);
 app = [-3.61178295877576 0.99916157999904];
 
-lb0 = zeros(length(x), 1);
+lb0 = zeros(size(x));
 exact = find(x<700);
 approx = find(x>=700);
 lb0(exact) = log(besseli(0, x(exact)));
