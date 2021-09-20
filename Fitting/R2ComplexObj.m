@@ -31,7 +31,7 @@ function [sse] = R2ComplexObj(p,echotimes,tesla,Smeasured)
 %% Compute predicted outcomes from model parameters and the parameters
 % Spredicted is computed from the fat model (amplitudes and frequencies) given in fatfunction
 
-Spredicted = Fatfunction(echotimes,tesla,p(1),p(2),p(3),0);
+Spredicted = ComplexFatSingleR2(echotimes,tesla,p(1),p(2),p(3),0);
 
 %% Calculate SSE
 

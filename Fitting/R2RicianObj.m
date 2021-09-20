@@ -32,7 +32,7 @@ function [loglik] = R2RicianObj(p,echotimes,tesla,Smeasured,sig)
 %% Compute predicted outcomes from model parameters and the parameters
 % Spredicted is computed from the fat model (amplitudes and frequencies) given in fatfunction
 
-Spredicted = abs(Fatfunction(echotimes,tesla,p(1),p(2),p(3),p(4))); %take magnitude of output from fatfunction
+Spredicted = abs(ComplexFatSingleR2(echotimes,tesla,p(1),p(2),p(3),p(4))); %take magnitude of output from fatfunction
 
 %% Take magnitude of S measured
 

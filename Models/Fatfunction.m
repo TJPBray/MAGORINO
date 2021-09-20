@@ -1,6 +1,6 @@
 %Function describing interactions of water and multiple fat components
 
-function S=Fatfunction(t,tesla,F,W,v,fB);
+function S=MultipeakFatSingleR2(t,tesla,F,W,v,fB);
 %t is a matrix of echo times
 %Wt is total water signal, Ft is signal from 1.3ppm fat peak
 %v is system T2*
