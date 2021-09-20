@@ -13,7 +13,7 @@ function [sse] = R2ComplexObj(p,echotimes,tesla,Smeasured)
 %
 %   echotimes - the n-by-1 echo times
 %
-%   Smeasured - the measured signals for each echo time 
+%   Smeasured - the m-by-1 vector of measured signals for each echo time 
 %
 %   sig is the standard deviation of the Gaussian distributions underlying
 %   the Rician distribution.
