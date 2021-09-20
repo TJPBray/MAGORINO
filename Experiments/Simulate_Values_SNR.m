@@ -24,7 +24,7 @@ Wgrid=100-Fgrid;
 % Add echotime values
 % MAGO paper at 3T used 12 echoes (TE1 1.1, dTE 1.1)
 % MAGO paper at 1.5T used 6 echoes (TE1 1.2, dTE 2)
-echotimes=1.1:1.1:13.2;
+echotimes=[1.1:1.1:13.2]';
 % echotimes=1.2:2:11.2;
 
 %Define fB
@@ -66,11 +66,11 @@ parfor r=1:reps
 Smeasured=Fatfunction(echotimes,3,F,W,v,fB);
 
 %Add noise
-Snoisy = Smeasured + normrnd(0,noiseSD,[1 numel(echotimes)]) + i*normrnd(0,noiseSD,[1 numel(echotimes)]);
+Snoisy = Smeasured + normrnd(0,noiseSD,[numel(echotimes) 1]) + i*normrnd(0,noiseSD,[numel(echotimes) 1]);
 
 %Generate simulate 'ROI' for first echo time to get noise estimate for
 %Rician fitting, % with 50 voxels
-NoiseROI= normrnd(0,noiseSD,[1 200]) + i*normrnd(0,noiseSD,[1 200]);
+NoiseROI= normrnd(0,noiseSD,[200 1]) + i*normrnd(0,noiseSD,[200 1]);
 sig=std(real(NoiseROI));
 
 
