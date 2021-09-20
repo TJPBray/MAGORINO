@@ -1,6 +1,15 @@
 %% Create figures
 
 function createfig(FFmaps,errormaps,sdmaps,residuals)
+% Createfig(FFmaps,errormaps,sdmaps,residuals)
+
+% Input: FFmaps,errormaps,sdmaps, residuals
+
+% This function takes the outputs from Simulate_Values as inputs and uses
+% them to generate FF, error, SD and residual plots
+
+% Author:
+% Tim Bray, t.bray@ucl.ac.uk
 
 %% FF
 figure('Name', 'FF')

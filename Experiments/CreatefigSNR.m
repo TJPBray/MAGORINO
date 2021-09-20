@@ -2,6 +2,16 @@
 
 function CreatefigSNR(FFmaps,errormaps,sdmaps)
 
+% CreatefigSNR(FFmaps,errormaps,sdmaps)
+
+% Input: FFmaps,errormaps,sdmaps
+
+% This function takes the outputs from Simulate_Values_SNR as inputs and uses
+% them to generate FF, error and SD plots
+
+% Author:
+% Tim Bray, t.bray@ucl.ac.uk
+
 %FF
 figure('Name', 'FF')
 subplot(1,2,1)

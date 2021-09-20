@@ -13,6 +13,8 @@ function Fitsuccess(FF,v,SNR,reps)
 % Generates histograms showing frequency of estimates in relation to ground
 % truth
 
+% Author:
+% Tim Bray, t.bray@ucl.ac.uk
 
 %% Loop over repetitions
 parfor r =1:reps
