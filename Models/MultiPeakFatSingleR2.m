@@ -1,10 +1,20 @@
 %Function describing interactions of water and multiple fat components
 
-function S=MultiPeakFatSingleR2(t,tesla,F,W,v,fB);
-%t is a matrix of echo times
-%Wt is total water signal, Ft is signal from 1.3ppm fat peak
-%v is system T2*
+function S=MultiPeakFatSingleR2(t,tesla,F,W,R2star,fB);
+%function S=MultiPeakFatSingleR2(t,tesla,F,W,v,fB);
 
+%Inputs:
+%t is n-by-1 vector of echo times
+%W is water density
+%F is fat density
+%R2star is system R2* (single term for both fat and water)
+
+%Model:
+%Multipeak fat spectrum with frequency shifts and amplitudes as detailed
+%below and single R2* term
+
+%Outputs:
+%S is an m-by-1 vector of complex-valued signal intensities
 
 %% Specify field strength
 %At 3T the Larmor frequency is 128MHz. Fat-water shift (Hz) is 128MHz x ppm (x10^-6). 
@@ -67,10 +77,9 @@ S=  F*Fatamps(1)*exp((i*Fatw(1))*t)+...
 
 %% Multiply signal by R2* term 
 
-S=S.*exp(-t*v); %R2star term
+S=S.*exp(-t*R2star); %R2star term
 
 S=S.*exp(i*2*pi*fB*t); %B0 inhomogeneity
-
 
 % Scomp(1,:)=real(S);
 % Scomp(2,:)=imag(S);
