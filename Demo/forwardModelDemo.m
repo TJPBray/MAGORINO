@@ -36,7 +36,7 @@ echoTimes = (0:0.1:10)';
 numOfMeas = length(echoTimes);
 
 % 1.3 generate the signal with Fatfunction
-signalNoiseFree = Fatfunction(echoTimes, fieldStrength, Sfat, Swater, R2star, fieldStrengthOffset);
+signalNoiseFree = ComplexFatSingleR2(echoTimes, fieldStrength, Sfat, Swater, R2star, fieldStrengthOffset);
 
 % 1.4 visualise the signal
 figure;
