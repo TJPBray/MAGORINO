@@ -1,6 +1,6 @@
 
-function maps = image_fitting(imData,slice,ROI)
-% function maps = image_fitting(imData,slice,ROI)
+function [maps,noisestats] = image_fitting(imData,slice,ROI,indent)
+% function [maps,noisestats] = image_fitting(imData,slice,ROI)
     
 %Takes data in imData structure and generates maps
 
@@ -18,9 +18,14 @@ function maps = image_fitting(imData,slice,ROI)
 %images in imData.images)
 % This applied to the specified slice to obtain sigma for Rician fitting)
 
+%4. Specify indent (integer value) to cut down processing time
+%e.g indent=100;
+
 %Outputs
 % Maps structure containing FF and R2* maps for standard, Rician and
 % complex fitting
+
+% Noisestats structure giving estimated sigma, mean S and SNR
 
 %% Reformat data where needed
 
@@ -52,6 +57,14 @@ sig_imag=std(imag(Scomplex_ROI));
 %Average real and imaginary sigs to create estimate for fitting
 sig=(sig_real + sig_imag)/2;
 
+%Add to noisestats structure
+noisestats.sigma=sig;
+
+%Get mean from ROI
+noisestats.meanS=mean(abs(Scomplex_ROI));
+
+noisestats.SNR=noisestats.meanS/sig;
+
 %% Prefill arrays prior to fitting
 FFrician=zeros(size(Smag_slice,1),size(Smag_slice,2));
 FFstandard=zeros(size(Smag_slice,1),size(Smag_slice,2));
@@ -60,13 +73,12 @@ R2rician=zeros(size(Smag_slice,1),size(Smag_slice,2));
 R2standard=zeros(size(Smag_slice,1),size(Smag_slice,2));
 R2complex=zeros(size(Smag_slice,1),size(Smag_slice,2));
 
-%Specify indent to cut down processing time
-indent=100;
+
 
 %% Loop over voxels in image and fit each one 
 
 for posX=(1+indent):(size(Smag_slice,2)-indent)     %Describes location of chosen pixel
-for posY=(1+indent):(size(Smag_slice,1)-indent)
+parfor posY=(1+indent):(size(Smag_slice,1)-indent)
     
 %Get pixel data for single pixel
 Smag=Smag_slice(posY,posX,:);
@@ -98,46 +110,8 @@ maps.R2rician=R2rician;
 maps.R2standard=R2standard;
 maps.R2complex=R2complex;
 
-%
-figure
-subplot(1,4,1)
-imshow(FFrician,[0 1])
-title('Fat fraction, Rician MAGO')
-colorbar
-
-subplot(1,4,2)
-imshow(FFstandard,[0 1])
-title('Fat fraction, standard MAGO')
-colorbar
-
-subplot(1,4,3)
-imshow(FFrician-FFstandard,[0 0.1])
-title('Fat fraction difference')
-colorbar
-
-% subplot(1,4,4)
-% imshow(fwmc_ff(:,:,slice),[0 100])
-% title('Fat fraction, Hernando')
-% colorbar
-
-figure
-subplot(1,4,1)
-imshow(R2rician,[0 0.2])
-title('R2*, Rician MAGO')
-colorbar
-subplot(1,4,2)
-imshow(R2standard,[0 0.2])
-title('R2*, standard MAGO')
-colorbar
-
-subplot(1,4,3)
-imshow(R2rician-R2standard,[0 0.05])
-title('R2*, standard MAGO')
-colorbar
-
-% subplot(1,4,4)
-% imshow(fwmc_r2star(:,:,slice),[0 10])
-% title('R2*, Hernando')
+%% Create figures
+Createfig_maps(maps)
 
 end
 
