@@ -36,7 +36,7 @@ echoTimes = (0:0.1:10)';
 numOfMeas = length(echoTimes);
 
 % 1.3 generate the signal with Fatfunction
-signalNoiseFree = ComplexFatSingleR2(echoTimes, fieldStrength, Sfat, Swater, R2star, fieldStrengthOffset);
+signalNoiseFree = MultiPeakFatSingleR2(echoTimes, fieldStrength, Sfat, Swater, R2star, fieldStrengthOffset);
 
 % 1.4 visualise the signal
 figure;
@@ -114,3 +114,6 @@ legend('real', 'imag');
 %% 3. Fit the model to the data
 
 estimatedParas = R2fitting(echoTimes, fieldStrength, signalNoisy, sigma);
+
+
+
