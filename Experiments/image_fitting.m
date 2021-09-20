@@ -14,9 +14,9 @@ function [maps,noisestats] = image_fitting(imData,slice,ROI,indent)
 
 %2. slice is specified by user (integer value)
     
-%3. ROI is a logical array of dimension nx-by-ny (matching the size of the
-%images in imData.images)
-% This applied to the specified slice to obtain sigma for Rician fitting)
+%3. ROI is a logical array of dimension nx-by-ny 
+%(matching the size of the images in imData.images)
+% This is applied to the specified slice to obtain sigma for Rician fitting)
 
 %4. Specify indent (integer value) to cut down processing time
 %e.g indent=100;
