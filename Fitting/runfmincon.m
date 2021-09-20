@@ -1,9 +1,8 @@
-%function [xsol,fval,history,searchdir] = runfmincon
-
-%Used to plot intermediate results from fmincon solver 
 
 function [outparams,searchdir] = runfmincon(echotimes, tesla, Snoisy, sig)
- 
+%function [xsol,fval,history,searchdir] = runfmincon
+%Used to plot intermediate results from fmincon solver 
+
 % Set up shared variables with outfun
 history.p = [];
 history.f = [];
