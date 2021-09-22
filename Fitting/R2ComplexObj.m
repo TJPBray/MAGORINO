@@ -37,7 +37,7 @@ Spredicted = MultiPeakFatSingleR2(echotimes,tesla,p(1),p(2),p(3),0);
 
 errors = Smeasured - Spredicted;
 
-sse = errors'*errors; %NB for complex matrices the transpose operation given the complex conjugate transpose (Hermitian) - this dictates that the products of the individual imaginary components are positive
+sse = errors'*errors; %NB for complex matrices the transpose operation given the conjugate transpose (Hermitian transpose) - i.e. the complex conjugate of each element in the transpose - this dictates that the products of the individual imaginary components are positive
 
 end
 
