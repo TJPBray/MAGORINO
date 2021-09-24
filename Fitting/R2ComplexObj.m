@@ -1,5 +1,5 @@
-function [sse] = R2ComplexObj(p,echotimes,tesla,Smeasured)
-%function [sse] = R2ComplexObj(p,echotimes,Smeasured)
+function [loglik] = R2ComplexObj(p,echotimes,tesla,Smeasured,sig)
+%function [loglik] = R2ComplexObj(p,echotimes,tesla,Smeasured,sig)
 
 % Description: Computes the sum of squared errors between the data and the
 % predicted data based on the parameters and fat model 
@@ -15,8 +15,7 @@ function [sse] = R2ComplexObj(p,echotimes,tesla,Smeasured)
 %
 %   Smeasured - the m-by-1 vector of measured signals for each echo time 
 %
-%   sig is the standard deviation of the Gaussian distributions underlying
-%   the Rician distribution.
+%   sig is the standard deviation of the Gaussian distributions.
 %
 % Model:
 %   
@@ -38,6 +37,17 @@ Spredicted = MultiPeakFatSingleR2(echotimes,tesla,p(1),p(2),p(3),0);
 errors = Smeasured - Spredicted;
 
 sse = errors'*errors; %NB for complex matrices the transpose operation given the conjugate transpose (Hermitian transpose) - i.e. the complex conjugate of each element in the transpose - this dictates that the products of the individual imaginary components are positive
+
+%% Calculate likelihood
+
+%For real component of signals
+loglik_real = GaussianLogLik(real(Smeasured), real(Spredicted), sig);
+
+%For imaginary component of signals
+loglik_imag = GaussianLogLik(imag(Smeasured), imag(Spredicted), sig);
+
+%Overall likelihood given by sum of real and imaginary components:
+loglik=loglik_real+loglik_imag;
 
 end
 
