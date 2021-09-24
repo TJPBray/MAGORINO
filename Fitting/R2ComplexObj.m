@@ -1,5 +1,5 @@
 function [loglik,sse] = R2ComplexObj(p,echotimes,tesla,Smeasured,sig)
-%function [loglik] = R2ComplexObj(p,echotimes,tesla,Smeasured,sig)
+%function [loglik,sse] = R2ComplexObj(p,echotimes,tesla,Smeasured,sig)
 
 % Description: Computes the sum of squared errors between the data and the
 % predicted data based on the parameters and fat model 

@@ -95,7 +95,7 @@ outparams.standard.fmin = fmin1_mag;
 outparams.standard.chosenmin=1;
 
 % Calculate SSE for standard (Gaussian) fitting (NB this is different to fmin above, which corresponds to likelihood)
-[~,outparams.standard.SSE]=R2Obj(pmin1_mag,echotimes,tesla,Smeasured,sig)
+[~,outparams.standard.SSE]=R2Obj(pmin1_mag,echotimes,tesla,Smagnitude,sig)
 
 else
     
@@ -107,7 +107,7 @@ outparams.standard.fmin = fmin2_mag;
 outparams.standard.chosenmin=2;
 
 % Calculate SSE for standard (Gaussian) fitting (NB this is different to fmin above, which corresponds to likelihood)
-[~,outparams.standard.SSE]=R2Obj(pmin2_mag,echotimes,tesla,Smeasured,sig)
+[~,outparams.standard.SSE]=R2Obj(pmin2_mag,echotimes,tesla,Smagnitude,sig)
 end
 
 
@@ -166,7 +166,7 @@ outparams.Rician.fmin = fmin1_Ric; %For Rician fitting, fmin corresponds to the 
 outparams.Rician.chosenmin=1;
 
 % Calculate SSE for Rician fitting (NB this is different to fmin above, which corresponds to likelihood)
-[~,outparams.Rician.SSE]=R2Obj(pmin1_Ric,echotimes,tesla,Smeasured,sig) %Can use R2Obj here to calculate SSE rather than R2RicianObj
+[~,outparams.Rician.SSE]=R2Obj(pmin1_Ric,echotimes,tesla,Smagnitude,sig) %Can use R2Obj here to calculate SSE rather than R2RicianObj
 
 else
     
@@ -178,12 +178,9 @@ outparams.Rician.fmin = fmin2_Ric; %For Rician fitting, fmin corresponds to the 
 outparams.Rician.chosenmin=2;
 
 % Calculate SSE for Rician fitting (NB this is different to fmin above, which corresponds to likelihood)
-[~,outparams.Rician.SSE]=R2Obj(pmin2_Ric,echotimes,tesla,Smeasured,sig) %Can use R2Obj here to calculate SSE rather than R2RicianObj
+[~,outparams.Rician.SSE]=R2Obj(pmin2_Ric,echotimes,tesla,Smagnitude,sig) %Can use R2Obj here to calculate SSE rather than R2RicianObj
 
 end
-
-% Calculate SSE for Rician fitting (NB this is different to fmin above, which corresponds to likelihood)
-% outparams.Rician.SSE = MultiPeakFatSingleR2([outparams.Rician.F, outparams.Rician.W, outparams.Rician.R2, 0],echotimes,tesla,Smeasured);
 
 
 %% Set up the optimisation framework for  complex fitting
@@ -247,7 +244,7 @@ outparams.complex.fmin = fmin1;
 outparams.complex.chosenmin=1;
 
 % Calculate SSE for Rician fitting (NB this is different to fmin above, which corresponds to likelihood)
-[~,outparams.complex.SSE]=R2ComplexObj(pmin1,echotimes,tesla,Smeasured,sig) %Can use R2Obj here to calculate SSE rather than R2RicianObj
+[~,outparams.complex.SSE]=R2ComplexObj(pmin1,echotimes,tesla,Scomplex,sig) %Can use R2Obj here to calculate SSE rather than R2RicianObj
 
 else
     
@@ -259,7 +256,7 @@ outparams.complex.fmin = fmin2;
 outparams.complex.chosenmin=2;
 
 % Calculate SSE for Rician fitting (NB this is different to fmin above, which corresponds to likelihood)
-[~,outparams.complex.SSE]=R2ComplexObj(pmin2,echotimes,tesla,Smeasured,sig) %Can use R2Obj here to calculate SSE rather than R2RicianObj
+[~,outparams.complex.SSE]=R2ComplexObj(pmin2,echotimes,tesla,Scomplex,sig) %Can use R2Obj here to calculate SSE rather than R2RicianObj
 
 end
 
