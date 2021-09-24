@@ -68,12 +68,20 @@ R2fitting.x0 = [Sinit, 0.001, vinit]';
 % run the optimisation
 [pmin2_mag, fmin2_mag] = fmincon(R2fitting); %fmin is the minimised SSE
 
+% Next INITIALISE WITH GROUND TRUTH
+R2fitting.x0 = GT; 
+
+% run the optimisation
+[pmin3_mag, fmin3_mag] = fmincon(R2fitting); %fmin is the minimised SSE
+
 %Add the two solutions to outparams
 outparams.standard.pmin1=pmin1_mag;
 outparams.standard.pmin2=pmin2_mag;
+outparams.standard.pmin3=pmin3_mag;
 
 outparams.standard.fmin1=fmin1_mag;
 outparams.standard.fmin2=fmin2_mag;
+outparams.standard.fmin3=fmin3_mag;
 
 % Choose the estimates from the best residual and add those to the
 % outparams structure
@@ -131,12 +139,20 @@ R2Ricianfitting.x0 = [Sinit, 0.001, vinit]';
 % run the optimisation
 [pmin2_Ric, fmin2_Ric] = fmincon(R2Ricianfitting); %fmin is the minimised SSE
 
-%Add the two solutions to outparams
+% Next INITIALISE WITH GROUND TRUTH
+R2Ricianfitting.x0 = GT; 
+
+% run the optimisation
+[pmin3_Ric, fmin3_Ric] = fmincon(R2Ricianfitting); %fmin is the minimised SSE
+
+%Add the  solutions to outparams
 outparams.Rician.pmin1=pmin1_Ric;
 outparams.Rician.pmin2=pmin2_Ric;
+outparams.Rician.pmin3=pmin3_Ric;
 
 outparams.Rician.fmin1=fmin1_Ric;
 outparams.Rician.fmin2=fmin2_Ric;
+outparams.Rician.fmin3=fmin3_Ric;
 
 % Choose the estimates from the best residual and add to outparams
 
@@ -203,13 +219,21 @@ R2complexfitting.x0 = [Sinit, 0.001, vinit]';
 % run the optimisation
 [pmin2, fmin2] = fmincon(R2complexfitting); %fmin is the minimised SSE
 
+% Next INITIALISE WITH GROUND TRUTH
+R2complexfitting.x0 = GT; 
 
-%Add the two solutions to outparams
+% run the optimisation
+[pmin3, fmin3] = fmincon(R2complexfitting); %fmin is the minimised SSE
+
+
+%Add the solutions to outparams
 outparams.complex.pmin1=pmin1;
 outparams.complex.pmin2=pmin2;
+outparams.complex.pmin3=pmin3;
 
 outparams.complex.fmin1=fmin1;
 outparams.complex.fmin2=fmin2;
+outparams.complex.fmin3=fmin3;
 
 % Choose the estimates from the best residual
 

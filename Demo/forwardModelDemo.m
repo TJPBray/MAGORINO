@@ -14,7 +14,7 @@ fieldStrengthOffset = 0.0;
 S0 = 1;
 
 % fat fraction
-fatFraction = 0.6;
+fatFraction = 0.2;
 
 % convert S0 and fat fraction to fat and water signals
 
@@ -23,6 +23,9 @@ Sfat = S0*fatFraction;
 
 % water signal (arbitrary unit)
 Swater = S0*(1 - fatFraction);
+
+% combine into ground truth parameter vector
+GT = [Sfat; Swater; R2star];
 
 % 1.2 set the acquisition parameters
 
@@ -113,7 +116,7 @@ legend('real', 'imag');
 
 %% 3. Fit the model to the data
 
-estimatedParas = R2fitting(echoTimes, fieldStrength, signalNoisy, sigma);
+estimatedParas = R2fitting(echoTimes, fieldStrength, signalNoisy, sigma, GT);
 
 
 
