@@ -17,9 +17,13 @@ function [FFmaps,errormaps,sdmaps,residuals] = Simulate_Values(SNR,reps)
 
 %% Create grid for different options of each param
 
+%Specify S0
+S0=100;
+
+%Create grid
 vgrid=repelem(0:0.1:1,51,1); %1ms-1 upper limit chosen to reflect Hernando et al. (went up to 1.2)
-Fgrid=repelem([0:2:100]',1,11);
-Wgrid=100-Fgrid;
+Fgrid=S0*repelem([0:0.02:1]',1,11);
+Wgrid=S0-Fgrid;
 
 % vgrid=repelem(0:0.2:1,6,1); %1ms-1 upper limit chosen to reflect Hernando et al. (went up to 1.2)
 % Fgrid=repelem([0:20:100]',1,6);
@@ -41,36 +45,52 @@ tesla=3;
 % at 1.5T and 60 at 3T. However, may be lower in the presence of iron or
 % marrow. The SNR is a function input. 
 
-noiseSD=100/SNR; %here assume total signal is 100 for simplicity (since FF maps are used as input)
+noiseSD=S0/SNR; %here assume total signal is 100 for simplicity (since FF maps are used as input)
 
 %Loop through SNR values, finding noise SD for each
 
 %Turn figure show setting on/off
 figshow=0;
 
-%%Loop through reps
-for r=1:reps
+%% Generate noise (done before looping over voxels)
+
+%Fix the random seed
+rng(1);
+
+% Generate the real and imaginary noises
+noiseReal_grid = noiseSD*randn(size(Fgrid,1),size(Fgrid,2),numel(echotimes),reps);
+noiseImag_grid = noiseSD*randn(size(Fgrid,1),size(Fgrid,2),numel(echotimes),reps);
+noise_grid = noiseReal_grid + 1i*noiseImag_grid;
+
+% 
+% %Generate simulate 'ROI' for first echo time to get noise estimate for
+% %Rician fitting, % with 50 voxels
+% NoiseROI= normrnd(0,noiseSD,[200 1]) + i*normrnd(0,noiseSD,[200 1]);
+% sigma=std(real(NoiseROI));
 
 %% Loop through values
 
 for y=1:size(Fgrid,1)
-    parfor x=1:size(Fgrid,2)
+    for x=1:size(Fgrid,2)
         
         W=Wgrid(y,x);
         F=Fgrid(y,x);
         v=vgrid(y,x);
 
-%Simulate signal
-Smeasured=Fatfunction(echotimes,3,F,W,v,fB);
+%Simulate noise-free signal
+Snoisefree=MultiPeakFatSingleR2(echotimes,3,F,W,v,fB);
+
+%%Loop through reps
+parfor r=1:reps
+
+%Get noise from grid
+noise=noise_grid(y,x,:,r);
+
+%Reshape
+noise=reshape(noise,[],1);
 
 %Add noise
-Snoisy = Smeasured + normrnd(0,noiseSD,[numel(echotimes) 1]) + i*normrnd(0,noiseSD,[numel(echotimes) 1]);
-
-%Generate simulate 'ROI' for first echo time to get noise estimate for
-%Rician fitting, % with 50 voxels
-NoiseROI= normrnd(0,noiseSD,[200 1]) + i*normrnd(0,noiseSD,[200 1]);
-sig=std(real(NoiseROI));
-
+Snoisy=Snoisefree+noise;
 
 %% Implement fitting with noiseless data
 
@@ -79,7 +99,7 @@ sig=std(real(NoiseROI));
 %% Implement fitting with noisy data
 % This will implement both standard magnitude fitting and with Rician noise
 % modelling
-outparams = R2fitting(echotimes,3,Snoisy,sig);
+outparams = R2fitting(echotimes,3,Snoisy,noiseSD,[F W v]);
 
 %% Plot
 
