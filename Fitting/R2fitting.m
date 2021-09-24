@@ -20,7 +20,7 @@ Sinit=C*max(abs(Smeasured)); %partially compensates for R2* to improve initialis
 %% Set up the optimisation framework for standard magnitude fitting
 
 % define the objective function
-R2fitting.objective = @(p) R2Obj(p,echotimes,tesla,Smeasured);
+R2fitting.objective = @(p) -R2Obj(p,echotimes,tesla,Smeasured,sig);
 
 % set the solver 
 R2fitting.solver = 'fmincon';
@@ -43,7 +43,7 @@ R2fitting.ub = [3*Sinit, 3*Sinit, vmax, 0]'; %constrain fB0 to 0 for now
 % [F W R2* fB0]
 
 % First assume WATER DOMINANT TISSUE (Use first echo to provide water guess)
-R2fitting.x0 = [0, Sinit, vinit, 0]'; 
+R2fitting.x0 = [0.001, Sinit, vinit, 0]'; 
 
 %[0, max(abs(Smeasured)), 0.01, 0]';
 
@@ -51,7 +51,7 @@ R2fitting.x0 = [0, Sinit, vinit, 0]';
 [pmin1_mag, fmin1_mag] = fmincon(R2fitting); %fmin is the minimised SSE
 
 % Next assume FAT DOMINANT TISSUE (Use first echo to provide water guess)
-R2fitting.x0 = [Sinit, 0, vinit, 0]'; 
+R2fitting.x0 = [Sinit, 0.001, vinit, 0]'; 
 
 % run the optimisation
 [pmin2_mag, fmin2_mag] = fmincon(R2fitting); %fmin is the minimised SSE
@@ -103,13 +103,13 @@ R2Ricianfitting.objective = @(p) -R2RicianObj(p,echotimes,tesla,Smeasured,sig);
 % [F W R2* fB0]
 
 % First assume WATER DOMINANT TISSUE (Use first echo to provide water guess)
-R2Ricianfitting.x0 = [0, Sinit, vinit, 0]'; 
+R2Ricianfitting.x0 = [0.001, Sinit, vinit, 0]'; 
 
 % run the optimisation
 [pmin1_Ric, fmin1_Ric] = fmincon(R2Ricianfitting); %fmin is the minimised SSE
 
 % Next assume FAT DOMINANT TISSUE (Use first echo to provide water guess)
-R2Ricianfitting.x0 = [Sinit, 0, vinit, 0]'; 
+R2Ricianfitting.x0 = [Sinit, 0.001, vinit, 0]'; 
 
 % run the optimisation
 [pmin2_Ric, fmin2_Ric] = fmincon(R2Ricianfitting); %fmin is the minimised SSE
@@ -141,8 +141,8 @@ outparams.Rician.fmin = fmin2_Ric; %For Rician fitting, fmin corresponds to the 
 
 end
 
-% Calculate SSE for Rician fitting (NB this is different to fmin above, which corresponds to likelihood)
-outparams.Rician.SSE = R2Obj([outparams.Rician.F, outparams.Rician.W, outparams.Rician.R2, 0],echotimes,tesla,Smeasured);
+% % Calculate SSE for Rician fitting (NB this is different to fmin above, which corresponds to likelihood)
+% outparams.Rician.SSE = R2Obj([outparams.Rician.F, outparams.Rician.W, outparams.Rician.R2, 0],echotimes,tesla,Smeasured);
 
 
 %% Set up the optimisation framework for  complex fitting
@@ -155,13 +155,13 @@ R2complexfitting.ub=R2fitting.ub;
 R2complexfitting.x0=R2fitting.x0;
 
 % define the objective function
-R2complexfitting.objective = @(p) R2ComplexObj(p,echotimes,tesla,Scomplex);
+R2complexfitting.objective = @(p) -R2ComplexObj(p,echotimes,tesla,Scomplex,sig);
 
 %% Implement complex fitting for both water-dominant and fat-dominant initialisations
 % [F W R2* fB0]
 
 % First assume WATER DOMINANT TISSUE (Use first echo to provide water guess)
-R2complexfitting.x0 = [0, Sinit, vinit, 0]'; 
+R2complexfitting.x0 = [0.001, Sinit, vinit, 0]'; 
 
 %allow fB0 to vary:
 % set the parameter lower bound
@@ -173,7 +173,7 @@ R2complexfitting.ub = [3*Sinit, 3*Sinit, vmax, 1]';
 [pmin1, fmin1] = fmincon(R2complexfitting); %fmin is the minimised SSE
 
 % Next assume FAT DOMINANT TISSUE (Use first echo to provide water guess)
-R2complexfitting.x0 = [Sinit, 0, vinit, 0]'; 
+R2complexfitting.x0 = [Sinit, 0.001, vinit, 0]'; 
 
 
 % run the optimisation
