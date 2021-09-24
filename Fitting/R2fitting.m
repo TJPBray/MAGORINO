@@ -56,7 +56,7 @@ R2fitting.ub = [3*Sinit, 3*Sinit, vmax, 0]'; %constrain fB0 to 0 for now
 %% Implement standard magnitude fitting for both water-dominant and fat-dominant initialisations
 % [F W R2* fB0]
 
-% First assume WATER DOMINANT TISSUE (Use first echo to provide water guess)
+% First assume LOW FF (WATER DOMINANT) TISSUE (Use first echo to provide water guess)
 R2fitting.x0 = [0.001, Sinit, vinit, 0]'; 
 
 %[0, max(abs(Smeasured)), 0.01, 0]';
@@ -64,7 +64,7 @@ R2fitting.x0 = [0.001, Sinit, vinit, 0]';
 % run the optimisation
 [pmin1_mag, fmin1_mag] = fmincon(R2fitting); %fmin is the minimised SSE
 
-% Next assume FAT DOMINANT TISSUE (Use first echo to provide water guess)
+% Next assume HIGH FF (FAT DOMINANT) TISSUE (Use first echo to provide water guess)
 R2fitting.x0 = [Sinit, 0.001, vinit, 0]'; 
 
 % run the optimisation
@@ -77,10 +77,6 @@ outparams.standard.pmin2=pmin2_mag;
 outparams.standard.fmin1=fmin1_mag;
 outparams.standard.fmin2=fmin2_mag;
 
-%Convert sse to likelihood for each solution
-outparams.standard.likmax1=-numel(echotimes)*log(sqrt(2*pi*sig*sig))-outparams.standard.fmin1/(2*sig^2);
-outparams.standard.likmax2=-numel(echotimes)*log(sqrt(2*pi*sig*sig))-outparams.standard.fmin2/(2*sig^2);
-
 % Choose the estimates from the best residual and add those to the
 % outparams structure
 if fmin1_mag<=fmin2_mag
@@ -89,7 +85,11 @@ outparams.standard.F = pmin1_mag(1);
 outparams.standard.W = pmin1_mag(2);
 outparams.standard.R2 = pmin1_mag(3);
 
-outparams.standard.SSE = fmin1_mag;
+outparams.standard.fmin = fmin1_mag;
+outparams.standard.chosenmin=1;
+
+% Calculate SSE for standard (Gaussian) fitting (NB this is different to fmin above, which corresponds to likelihood)
+[~,outparams.standard.SSE]=R2Obj(pmin1_mag,echotimes,tesla,Smeasured,sig)
 
 else
     
@@ -97,9 +97,14 @@ outparams.standard.F = pmin2_mag(1); %swap fat and water from lines above
 outparams.standard.W = pmin2_mag(2);
 outparams.standard.R2 = pmin2_mag(3);
 
-outparams.standard.SSE = fmin2_mag;
+outparams.standard.fmin = fmin2_mag;
+outparams.standard.chosenmin=2;
 
+% Calculate SSE for standard (Gaussian) fitting (NB this is different to fmin above, which corresponds to likelihood)
+[~,outparams.standard.SSE]=R2Obj(pmin2_mag,echotimes,tesla,Smeasured,sig)
 end
+
+
 
 %% Set up the optimisation framework for  magnitude fitting with Rician noise modelling
 
@@ -116,13 +121,13 @@ R2Ricianfitting.objective = @(p) -R2RicianObj(p,echotimes,tesla,Smagnitude,sig);
 %% Implement Rician fitting for both water-dominant and fat-dominant initialisations
 % [F W R2* fB0]
 
-% First assume WATER DOMINANT TISSUE (Use first echo to provide water guess)
+% First assume LOW FF (WATER DOMINANT) TISSUE (Use first echo to provide water guess)
 R2Ricianfitting.x0 = [0.001, Sinit, vinit, 0]'; 
 
 % run the optimisation
 [pmin1_Ric, fmin1_Ric] = fmincon(R2Ricianfitting); %fmin is the minimised SSE
 
-% Next assume FAT DOMINANT TISSUE (Use first echo to provide water guess)
+% Next assume HIGH FF (FAT DOMINANT) TISSUE (Use first echo to provide water guess)
 R2Ricianfitting.x0 = [Sinit, 0.001, vinit, 0]'; 
 
 % run the optimisation
@@ -144,6 +149,10 @@ outparams.Rician.W = pmin1_Ric(2);
 outparams.Rician.R2 = pmin1_Ric(3);
 
 outparams.Rician.fmin = fmin1_Ric; %For Rician fitting, fmin corresponds to the maximum likelihood (i.e. lowest value of -fmin)
+outparams.Rician.chosenmin=1;
+
+% Calculate SSE for Rician fitting (NB this is different to fmin above, which corresponds to likelihood)
+[~,outparams.Rician.SSE]=R2Obj(pmin1_Ric,echotimes,tesla,Smeasured,sig) %Can use R2Obj here to calculate SSE rather than R2RicianObj
 
 else
     
@@ -152,11 +161,15 @@ outparams.Rician.W = pmin2_Ric(2);
 outparams.Rician.R2 = pmin2_Ric(3);
 
 outparams.Rician.fmin = fmin2_Ric; %For Rician fitting, fmin corresponds to the maximum likelihood (i.e. lowest value of -fmin)
+outparams.Rician.chosenmin=2;
+
+% Calculate SSE for Rician fitting (NB this is different to fmin above, which corresponds to likelihood)
+[~,outparams.Rician.SSE]=R2Obj(pmin2_Ric,echotimes,tesla,Smeasured,sig) %Can use R2Obj here to calculate SSE rather than R2RicianObj
 
 end
 
-% % Calculate SSE for Rician fitting (NB this is different to fmin above, which corresponds to likelihood)
-% outparams.Rician.SSE = R2Obj([outparams.Rician.F, outparams.Rician.W, outparams.Rician.R2, 0],echotimes,tesla,Smeasured);
+% Calculate SSE for Rician fitting (NB this is different to fmin above, which corresponds to likelihood)
+% outparams.Rician.SSE = MultiPeakFatSingleR2([outparams.Rician.F, outparams.Rician.W, outparams.Rician.R2, 0],echotimes,tesla,Smeasured);
 
 
 %% Set up the optimisation framework for  complex fitting
@@ -174,7 +187,7 @@ R2complexfitting.objective = @(p) -R2ComplexObj(p,echotimes,tesla,Scomplex,sig);
 %% Implement complex fitting for both water-dominant and fat-dominant initialisations
 % [F W R2* fB0]
 
-% First assume WATER DOMINANT TISSUE (Use first echo to provide water guess)
+% First assume LOW FF (WATER DOMINANT) TISSUE (Use first echo to provide water guess)
 R2complexfitting.x0 = [0.001, Sinit, vinit, 0]'; 
 
 %allow fB0 to vary:
@@ -186,9 +199,8 @@ R2complexfitting.ub = [3*Sinit, 3*Sinit, vmax, 1]';
 % run the optimisation
 [pmin1, fmin1] = fmincon(R2complexfitting); %fmin is the minimised SSE
 
-% Next assume FAT DOMINANT TISSUE (Use first echo to provide water guess)
+% Next assume HIGH FF (FAT DOMINANT) TISSUE (Use first echo to provide water guess)
 R2complexfitting.x0 = [Sinit, 0.001, vinit, 0]'; 
-
 
 % run the optimisation
 [pmin2, fmin2] = fmincon(R2complexfitting); %fmin is the minimised SSE
@@ -209,7 +221,11 @@ outparams.complex.F = pmin1(1);
 outparams.complex.W = pmin1(2);
 outparams.complex.R2 = pmin1(3);
 
-outparams.complex.SSE = fmin1;
+outparams.complex.fmin = fmin1;
+outparams.complex.chosenmin=1;
+
+% Calculate SSE for Rician fitting (NB this is different to fmin above, which corresponds to likelihood)
+[~,outparams.complex.SSE]=R2ComplexObj(pmin1,echotimes,tesla,Smeasured,sig) %Can use R2Obj here to calculate SSE rather than R2RicianObj
 
 else
     
@@ -217,7 +233,11 @@ outparams.complex.F = pmin2(1);
 outparams.complex.W = pmin2(2);
 outparams.complex.R2 = pmin2(3);
 
-outparams.complex.SSE = fmin2;
+outparams.complex.fmin = fmin2;
+outparams.complex.chosenmin=2;
+
+% Calculate SSE for Rician fitting (NB this is different to fmin above, which corresponds to likelihood)
+[~,outparams.complex.SSE]=R2ComplexObj(pmin2,echotimes,tesla,Smeasured,sig) %Can use R2Obj here to calculate SSE rather than R2RicianObj
 
 end
 
