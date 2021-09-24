@@ -240,6 +240,7 @@ sdmaps.FFcomplex=FF_complex_sd;
 %% Find mean parameter error values
 meanerror.standard=mean(abs(errormaps.FFstandard),'all')
 meanerror.Rician=mean(abs(errormaps.FFrician),'all')
+meanerror.complex=mean(abs(errormaps.FFerror_Complex),'all')
 
 %% Create figures
 Createfig(FFmaps,errormaps,sdmaps,residuals)
