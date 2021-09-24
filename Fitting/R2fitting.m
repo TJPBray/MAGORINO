@@ -47,25 +47,23 @@ R2fitting.options = optimoptions('fmincon', 'Algorithm', 'interior-point','InitB
 %estimation
 
 % set the parameter lower bound
-R2fitting.lb = [0, 0, vmin, 0]'; 
+R2fitting.lb = [0, 0, vmin]'; 
 
 % % set the parameter upper bound
-R2fitting.ub = [3*Sinit, 3*Sinit, vmax, 0]'; %constrain fB0 to 0 for now
+R2fitting.ub = [3*Sinit, 3*Sinit, vmax]'; %constrain fB0 to 0 for now
 
 
 %% Implement standard magnitude fitting for both water-dominant and fat-dominant initialisations
 % [F W R2* fB0]
 
 % First assume LOW FF (WATER DOMINANT) TISSUE (Use first echo to provide water guess)
-R2fitting.x0 = [0.001, Sinit, vinit, 0]'; 
-
-%[0, max(abs(Smeasured)), 0.01, 0]';
+R2fitting.x0 = [0.001, Sinit, vinit]'; 
 
 % run the optimisation
 [pmin1_mag, fmin1_mag] = fmincon(R2fitting); %fmin is the minimised SSE
 
 % Next assume HIGH FF (FAT DOMINANT) TISSUE (Use first echo to provide water guess)
-R2fitting.x0 = [Sinit, 0.001, vinit, 0]'; 
+R2fitting.x0 = [Sinit, 0.001, vinit]'; 
 
 % run the optimisation
 [pmin2_mag, fmin2_mag] = fmincon(R2fitting); %fmin is the minimised SSE
@@ -122,13 +120,13 @@ R2Ricianfitting.objective = @(p) -R2RicianObj(p,echotimes,tesla,Smagnitude,sig);
 % [F W R2* fB0]
 
 % First assume LOW FF (WATER DOMINANT) TISSUE (Use first echo to provide water guess)
-R2Ricianfitting.x0 = [0.001, Sinit, vinit, 0]'; 
+R2Ricianfitting.x0 = [0.001, Sinit, vinit]'; 
 
 % run the optimisation
 [pmin1_Ric, fmin1_Ric] = fmincon(R2Ricianfitting); %fmin is the minimised SSE
 
 % Next assume HIGH FF (FAT DOMINANT) TISSUE (Use first echo to provide water guess)
-R2Ricianfitting.x0 = [Sinit, 0.001, vinit, 0]'; 
+R2Ricianfitting.x0 = [Sinit, 0.001, vinit]'; 
 
 % run the optimisation
 [pmin2_Ric, fmin2_Ric] = fmincon(R2Ricianfitting); %fmin is the minimised SSE
@@ -188,19 +186,19 @@ R2complexfitting.objective = @(p) -R2ComplexObj(p,echotimes,tesla,Scomplex,sig);
 % [F W R2* fB0]
 
 % First assume LOW FF (WATER DOMINANT) TISSUE (Use first echo to provide water guess)
-R2complexfitting.x0 = [0.001, Sinit, vinit, 0]'; 
+R2complexfitting.x0 = [0.001, Sinit, vinit]'; 
 
 %allow fB0 to vary:
 % set the parameter lower bound
-R2complexfitting.lb = [0, 0, vmin, -1]';
+R2complexfitting.lb = [0, 0, vmin]';
 % % set the parameter upper bound
-R2complexfitting.ub = [3*Sinit, 3*Sinit, vmax, 1]'; 
+R2complexfitting.ub = [3*Sinit, 3*Sinit, vmax]'; 
 
 % run the optimisation
 [pmin1, fmin1] = fmincon(R2complexfitting); %fmin is the minimised SSE
 
 % Next assume HIGH FF (FAT DOMINANT) TISSUE (Use first echo to provide water guess)
-R2complexfitting.x0 = [Sinit, 0.001, vinit, 0]'; 
+R2complexfitting.x0 = [Sinit, 0.001, vinit]'; 
 
 % run the optimisation
 [pmin2, fmin2] = fmincon(R2complexfitting); %fmin is the minimised SSE
