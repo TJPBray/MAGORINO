@@ -1,9 +1,23 @@
-function outparams = R2fitting (echotimes, tesla, Smeasured, sig) %noise SD needed for Rician fit
+function outparams = R2fitting (echotimes, tesla, Smeasured, sig, GT) %noise SD needed for Rician fit
+%function outparams = R2fitting (echotimes, tesla, Smeasured, sig, GT)
 
-%R2* fitting
+% Description: Fitting 'wrapper' implements standard Gaussian, Rician and
+% complex fitting and generates outputs for each
+%
+% Input:
+% echotimes as an m-by-1 vector
+% tesla is scalar-valued field strength
+% Smeasured is n-by-1 measured signal vector
+% sig is estimated noise sigma
+% GT is ground truth value to enable ground truth initialisation
+
+% Output:
+% outparams structure
+
+% Author: Tim Bray t.bray@ucl.ac.uk
 
 Scomplex=Smeasured; %retain complex data for use in complex fitting
-Smeasured=abs(Smeasured); %otherwise use magnitude
+Smagnitude=abs(Smeasured); %otherwise use magnitude
 
 %% Set constants for initialisation
 
@@ -14,13 +28,13 @@ vmin=0; %negative value for min to avoid penalisation at boundary
 
 %Set signal initialisation for fat and water: Sinit
 C=exp(vinit);
-Sinit=C*max(abs(Smeasured)); %partially compensates for R2* to improve initialisation
+Sinit=C*max(Smagnitude); %partially compensates for R2* to improve initialisation
 % Sinit=100;
 
 %% Set up the optimisation framework for standard magnitude fitting
 
 % define the objective function
-R2fitting.objective = @(p) -R2Obj(p,echotimes,tesla,Smeasured,sig);
+R2fitting.objective = @(p) -R2Obj(p,echotimes,tesla,Smagnitude,sig);
 
 % set the solver 
 R2fitting.solver = 'fmincon';
@@ -97,7 +111,7 @@ R2Ricianfitting.ub=R2fitting.ub;
 R2Ricianfitting.x0=R2fitting.x0;
 
 % define the objective function
-R2Ricianfitting.objective = @(p) -R2RicianObj(p,echotimes,tesla,Smeasured,sig); 
+R2Ricianfitting.objective = @(p) -R2RicianObj(p,echotimes,tesla,Smagnitude,sig); 
 
 %% Implement Rician fitting for both water-dominant and fat-dominant initialisations
 % [F W R2* fB0]
