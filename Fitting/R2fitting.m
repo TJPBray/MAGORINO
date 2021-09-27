@@ -97,6 +97,10 @@ outparams.standard.chosenmin=1;
 % Calculate SSE for standard (Gaussian) fitting (NB this is different to fmin above, which corresponds to likelihood)
 [~,outparams.standard.SSE]=R2Obj(pmin1_mag,echotimes,tesla,Smagnitude,sig);
 
+% Calculate SSE for standard (Gaussian) fitting relative to noise-free
+% signal
+[~,outparams.standard.SSEtrue]=R2Obj(pmin1_mag,echotimes,tesla,GT.S,sig);
+
 else
     
 outparams.standard.F = pmin2_mag(1); %swap fat and water from lines above
@@ -109,11 +113,16 @@ outparams.standard.chosenmin=2;
 % Calculate SSE for standard (Gaussian) fitting (NB this is different to fmin above, which corresponds to likelihood)
 [~,outparams.standard.SSE]=R2Obj(pmin2_mag,echotimes,tesla,Smagnitude,sig);
 
+% Calculate SSE for standard (Gaussian) fitting relative to noise-free
+% signal
+[~,outparams.standard.SSEtrue]=R2Obj(pmin2_mag,echotimes,tesla,GT.S,sig);
+
 end
 
-% Calculate SSE for standard (Gaussian) fitting relative to ground truth
-[~,outparams.standard.SSEtrue]=R2Obj(pmin3_mag,echotimes,tesla,GT.S,sig);
-
+% Calculate SSE for standard (Gaussian) fitting for ground-truth
+% initialised value
+[~,outparams.standard.SSEgtinit]=R2Obj(pmin3_mag,echotimes,tesla,Smagnitude,sig);
+[~,outparams.standard.SSEtrue_gtinit]=R2Obj(pmin3_mag,echotimes,tesla,abs(GT.S),sig);
 
 %% Set up the optimisation framework for  magnitude fitting with Rician noise modelling
 
@@ -171,6 +180,9 @@ outparams.Rician.chosenmin=1;
 % Calculate SSE for Rician fitting (NB this is different to fmin above, which corresponds to likelihood)
 [~,outparams.Rician.SSE]=R2Obj(pmin1_Ric,echotimes,tesla,Smagnitude,sig); %Can use R2Obj here to calculate SSE rather than R2RicianObj
 
+% Calculate SSE for Rician fitting relative to ground truth
+[~,outparams.Rician.SSEtrue]=R2Obj(pmin1_Ric,echotimes,tesla,GT.S,sig); %Can use R2Obj here to calculate SSE rather than R2RicianObj
+
 else
     
 outparams.Rician.F = pmin2_Ric(1);
@@ -183,10 +195,14 @@ outparams.Rician.chosenmin=2;
 % Calculate SSE for Rician fitting (NB this is different to fmin above, which corresponds to likelihood)
 [~,outparams.Rician.SSE]=R2Obj(pmin2_Ric,echotimes,tesla,Smagnitude,sig); %Can use R2Obj here to calculate SSE rather than R2RicianObj
 
+% Calculate SSE for Rician fitting relative to ground truth
+[~,outparams.Rician.SSEtrue]=R2Obj(pmin2_Ric,echotimes,tesla,GT.S,sig); %Can use R2Obj here to calculate SSE rather than R2RicianObj
+
 end
 
-% Calculate SSE for standard (Gaussian) fitting relative to ground truth
-[~,outparams.Rician.SSEtrue]=R2Obj(pmin3_Ric,echotimes,tesla,GT.S,sig);
+% Calculate SSE for standard (Gaussian) for ground-truth initialised value
+[~,outparams.Rician.SSEgtinit]=R2Obj(pmin3_Ric,echotimes,tesla,Smagnitude,sig); %For measured signal
+[~,outparams.Rician.SSEtrue_gtinit]=R2Obj(pmin3_Ric,echotimes,tesla,abs(GT.S),sig); %For ground-truth initialised signal
 
 %% Set up the optimisation framework for  complex fitting
 
@@ -251,6 +267,9 @@ outparams.complex.chosenmin=1;
 % Calculate SSE for complex fitting
 [~,outparams.complex.SSE]=R2ComplexObj(pmin1,echotimes,tesla,Scomplex,sig);
 
+% Calculate SSE for complex fitting relative to noise-free signal
+[~,outparams.complex.SSEtrue]=R2ComplexObj(pmin1,echotimes,tesla,GT.S,sig);
+
 else
     
 outparams.complex.F = pmin2(1);
@@ -263,10 +282,17 @@ outparams.complex.chosenmin=2;
 % Calculate SSE for complex fitting
 [~,outparams.complex.SSE]=R2ComplexObj(pmin2,echotimes,tesla,Scomplex,sig);
 
+% Calculate SSE for complex fitting relative to noise-free signal
+[~,outparams.complex.SSEtrue]=R2ComplexObj(pmin2,echotimes,tesla,GT.S,sig);
+
 end
 
-% Calculate SSE for standard (Gaussian) fitting relative to ground truth
-[~,outparams.complex.SSEtrue]=R2ComplexObj(pmin3,echotimes,tesla,GT.S,sig);
+% Calculate SSE for standard (Gaussian) for ground-truth initialised
+% parameters
+[~,outparams.complex.SSEgtinit]=R2ComplexObj(pmin3,echotimes,tesla,Scomplex,sig); %Relative to measured signal
+[~,outparams.complex.SSEtrue_gtinit]=R2ComplexObj(pmin3,echotimes,tesla,GT.S,sig); %Relative to ground-truth noise-free signal
+
+
 
 
 end
