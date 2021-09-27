@@ -30,7 +30,20 @@ function [loglik,sse] = R2ComplexObj(p,echotimes,tesla,Smeasured,sig)
 %% Compute predicted outcomes from model parameters and the parameters
 % Spredicted is computed from the fat model (amplitudes and frequencies) given in fatfunction
 
+%Supply 3 or 4 parameters to model function depending on input
+
+if length(p)==3
+    
 Spredicted = MultiPeakFatSingleR2(echotimes,tesla,p(1),p(2),p(3),0);
+
+elseif length(p)==4
+    
+Spredicted = MultiPeakFatSingleR2(echotimes,tesla,p(1),p(2),p(3),0);
+
+else
+    error('Incorrect number of parameters for R2ComplexObj')
+    
+end
 
 %% Calculate SSE
 
