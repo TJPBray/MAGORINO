@@ -1,6 +1,6 @@
 %% Create figures
 
-function createfig(FFmaps,errormaps,sdmaps,residuals)
+function Createfig(FFmaps,errormaps,sdmaps,residuals)
 % Createfig(FFmaps,errormaps,sdmaps,residuals)
 
 % Input: FFmaps,errormaps,sdmaps, residuals
@@ -71,7 +71,7 @@ title('Gaussian magnitude parameter error')
 colorbar
 
 subplot(5,3,2)
-image(errormaps.FFrician,'CDataMapping','scaled')
+image(errormaps.FFRician,'CDataMapping','scaled')
 ax=gca;
 ax.CLim=[-100 100];
 xticks([1 2 3 4 5 6 7 8 9 10 11]);
@@ -156,7 +156,7 @@ colormap(s1,gray)
 colorbar
 
 s2=subplot(5,3,5)
-image(abs(sdmaps.FFrician),'CDataMapping','scaled')
+image(abs(sdmaps.FFRician),'CDataMapping','scaled')
 ax=gca;
  ax.CLim=[0 100];
 xticks([1 2 3 4 5 6 7 8 9 10 11]);
@@ -329,7 +329,7 @@ title('Gaussian magnitude parameter error')
 colorbar
 
 subplot(2,3,2)
-image(errormaps.R2rician,'CDataMapping','scaled')
+image(errormaps.R2Rician,'CDataMapping','scaled')
 ax=gca;
 ax.CLim=[-1 1];
 xticks([1 2 3 4 5 6 7 8 9 10 11]);
@@ -370,7 +370,7 @@ title('Gaussian magnitude parameter SD')
 colorbar
 
 subplot(2,3,5)
-image(abs(sdmaps.R2rician),'CDataMapping','scaled')
+image(abs(sdmaps.R2Rician),'CDataMapping','scaled')
 ax=gca;
 ax.CLim=[0 1];
 xticks([1 2 3 4 5 6 7 8 9 10 11]);
@@ -395,6 +395,88 @@ ylabel('Fat fraction (%)','FontSize',12)
 title('Complex fitting parameter SD')
 colorbar
 
+%% S0 error
+
+figure('Name', 'S0 error')
+s1=subplot(2,3,1)
+image(errormaps.S0standard,'CDataMapping','scaled')
+ax=gca;
+ax.CLim=[-1 1];
+xticks([1 2 3 4 5 6 7 8 9 10 11]);
+xticklabels({'0','.1', '.2', '.3', '.4', '.5', '.6', '.7', '.8', '.9','1.0'});
+xlabel('R2* (ms^-^1)','FontSize',12)
+yticks([1 6 11 16 21 26 31 36 41 46 51]);
+yticklabels({'0','10','20','30','40','50','60','70','80','90','100'});
+ylabel('Fat fraction (%)','FontSize',12)
+title('Gaussian magnitude parameter error')
+colorbar
+
+subplot(2,3,2)
+image(errormaps.S0Rician,'CDataMapping','scaled')
+ax=gca;
+ax.CLim=[-1 1];
+xticks([1 2 3 4 5 6 7 8 9 10 11]);
+xticklabels({'0','.1', '.2', '.3', '.4', '.5', '.6', '.7', '.8', '.9','1.0'});
+xlabel('R2* (ms^-^1)','FontSize',12)
+yticks([1 6 11 16 21 26 31 36 41 46 51]);
+yticklabels({'0','10','20','30','40','50','60','70','80','90','100'});
+ylabel('Fat fraction (%)','FontSize',12)
+title('Rician magnitude parameter error')
+colorbar
+
+subplot(2,3,3)
+image(errormaps.S0complex,'CDataMapping','scaled')
+ax=gca;
+ax.CLim=[-1 1];
+xticks([1 2 3 4 5 6 7 8 9 10 11]);
+xticklabels({'0','.1', '.2', '.3', '.4', '.5', '.6', '.7', '.8', '.9','1.0'});
+xlabel('R2* (ms^-^1)','FontSize',12)
+yticks([1 6 11 16 21 26 31 36 41 46 51]);
+yticklabels({'0','10','20','30','40','50','60','70','80','90','100'});
+ylabel('Fat fraction (%)','FontSize',12)
+title('Complex fitting parameter error')
+colorbar
+
+%S0 SD
+
+s1=subplot(2,3,4)
+image(abs(sdmaps.S0standard),'CDataMapping','scaled')
+ax=gca;
+ax.CLim=[0 1];
+xticks([1 2 3 4 5 6 7 8 9 10 11]);
+xticklabels({'0','.1', '.2', '.3', '.4', '.5', '.6', '.7', '.8', '.9','1.0'});
+xlabel('R2* (ms^-^1)','FontSize',12)
+yticks([1 6 11 16 21 26 31 36 41 46 51]);
+yticklabels({'0','10','20','30','40','50','60','70','80','90','100'});
+ylabel('Fat fraction (%)','FontSize',12)
+title('Gaussian magnitude parameter SD')
+colorbar
+
+subplot(2,3,5)
+image(abs(sdmaps.S0Rician),'CDataMapping','scaled')
+ax=gca;
+ax.CLim=[0 1];
+xticks([1 2 3 4 5 6 7 8 9 10 11]);
+xticklabels({'0','.1', '.2', '.3', '.4', '.5', '.6', '.7', '.8', '.9','1.0'});
+xlabel('R2* (ms^-^1)','FontSize',12)
+yticks([1 6 11 16 21 26 31 36 41 46 51]);
+yticklabels({'0','10','20','30','40','50','60','70','80','90','100'});
+ylabel('Fat fraction (%)','FontSize',12)
+title('Rician magnitude parameter SD')
+colorbar
+
+subplot(2,3,6)
+image(abs(sdmaps.S0complex),'CDataMapping','scaled')
+ax=gca;
+ax.CLim=[0 1];
+xticks([1 2 3 4 5 6 7 8 9 10 11]);
+xticklabels({'0','.1', '.2', '.3', '.4', '.5', '.6', '.7', '.8', '.9','1.0'});
+xlabel('R2* (ms^-^1)','FontSize',12)
+yticks([1 6 11 16 21 26 31 36 41 46 51]);
+yticklabels({'0','10','20','30','40','50','60','70','80','90','100'});
+ylabel('Fat fraction (%)','FontSize',12)
+title('Complex fitting parameter SD')
+colorbar
 
 %% FF error for ground-truth initialised values
 % FF error
@@ -413,7 +495,7 @@ title('Gaussian magnitude parameter error')
 colorbar
 
 subplot(5,3,2)
-image(errormaps.FFrician_gtinitialised,'CDataMapping','scaled')
+image(errormaps.FFRician_gtinitialised,'CDataMapping','scaled')
 ax=gca;
 ax.CLim=[-100 100];
 xticks([1 2 3 4 5 6 7 8 9 10 11]);
@@ -454,7 +536,7 @@ colormap(s1,gray)
 colorbar
 
 s2=subplot(5,3,5)
-image(abs(sdmaps.FFrician_gtinitialised),'CDataMapping','scaled')
+image(abs(sdmaps.FFRician_gtinitialised),'CDataMapping','scaled')
 ax=gca;
  ax.CLim=[0 100];
 xticks([1 2 3 4 5 6 7 8 9 10 11]);
@@ -628,7 +710,7 @@ title('Gaussian magnitude parameter error')
 colorbar
 
 subplot(2,3,2)
-image(errormaps.R2rician,'CDataMapping','scaled')
+image(errormaps.R2Rician,'CDataMapping','scaled')
 ax=gca;
 ax.CLim=[-1 1];
 xticks([1 2 3 4 5 6 7 8 9 10 11]);
@@ -651,4 +733,128 @@ yticks([1 6 11 16 21 26 31 36 41 46 51]);
 yticklabels({'0','10','20','30','40','50','60','70','80','90','100'});
 ylabel('Fat fraction (%)','FontSize',12)
 title('Complex fitting parameter error')
+colorbar
+
+%R2* SD
+
+s1=subplot(2,3,4)
+image(abs(sdmaps.R2standard_gtinitialised),'CDataMapping','scaled')
+ax=gca;
+ax.CLim=[0 1];
+xticks([1 2 3 4 5 6 7 8 9 10 11]);
+xticklabels({'0','.1', '.2', '.3', '.4', '.5', '.6', '.7', '.8', '.9','1.0'});
+xlabel('R2* (ms^-^1)','FontSize',12)
+yticks([1 6 11 16 21 26 31 36 41 46 51]);
+yticklabels({'0','10','20','30','40','50','60','70','80','90','100'});
+ylabel('Fat fraction (%)','FontSize',12)
+title('Gaussian magnitude parameter SD')
+colorbar
+
+subplot(2,3,5)
+image(abs(sdmaps.R2Rician_gtinitialised),'CDataMapping','scaled')
+ax=gca;
+ax.CLim=[0 1];
+xticks([1 2 3 4 5 6 7 8 9 10 11]);
+xticklabels({'0','.1', '.2', '.3', '.4', '.5', '.6', '.7', '.8', '.9','1.0'});
+xlabel('R2* (ms^-^1)','FontSize',12)
+yticks([1 6 11 16 21 26 31 36 41 46 51]);
+yticklabels({'0','10','20','30','40','50','60','70','80','90','100'});
+ylabel('Fat fraction (%)','FontSize',12)
+title('Rician magnitude parameter SD')
+colorbar
+
+subplot(2,3,6)
+image(abs(sdmaps.R2complex_gtinitialised),'CDataMapping','scaled')
+ax=gca;
+ax.CLim=[0 1];
+xticks([1 2 3 4 5 6 7 8 9 10 11]);
+xticklabels({'0','.1', '.2', '.3', '.4', '.5', '.6', '.7', '.8', '.9','1.0'});
+xlabel('R2* (ms^-^1)','FontSize',12)
+yticks([1 6 11 16 21 26 31 36 41 46 51]);
+yticklabels({'0','10','20','30','40','50','60','70','80','90','100'});
+ylabel('Fat fraction (%)','FontSize',12)
+title('Complex fitting parameter SD')
+colorbar
+
+%% S0 error
+
+figure('Name', 'S0 error for GT initialisation')
+subplot(2,3,1)
+image(errormaps.S0standard_gtinitialised,'CDataMapping','scaled')
+ax=gca;
+ax.CLim=[-1 1];
+xticks([1 2 3 4 5 6 7 8 9 10 11]);
+xticklabels({'0','.1', '.2', '.3', '.4', '.5', '.6', '.7', '.8', '.9','1.0'});
+xlabel('R2* (ms^-^1)','FontSize',12)
+yticks([1 6 11 16 21 26 31 36 41 46 51]);
+yticklabels({'0','10','20','30','40','50','60','70','80','90','100'});
+ylabel('Fat fraction (%)','FontSize',12)
+title('Gaussian magnitude parameter error')
+colorbar
+
+subplot(2,3,2)
+image(errormaps.S0Rician_gtinitialised,'CDataMapping','scaled')
+ax=gca;
+ax.CLim=[-1 1];
+xticks([1 2 3 4 5 6 7 8 9 10 11]);
+xticklabels({'0','.1', '.2', '.3', '.4', '.5', '.6', '.7', '.8', '.9','1.0'});
+xlabel('R2* (ms^-^1)','FontSize',12)
+yticks([1 6 11 16 21 26 31 36 41 46 51]);
+yticklabels({'0','10','20','30','40','50','60','70','80','90','100'});
+ylabel('Fat fraction (%)','FontSize',12)
+title('Rician magnitude parameter error')
+colorbar
+
+subplot(2,3,3)
+image(errormaps.S0complex_gtinitialised,'CDataMapping','scaled')
+ax=gca;
+ax.CLim=[-1 1];
+xticks([1 2 3 4 5 6 7 8 9 10 11]);
+xticklabels({'0','.1', '.2', '.3', '.4', '.5', '.6', '.7', '.8', '.9','1.0'});
+xlabel('R2* (ms^-^1)','FontSize',12)
+yticks([1 6 11 16 21 26 31 36 41 46 51]);
+yticklabels({'0','10','20','30','40','50','60','70','80','90','100'});
+ylabel('Fat fraction (%)','FontSize',12)
+title('Complex fitting parameter error')
+colorbar
+
+%S0 SD
+
+s1=subplot(2,3,4)
+image(abs(sdmaps.S0standard_gtinitialised),'CDataMapping','scaled')
+ax=gca;
+ax.CLim=[0 1];
+xticks([1 2 3 4 5 6 7 8 9 10 11]);
+xticklabels({'0','.1', '.2', '.3', '.4', '.5', '.6', '.7', '.8', '.9','1.0'});
+xlabel('R2* (ms^-^1)','FontSize',12)
+yticks([1 6 11 16 21 26 31 36 41 46 51]);
+yticklabels({'0','10','20','30','40','50','60','70','80','90','100'});
+ylabel('Fat fraction (%)','FontSize',12)
+title('Gaussian magnitude parameter SD')
+colorbar
+
+subplot(2,3,5)
+image(abs(sdmaps.S0Rician_gtinitialised),'CDataMapping','scaled')
+ax=gca;
+ax.CLim=[0 1];
+xticks([1 2 3 4 5 6 7 8 9 10 11]);
+xticklabels({'0','.1', '.2', '.3', '.4', '.5', '.6', '.7', '.8', '.9','1.0'});
+xlabel('R2* (ms^-^1)','FontSize',12)
+yticks([1 6 11 16 21 26 31 36 41 46 51]);
+yticklabels({'0','10','20','30','40','50','60','70','80','90','100'});
+ylabel('Fat fraction (%)','FontSize',12)
+title('Rician magnitude parameter SD')
+colorbar
+
+subplot(2,3,6)
+image(abs(sdmaps.S0complex_gtinitialised),'CDataMapping','scaled')
+ax=gca;
+ax.CLim=[0 1];
+xticks([1 2 3 4 5 6 7 8 9 10 11]);
+xticklabels({'0','.1', '.2', '.3', '.4', '.5', '.6', '.7', '.8', '.9','1.0'});
+xlabel('R2* (ms^-^1)','FontSize',12)
+yticks([1 6 11 16 21 26 31 36 41 46 51]);
+yticklabels({'0','10','20','30','40','50','60','70','80','90','100'});
+ylabel('Fat fraction (%)','FontSize',12)
+title('Complex fitting parameter SD')
 colorbar
