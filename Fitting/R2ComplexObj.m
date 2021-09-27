@@ -38,7 +38,7 @@ Spredicted = MultiPeakFatSingleR2(echotimes,tesla,p(1),p(2),p(3),0);
 
 elseif length(p)==4
     
-Spredicted = MultiPeakFatSingleR2(echotimes,tesla,p(1),p(2),p(3),0);
+Spredicted = MultiPeakFatSingleR2(echotimes,tesla,p(1),p(2),p(3),p(4));
 
 else
     error('Incorrect number of parameters for R2ComplexObj')
