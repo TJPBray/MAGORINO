@@ -69,12 +69,12 @@ R2fitting.x0 = [Sinit, 0.001, vinit]';
 [pmin2_mag, fmin2_mag] = fmincon(R2fitting); %fmin is the minimised SSE
 
 % Next INITIALISE WITH GROUND TRUTH
-R2fitting.x0 = GT; 
+R2fitting.x0 = GT.p; 
 
 % run the optimisation
 [pmin3_mag, fmin3_mag] = fmincon(R2fitting); %fmin is the minimised SSE
 
-%Add the two solutions to outparams
+%Add the solutions to outparams
 outparams.standard.pmin1=pmin1_mag;
 outparams.standard.pmin2=pmin2_mag;
 outparams.standard.pmin3=pmin3_mag;
@@ -95,7 +95,7 @@ outparams.standard.fmin = fmin1_mag;
 outparams.standard.chosenmin=1;
 
 % Calculate SSE for standard (Gaussian) fitting (NB this is different to fmin above, which corresponds to likelihood)
-[~,outparams.standard.SSE]=R2Obj(pmin1_mag,echotimes,tesla,Smagnitude,sig)
+[~,outparams.standard.SSE]=R2Obj(pmin1_mag,echotimes,tesla,Smagnitude,sig);
 
 else
     
@@ -107,9 +107,12 @@ outparams.standard.fmin = fmin2_mag;
 outparams.standard.chosenmin=2;
 
 % Calculate SSE for standard (Gaussian) fitting (NB this is different to fmin above, which corresponds to likelihood)
-[~,outparams.standard.SSE]=R2Obj(pmin2_mag,echotimes,tesla,Smagnitude,sig)
+[~,outparams.standard.SSE]=R2Obj(pmin2_mag,echotimes,tesla,Smagnitude,sig);
+
 end
 
+% Calculate SSE for standard (Gaussian) fitting relative to ground truth
+[~,outparams.standard.SSEtrue]=R2Obj(pmin3_mag,echotimes,tesla,GT.S,sig);
 
 
 %% Set up the optimisation framework for  magnitude fitting with Rician noise modelling
@@ -140,7 +143,7 @@ R2Ricianfitting.x0 = [Sinit, 0.001, vinit]';
 [pmin2_Ric, fmin2_Ric] = fmincon(R2Ricianfitting); %fmin is the minimised SSE
 
 % Next INITIALISE WITH GROUND TRUTH
-R2Ricianfitting.x0 = GT; 
+R2Ricianfitting.x0 = GT.p; 
 
 % run the optimisation
 [pmin3_Ric, fmin3_Ric] = fmincon(R2Ricianfitting); %fmin is the minimised SSE
@@ -166,7 +169,7 @@ outparams.Rician.fmin = fmin1_Ric; %For Rician fitting, fmin corresponds to the 
 outparams.Rician.chosenmin=1;
 
 % Calculate SSE for Rician fitting (NB this is different to fmin above, which corresponds to likelihood)
-[~,outparams.Rician.SSE]=R2Obj(pmin1_Ric,echotimes,tesla,Smagnitude,sig) %Can use R2Obj here to calculate SSE rather than R2RicianObj
+[~,outparams.Rician.SSE]=R2Obj(pmin1_Ric,echotimes,tesla,Smagnitude,sig); %Can use R2Obj here to calculate SSE rather than R2RicianObj
 
 else
     
@@ -178,10 +181,12 @@ outparams.Rician.fmin = fmin2_Ric; %For Rician fitting, fmin corresponds to the 
 outparams.Rician.chosenmin=2;
 
 % Calculate SSE for Rician fitting (NB this is different to fmin above, which corresponds to likelihood)
-[~,outparams.Rician.SSE]=R2Obj(pmin2_Ric,echotimes,tesla,Smagnitude,sig) %Can use R2Obj here to calculate SSE rather than R2RicianObj
+[~,outparams.Rician.SSE]=R2Obj(pmin2_Ric,echotimes,tesla,Smagnitude,sig); %Can use R2Obj here to calculate SSE rather than R2RicianObj
 
 end
 
+% Calculate SSE for standard (Gaussian) fitting relative to ground truth
+[~,outparams.Rician.SSEtrue]=R2Obj(pmin3_Ric,echotimes,tesla,GT.S,sig);
 
 %% Set up the optimisation framework for  complex fitting
 
@@ -217,7 +222,7 @@ R2complexfitting.x0 = [Sinit, 0.001, vinit]';
 [pmin2, fmin2] = fmincon(R2complexfitting); %fmin is the minimised SSE
 
 % Next INITIALISE WITH GROUND TRUTH
-R2complexfitting.x0 = GT; 
+R2complexfitting.x0 = GT.p; 
 
 % run the optimisation
 [pmin3, fmin3] = fmincon(R2complexfitting); %fmin is the minimised SSE
@@ -243,8 +248,8 @@ outparams.complex.R2 = pmin1(3);
 outparams.complex.fmin = fmin1;
 outparams.complex.chosenmin=1;
 
-% Calculate SSE for Rician fitting (NB this is different to fmin above, which corresponds to likelihood)
-[~,outparams.complex.SSE]=R2ComplexObj(pmin1,echotimes,tesla,Scomplex,sig) %Can use R2Obj here to calculate SSE rather than R2RicianObj
+% Calculate SSE for complex fitting
+[~,outparams.complex.SSE]=R2ComplexObj(pmin1,echotimes,tesla,Scomplex,sig);
 
 else
     
@@ -255,10 +260,14 @@ outparams.complex.R2 = pmin2(3);
 outparams.complex.fmin = fmin2;
 outparams.complex.chosenmin=2;
 
-% Calculate SSE for Rician fitting (NB this is different to fmin above, which corresponds to likelihood)
-[~,outparams.complex.SSE]=R2ComplexObj(pmin2,echotimes,tesla,Scomplex,sig) %Can use R2Obj here to calculate SSE rather than R2RicianObj
+% Calculate SSE for complex fitting
+[~,outparams.complex.SSE]=R2ComplexObj(pmin2,echotimes,tesla,Scomplex,sig);
 
 end
+
+% Calculate SSE for standard (Gaussian) fitting relative to ground truth
+[~,outparams.complex.SSEtrue]=R2ComplexObj(pmin3,echotimes,tesla,GT.S,sig);
+
 
 end
 

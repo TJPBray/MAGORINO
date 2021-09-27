@@ -29,7 +29,9 @@ Wgrid=S0-Fgrid;
 % Fgrid=repelem([0:20:100]',1,6);
 % Wgrid=100-Fgrid;
 
-% Add echotime values
+%% Specify parameter values
+
+% Specify echotimes
 % MAGO paper at 3T used 12 echoes (TE1 1.1, dTE 1.1)
 % MAGO paper at 1.5T used 6 echoes (TE1 1.2, dTE 2)
 echotimes=[1.1:1.1:13.2]';
@@ -68,6 +70,9 @@ noise_grid = noiseReal_grid + 1i*noiseImag_grid;
 % NoiseROI= normrnd(0,noiseSD,[200 1]) + i*normrnd(0,noiseSD,[200 1]);
 % sigma=std(real(NoiseROI));
 
+%% Initalise GT
+GT=struct();
+
 %% Loop through values
 
 for y=1:size(Fgrid,1)
@@ -79,6 +84,12 @@ for y=1:size(Fgrid,1)
 
 %Simulate noise-free signal
 Snoisefree=MultiPeakFatSingleR2(echotimes,3,F,W,v,fB);
+
+% Specify ground truth signal
+GT.S = Snoisefree;
+
+%Specify ground truth parameter values
+GT.p = [F W v];
 
 %%Loop through reps
 parfor r=1:reps
@@ -99,7 +110,7 @@ Snoisy=Snoisefree+noise;
 %% Implement fitting with noisy data
 % This will implement both standard magnitude fitting and with Rician noise
 % modelling
-outparams = R2fitting(echotimes,3,Snoisy,noiseSD,[F W v]);
+outparams = R2fitting(echotimes,3,Snoisy,noiseSD,GT);
 
 %% Plot
 
@@ -166,8 +177,18 @@ fmin2standard(y,x,r)=outparams.standard.fmin2;
 fmin1Rician(y,x,r)=outparams.Rician.fmin1;
 fmin2Rician(y,x,r)=outparams.Rician.fmin2;
 
+fmin1complex(y,x,r)=outparams.complex.fmin1;
+fmin2complex(y,x,r)=outparams.complex.fmin2;
+
+%SSE 
 SSEstandard(y,x,r)=outparams.standard.SSE; %NB SSE matches the lower of the two residuals above (i.e. the chosen likelihood maximum / error minimum)
 SSERician(y,x,r)=outparams.Rician.SSE;
+SSEcomplex(y,x,r)=outparams.complex.SSE;
+
+%SSE true (relative to ground truth)
+SSEtrue_standard(y,x,r)=outparams.standard.SSEtrue;
+SSEtrue_Rician(y,x,r)=outparams.Rician.SSEtrue;
+SSEtrue_complex(y,x,r)=outparams.complex.SSEtrue;
 
     end
 end
@@ -191,10 +212,17 @@ FF_complex_mean=100*mean(FF_complex,3);
 residuals.standard.fmin1=mean(fmin1standard,3);
 residuals.standard.fmin2=mean(fmin2standard,3);
 residuals.standard.SSE=mean(SSEstandard,3);
+residuals.standard.SSEtrue=mean(SSEtrue_standard,3);
 
 residuals.Rician.fmin1=mean(fmin1Rician,3);
 residuals.Rician.fmin2=mean(fmin2Rician,3);
 residuals.Rician.SSE=mean(SSERician,3);
+residuals.Rician.SSEtrue=mean(SSEtrue_Rician,3);
+
+residuals.complex.fmin1=mean(fmin1complex,3);
+residuals.complex.fmin2=mean(fmin2complex,3);
+residuals.complex.SSE=mean(SSEcomplex,3);
+residuals.complex.SSEtrue=mean(SSEtrue_complex,3);
 
 %% Get SD of grids over repetitions
 vhat_standard_sd=std(vhat_standard,0,3);
