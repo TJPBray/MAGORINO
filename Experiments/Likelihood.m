@@ -1,12 +1,13 @@
 %Visualise likelihood
 
-function [outparams] = Likelihood(FF,v,SNR,figshow)
+function [outparams] = VisObjFun(FF,v,SNR,figshow)
 
-% function [outparams] = Likelihood(FF,v,figshow)
+% function [outparams] = VisObjFun(FF,v,figshow)
 
 % Description:
-% Enables visualisation of likelihood plots for signal intensities
-% generated from specified FF and R2* values
+% Enables visualisation of objective function for signal intensities
+% generated from specified FF and R2* values, as well as results from fit
+% and grid search 
 
 % Input: 
 % Specified FF, R2* (v) and SNR 
