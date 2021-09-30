@@ -69,7 +69,7 @@ R2fitting.x0 = [Sinit, 0.001, vinit]';
 [pmin2_mag, fmin2_mag] = fmincon(R2fitting); %fmin is the minimised SSE
 
 % Next INITIALISE WITH GROUND TRUTH
-R2fitting.x0 = GT.p; 
+R2fitting.x0 = GT.p(1:3); %Only three params for magnitude fitting
 
 % run the optimisation
 [pmin3_mag, fmin3_mag] = fmincon(R2fitting); %fmin is the minimised SSE
@@ -152,7 +152,7 @@ R2Ricianfitting.x0 = [Sinit, 0.001, vinit]';
 [pmin2_Ric, fmin2_Ric] = fmincon(R2Ricianfitting); %fmin is the minimised SSE
 
 % Next INITIALISE WITH GROUND TRUTH
-R2Ricianfitting.x0 = GT.p; 
+R2Ricianfitting.x0 = GT.p(1:3); %Only three params for magnitude fitting
 
 % run the optimisation
 [pmin3_Ric, fmin3_Ric] = fmincon(R2Ricianfitting); %fmin is the minimised SSE
@@ -209,36 +209,34 @@ end
 % Replicate settings from above
 R2complexfitting.solver=R2fitting.solver;
 R2complexfitting.options=R2fitting.options;
-R2complexfitting.lb=R2fitting.lb;
-R2complexfitting.ub=R2fitting.ub;
-R2complexfitting.x0=R2fitting.x0;
 
-% define the objective function
+% Define the objective function
 R2complexfitting.objective = @(p) -R2ComplexObj(p,echotimes,tesla,Scomplex,sig);
 
 %% Implement complex fitting for both water-dominant and fat-dominant initialisations
 % [F W R2* fB0]
 
 % First assume LOW FF (WATER DOMINANT) TISSUE (Use first echo to provide water guess)
-R2complexfitting.x0 = [0.001, Sinit, vinit]'; 
+R2complexfitting.x0 = [0.001, Sinit, vinit, 0]'; 
 
 %allow fB0 to vary:
 % set the parameter lower bound
-R2complexfitting.lb = [0, 0, vmin]';
+R2complexfitting.lb = [0, 0, vmin, -Inf]';
+
 % % set the parameter upper bound
-R2complexfitting.ub = [3*Sinit, 3*Sinit, vmax]'; 
+R2complexfitting.ub = [3*Sinit, 3*Sinit, vmax, Inf]'; 
 
 % run the optimisation
 [pmin1, fmin1] = fmincon(R2complexfitting); %fmin is the minimised SSE
 
 % Next assume HIGH FF (FAT DOMINANT) TISSUE (Use first echo to provide water guess)
-R2complexfitting.x0 = [Sinit, 0.001, vinit]'; 
+R2complexfitting.x0 = [Sinit, 0.001, vinit, 0]'; 
 
 % run the optimisation
 [pmin2, fmin2] = fmincon(R2complexfitting); %fmin is the minimised SSE
 
 % Next INITIALISE WITH GROUND TRUTH
-R2complexfitting.x0 = GT.p; 
+R2complexfitting.x0 = GT.p; %Use all four params for complex fitting
 
 % run the optimisation
 [pmin3, fmin3] = fmincon(R2complexfitting); %fmin is the minimised SSE
@@ -291,8 +289,6 @@ end
 % parameters
 [~,outparams.complex.SSEgtinit]=R2ComplexObj(pmin3,echotimes,tesla,Scomplex,sig); %Relative to measured signal
 [~,outparams.complex.SSEtrue_gtinit]=R2ComplexObj(pmin3,echotimes,tesla,GT.S,sig); %Relative to ground-truth noise-free signal
-
-
 
 
 end
