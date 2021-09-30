@@ -19,7 +19,7 @@ function Fitsuccess(FF,v,SNR,reps)
 %% Loop over repetitions
 parfor r =1:reps
     
-    [outparams] = Likelihood(FF,v,SNR,0);
+    [outparams] = VisObjFun(FF,v,SNR,0);
     
     %Get FF and v for standard fitting
     fittedFF_mag(r,1)=100*outparams.standard.F/(outparams.standard.F+outparams.standard.W);
