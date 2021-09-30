@@ -89,7 +89,7 @@ Snoisefree=MultiPeakFatSingleR2(echotimes,3,F,W,v,fB);
 GT.S = Snoisefree;
 
 %Specify ground truth parameter values
-GT.p = [F W v];
+GT.p = [F W v 0];
 
 %%Loop through reps
 parfor r=1:reps
