@@ -110,48 +110,8 @@ Snoisy=Snoisefree+noise;
 %% Implement fitting with noisy data
 % This will implement both standard magnitude fitting and with Rician noise
 % modelling
+
 outparams = R2fitting(echotimes,3,Snoisy,noiseSD,GT);
-
-%% Plot
-
-if figshow==1
-
-% Plot noisy data
-figure('name',strcat('FF= ',num2str(F),'  R2*= ',num2str(v)))
-plot(echotimes, abs(Snoisy)); %plot magnitude only 
-
-hold on 
-
-%Plot ground truth data
-plot(echotimes, abs(Smeasured), 'Linewidth',3); %plot magnitude only 
-
-%Plot noiseless fits
-% plot(echotimes, abs(Fatfunction(echotimes,outparams_noiseless.standard.F,outparams_noiseless.standard.W,outparams_noiseless.standard.R2,0)),'Linewidth',3, 'Linestyle','--')
-
-%Plot for standard fitting
-plot(echotimes, abs(Fatfunction(echotimes,tesla,outparams.standard.F,outparams.standard.W,outparams.standard.R2,0)),'Linewidth',3)
-
-%Plot for fitting with Rician noise modelling
-%Plot for standard fitting
-plot(echotimes, abs(Fatfunction(echotimes,tesla,outparams.Rician.F,outparams.Rician.W,outparams.Rician.R2,0)),'Linewidth',3)
-
-%Plot for complex fitting
-plot(echotimes, abs(Fatfunction(echotimes,tesla,outparams.complex.F,outparams.complex.W,outparams.complex.R2,0)),'Linewidth',3)
-
-%% Add legend
-legend('Noisy data', 'Ground truth', 'Standard magnitude fitting', 'Rician magnitude fitting', 'Complex fitting')
-ax=gca;
-ax.FontSize=14;
-xlabel('Echo Time (ms)');
-ylabel('Signal');
-
-%% Print data
-disp(outparams.standard)
-disp(outparams.Rician)
-disp(outparams.complex)
-
-else ;
-end
 
 
 %% Add parameter estimates to grid
