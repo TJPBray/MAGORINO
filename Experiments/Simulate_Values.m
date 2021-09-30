@@ -279,9 +279,9 @@ errormaps.R2standard=R2maps.standard-vgrid;
 errormaps.R2Rician=R2maps.Rician-vgrid;
 errormaps.R2complex=R2maps.complex-vgrid;
 
-errormaps.S0standard=S0maps.standard-S0;
-errormaps.S0Rician=S0maps.Rician-S0;
-errormaps.S0complex=S0maps.complex-S0;
+errormaps.S0standard=(S0maps.standard-S0)/S0;
+errormaps.S0Rician=(S0maps.Rician-S0)/S0;
+errormaps.S0complex=(S0maps.complex-S0)/S0;
 
 %For ground-truth initialisation
 errormaps.FFstandard_gtinitialised=FFmaps.standard_gtinitialised-Fgrid;
@@ -292,9 +292,9 @@ errormaps.R2standard_gtinitialised=R2maps.standard_gtinitialised-vgrid;
 errormaps.R2Rician_gtinitialised=R2maps.Rician_gtinitialised-vgrid;
 errormaps.R2complex_gtinitialised=R2maps.complex_gtinitialised-vgrid;
 
-errormaps.S0standard_gtinitialised=S0maps.standard_gtinitialised-S0;
-errormaps.S0Rician_gtinitialised=S0maps.Rician_gtinitialised-S0;
-errormaps.S0complex_gtinitialised=S0maps.complex_gtinitialised-S0;
+errormaps.S0standard_gtinitialised=(S0maps.standard_gtinitialised-S0)/S0;
+errormaps.S0Rician_gtinitialised=(S0maps.Rician_gtinitialised-S0)/S0;
+errormaps.S0complex_gtinitialised=(S0maps.complex_gtinitialised-S0)/S0;
 
 %% Get SD of grids over repetitions
 
@@ -307,9 +307,9 @@ sdmaps.FFstandard=100*std(FF_standard,0,3);
 sdmaps.FFRician=100*std(FF_Rician,0,3);
 sdmaps.FFcomplex=100*std(FF_complex,0,3);
 
-sdmaps.S0standard=100*std(S0_standard,0,3); 
-sdmaps.S0Rician=100*std(S0_Rician,0,3);
-sdmaps.S0complex=100*std(S0_complex,0,3);
+sdmaps.S0standard=std(S0_standard,0,3); 
+sdmaps.S0Rician=std(S0_Rician,0,3);
+sdmaps.S0complex=std(S0_complex,0,3);
 
 %For ground-truth initialisation
 sdmaps.R2standard_gtinitialised=std(vhat_standard_gtinitialised,0,3);
@@ -320,9 +320,9 @@ sdmaps.FFstandard_gtinitialised=100*std(FF_standard_gtinitialised,0,3);
 sdmaps.FFRician_gtinitialised=100*std(FF_Rician_gtinitialised,0,3);
 sdmaps.FFcomplex_gtinitialised=100*std(FF_complex_gtinitialised,0,3);
 
-sdmaps.S0standard_gtinitialised=100*std(S0_standard_gtinitialised,0,3); 
-sdmaps.S0Rician_gtinitialised=100*std(S0_Rician_gtinitialised,0,3);
-sdmaps.S0complex_gtinitialised=100*std(S0_complex_gtinitialised,0,3);
+sdmaps.S0standard_gtinitialised=std(S0_standard_gtinitialised,0,3); 
+sdmaps.S0Rician_gtinitialised=std(S0_Rician_gtinitialised,0,3);
+sdmaps.S0complex_gtinitialised=std(S0_complex_gtinitialised,0,3);
 
 
 %% Find mean parameter error values
