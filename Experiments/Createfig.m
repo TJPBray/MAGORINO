@@ -356,7 +356,7 @@ colorbar
 
 %R2* SD
 
-s1=subplot(2,3,4)
+s1=subplot(2,3,4);
 image(abs(sdmaps.R2standard),'CDataMapping','scaled')
 ax=gca;
 ax.CLim=[0 1];
@@ -398,7 +398,7 @@ colorbar
 %% S0 error
 
 figure('Name', 'S0 error')
-s1=subplot(2,3,1)
+s1=subplot(2,3,1);
 image(errormaps.S0standard,'CDataMapping','scaled')
 ax=gca;
 ax.CLim=[-1 1];
@@ -439,10 +439,10 @@ colorbar
 
 %S0 SD
 
-s1=subplot(2,3,4)
+s1=subplot(2,3,4);
 image(abs(sdmaps.S0standard),'CDataMapping','scaled')
 ax=gca;
-ax.CLim=[0 1];
+ax.CLim=[0 100];
 xticks([1 2 3 4 5 6 7 8 9 10 11]);
 xticklabels({'0','.1', '.2', '.3', '.4', '.5', '.6', '.7', '.8', '.9','1.0'});
 xlabel('R2* (ms^-^1)','FontSize',12)
@@ -455,7 +455,7 @@ colorbar
 subplot(2,3,5)
 image(abs(sdmaps.S0Rician),'CDataMapping','scaled')
 ax=gca;
-ax.CLim=[0 1];
+ax.CLim=[0 100];
 xticks([1 2 3 4 5 6 7 8 9 10 11]);
 xticklabels({'0','.1', '.2', '.3', '.4', '.5', '.6', '.7', '.8', '.9','1.0'});
 xlabel('R2* (ms^-^1)','FontSize',12)
@@ -468,7 +468,7 @@ colorbar
 subplot(2,3,6)
 image(abs(sdmaps.S0complex),'CDataMapping','scaled')
 ax=gca;
-ax.CLim=[0 1];
+ax.CLim=[0 100];
 xticks([1 2 3 4 5 6 7 8 9 10 11]);
 xticklabels({'0','.1', '.2', '.3', '.4', '.5', '.6', '.7', '.8', '.9','1.0'});
 xlabel('R2* (ms^-^1)','FontSize',12)
@@ -823,7 +823,7 @@ colorbar
 s1=subplot(2,3,4)
 image(abs(sdmaps.S0standard_gtinitialised),'CDataMapping','scaled')
 ax=gca;
-ax.CLim=[0 1];
+ax.CLim=[0 100];
 xticks([1 2 3 4 5 6 7 8 9 10 11]);
 xticklabels({'0','.1', '.2', '.3', '.4', '.5', '.6', '.7', '.8', '.9','1.0'});
 xlabel('R2* (ms^-^1)','FontSize',12)
@@ -836,7 +836,7 @@ colorbar
 subplot(2,3,5)
 image(abs(sdmaps.S0Rician_gtinitialised),'CDataMapping','scaled')
 ax=gca;
-ax.CLim=[0 1];
+ax.CLim=[0 100];
 xticks([1 2 3 4 5 6 7 8 9 10 11]);
 xticklabels({'0','.1', '.2', '.3', '.4', '.5', '.6', '.7', '.8', '.9','1.0'});
 xlabel('R2* (ms^-^1)','FontSize',12)
@@ -849,7 +849,7 @@ colorbar
 subplot(2,3,6)
 image(abs(sdmaps.S0complex_gtinitialised),'CDataMapping','scaled')
 ax=gca;
-ax.CLim=[0 1];
+ax.CLim=[0 100];
 xticks([1 2 3 4 5 6 7 8 9 10 11]);
 xticklabels({'0','.1', '.2', '.3', '.4', '.5', '.6', '.7', '.8', '.9','1.0'});
 xlabel('R2* (ms^-^1)','FontSize',12)
