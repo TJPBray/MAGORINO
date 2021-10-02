@@ -1,4 +1,4 @@
-function results = complexfitting (echotimes, tesla, Scomplex, sig, GT, algoparams) %noise SD needed for Rician fit
+function results = ComplexFitting (echotimes, tesla, Scomplex, sig, GT, algoparams) %noise SD needed for Rician fit
 %function outparams = R2fitting (echotimes, tesla, Smeasured, sig, GT)
 
 % Description: Implements complex fitting with specified bounds
