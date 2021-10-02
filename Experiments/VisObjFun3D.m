@@ -2,7 +2,7 @@
 
 %% Specify parametersfor signal simulation
 
-function VisObjFun3D(FF,v)
+function [outparams] = VisObjFun3D(FF,v)
 
 %Define parameter vector
 p = [FF 100-FF v 0];
