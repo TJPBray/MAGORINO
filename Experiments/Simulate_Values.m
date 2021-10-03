@@ -18,7 +18,7 @@ function [FFmaps,errormaps,sdmaps,residuals] = Simulate_Values(SNR,reps)
 %% Create grid for different options of each param
 
 %Specify S0
-S0=100;
+S0=1;
 
 %Create grids of ground truth values
 FFgrid=repelem([0:0.02:1]',1,11);
@@ -57,7 +57,7 @@ figshow=0;
 %% Generate noise (done before looping over voxels)
 
 %Fix the random seed
-rng(1);
+rng(2);
 
 % Generate the real and imaginary noises
 noiseReal_grid = noiseSD*randn(size(Fgrid,1),size(Fgrid,2),numel(echotimes),reps);
@@ -122,16 +122,19 @@ outparams = R2fitting(echotimes,3,Snoisy,noiseSD,GT);
 FF_standard(y,x,r)=outparams.standard.F/(outparams.standard.W+outparams.standard.F);
 FF_Rician(y,x,r)=outparams.Rician.F/(outparams.Rician.W+outparams.Rician.F);
 FF_complex(y,x,r)=outparams.complex.F/(outparams.complex.W+outparams.complex.F);
+FF_complexFixed(y,x,r)=outparams.complexFixed.F/(outparams.complexFixed.W+outparams.complexFixed.F);
 
 %For R2*
 vhat_standard(y,x,r)=outparams.standard.R2;
 vhat_Rician(y,x,r)=outparams.Rician.R2;
 vhat_complex(y,x,r)=outparams.complex.R2;
+vhat_complexFixed(y,x,r)=outparams.complexFixed.R2;
 
 %For S0
 S0_standard(y,x,r)=outparams.standard.F+outparams.standard.W;
 S0_Rician(y,x,r)=outparams.Rician.F+outparams.Rician.W;
 S0_complex(y,x,r)=outparams.complex.F+outparams.complex.W;
+S0_complexFixed(y,x,r)=outparams.complexFixed.F+outparams.complexFixed.W;
 
 %For ground-truth initialised values
 
@@ -139,16 +142,19 @@ S0_complex(y,x,r)=outparams.complex.F+outparams.complex.W;
 FF_standard_gtinitialised(y,x,r)=outparams.standard.pmin3(1)/(outparams.standard.pmin3(2)+outparams.standard.pmin3(1));
 FF_Rician_gtinitialised(y,x,r)=outparams.Rician.pmin3(1)/(outparams.Rician.pmin3(2)+outparams.Rician.pmin3(1));
 FF_complex_gtinitialised(y,x,r)=outparams.complex.pmin3(1)/(outparams.complex.pmin3(2)+outparams.complex.pmin3(1));
+FF_complexFixed_gtinitialised(y,x,r)=outparams.complexFixed.pmin3(1)/(outparams.complexFixed.pmin3(2)+outparams.complexFixed.pmin3(1));
 
 %For R2*
 vhat_standard_gtinitialised(y,x,r)=outparams.standard.pmin3(3);
 vhat_Rician_gtinitialised(y,x,r)=outparams.Rician.pmin3(3);
 vhat_complex_gtinitialised(y,x,r)=outparams.complex.pmin3(3);
+vhat_complexFixed_gtinitialised(y,x,r)=outparams.complexFixed.pmin3(3);
 
 %For S0
 S0_standard_gtinitialised(y,x,r)=outparams.standard.pmin3(1)+outparams.standard.pmin3(2);
 S0_Rician_gtinitialised(y,x,r)=outparams.Rician.pmin3(1)+outparams.Rician.pmin3(2);
 S0_complex_gtinitialised(y,x,r)=outparams.complex.pmin3(1)+outparams.complex.pmin3(2);
+S0_complexFixed_gtinitialised(y,x,r)=outparams.complexFixed.pmin3(1)+outparams.complexFixed.pmin3(2);
 
 %% Add fitting residuals to grid
 fmin1standard(y,x,r)=outparams.standard.fmin1;
@@ -163,36 +169,46 @@ fmin1complex(y,x,r)=outparams.complex.fmin1;
 fmin2complex(y,x,r)=outparams.complex.fmin2;
 fmin3complex(y,x,r)=outparams.complex.fmin3;
 
+fmin1complexFixed(y,x,r)=outparams.complexFixed.fmin1;
+fmin2complexFixed(y,x,r)=outparams.complexFixed.fmin2;
+fmin3complexFixed(y,x,r)=outparams.complexFixed.fmin3;
+
 %SSE 
 SSEstandard(y,x,r)=outparams.standard.SSE; %NB SSE matches the lower of the two residuals above (i.e. the chosen likelihood maximum / error minimum)
 SSERician(y,x,r)=outparams.Rician.SSE;
 SSEcomplex(y,x,r)=outparams.complex.SSE;
+SSEcomplexFixed(y,x,r)=outparams.complexFixed.SSE;
 
 %SSE true (relative to ground truth noise-free signal)
 SSEtrue_standard(y,x,r)=outparams.standard.SSEtrue;
 SSEtrue_Rician(y,x,r)=outparams.Rician.SSEtrue;
 SSEtrue_complex(y,x,r)=outparams.complex.SSEtrue;
+SSEtrue_complexFixed(y,x,r)=outparams.complexFixed.SSEtrue;
 
 %SSE versus true noise 
 SSEvsTrueNoise_standard(y,x,r)=outparams.standard.SSE / (noise'*noise); %Use conjugate transpose for calculation of 'noise SSE' (denominator)
 SSEvsTrueNoise_Rician(y,x,r)=outparams.Rician.SSE / (noise'*noise);
 SSEvsTrueNoise_complex(y,x,r)=outparams.complex.SSE / (noise'*noise);
+SSEvsTrueNoise_complexFixed(y,x,r)=outparams.complexFixed.SSE / (noise'*noise);
 
 %SSE with ground-truth initialisation 
 SSEgtinit_standard(y,x,r)=outparams.standard.SSEgtinit;
 SSEgtinit_Rician(y,x,r)=outparams.Rician.SSEgtinit;
 SSEgtinit_complex(y,x,r)=outparams.complex.SSEgtinit;
+SSEgtinit_complexFixed(y,x,r)=outparams.complexFixed.SSEgtinit;
 
 %SSE true with ground-truth initialisation 
 SSEgtinit_true_standard(y,x,r)=outparams.standard.SSEtrue_gtinit;
 SSEgtinit_true_Rician(y,x,r)=outparams.Rician.SSEtrue_gtinit;
 SSEgtinit_true_complex(y,x,r)=outparams.complex.SSEtrue_gtinit;
+SSEgtinit_true_complexFixed(y,x,r)=outparams.complexFixed.SSEtrue_gtinit;
 
 %SSE with ground-truth initialisation vs true noise
 %SSE versus true noise 
 SSEgtinitvsTrueNoise_standard(y,x,r)=outparams.standard.SSEgtinit / (noise'*noise); %Use conjugate transpose for calculation of 'noise SSE' (denominator)
 SSEgtinitvsTrueNoise_Rician(y,x,r)=outparams.Rician.SSEgtinit / (noise'*noise);
 SSEgtinitvsTrueNoise_complex(y,x,r)=outparams.complex.SSEgtinit / (noise'*noise);
+SSEgtinitvsTrueNoise_complexFixed(y,x,r)=outparams.complexFixed.SSEgtinit / (noise'*noise);
 
     end
 end
@@ -203,30 +219,36 @@ close all
 %% Average grids over repetitions
 
 %For two point initialisation
-FFmaps.standard=100*mean(FF_standard,3); %Convert to percentage
-FFmaps.Rician=100*mean(FF_Rician,3);
-FFmaps.complex=100*mean(FF_complex,3);
+FFmaps.standard=mean(FF_standard,3); %Convert to percentage
+FFmaps.Rician=mean(FF_Rician,3);
+FFmaps.complex=mean(FF_complex,3);
+FFmaps.complexFixed=mean(FF_complexFixed,3);
 
 R2maps.standard=mean(vhat_standard,3);
 R2maps.Rician=mean(vhat_Rician,3);
 R2maps.complex=mean(vhat_complex,3);
+R2maps.complexFixed=mean(vhat_complexFixed,3);
 
 S0maps.standard=mean(S0_standard,3);
 S0maps.Rician=mean(S0_Rician,3);
 S0maps.complex=mean(S0_complex,3);
+S0maps.complexFixed=mean(S0_complexFixed,3);
 
 %For ground truth initialisation
-FFmaps.standard_gtinitialised=100*mean(FF_standard_gtinitialised,3); %Convert to percentage
-FFmaps.Rician_gtinitialised=100*mean(FF_Rician_gtinitialised,3);
-FFmaps.complex_gtinitialised=100*mean(FF_complex_gtinitialised,3);
+FFmaps.standard_gtinitialised=mean(FF_standard_gtinitialised,3); %Convert to percentage
+FFmaps.Rician_gtinitialised=mean(FF_Rician_gtinitialised,3);
+FFmaps.complex_gtinitialised=mean(FF_complex_gtinitialised,3);
+FFmaps.complexFixed_gtinitialised=mean(FF_complexFixed_gtinitialised,3);
 
 R2maps.standard_gtinitialised=mean(vhat_standard_gtinitialised,3);
 R2maps.Rician_gtinitialised=mean(vhat_Rician_gtinitialised,3);
 R2maps.complex_gtinitialised=mean(vhat_complex_gtinitialised,3);
+R2maps.complexFixed_gtinitialised=mean(vhat_complexFixed_gtinitialised,3);
 
 S0maps.standard_gtinitialised=mean(S0_standard_gtinitialised,3);
 S0maps.Rician_gtinitialised=mean(S0_Rician_gtinitialised,3);
 S0maps.complex_gtinitialised=mean(S0_complex_gtinitialised,3);
+S0maps.complexFixed_gtinitialised=mean(S0_complexFixed_gtinitialised,3);
 
 %% Create error grids
 
@@ -234,27 +256,33 @@ S0maps.complex_gtinitialised=mean(S0_complex_gtinitialised,3);
 errormaps.FFstandard=FFmaps.standard-Fgrid;
 errormaps.FFRician=FFmaps.Rician-Fgrid;
 errormaps.FFcomplex=FFmaps.complex-Fgrid;
+errormaps.FFcomplexFixed=FFmaps.complexFixed-Fgrid;
 
 errormaps.R2standard=R2maps.standard-vgrid;
 errormaps.R2Rician=R2maps.Rician-vgrid;
 errormaps.R2complex=R2maps.complex-vgrid;
+errormaps.R2complexFixed=R2maps.complexFixed-vgrid;
 
 errormaps.S0standard=(S0maps.standard-S0)/S0;
 errormaps.S0Rician=(S0maps.Rician-S0)/S0;
 errormaps.S0complex=(S0maps.complex-S0)/S0;
+errormaps.S0complexFixed=(S0maps.complexFixed-S0)/S0;
 
 %For ground-truth initialisation
 errormaps.FFstandard_gtinitialised=FFmaps.standard_gtinitialised-Fgrid;
 errormaps.FFRician_gtinitialised=FFmaps.Rician_gtinitialised-Fgrid;
 errormaps.FFcomplex_gtinitialised=FFmaps.complex_gtinitialised-Fgrid;
+errormaps.FFcomplexFixed_gtinitialised=FFmaps.complexFixed_gtinitialised-Fgrid;
 
 errormaps.R2standard_gtinitialised=R2maps.standard_gtinitialised-vgrid;
 errormaps.R2Rician_gtinitialised=R2maps.Rician_gtinitialised-vgrid;
 errormaps.R2complex_gtinitialised=R2maps.complex_gtinitialised-vgrid;
+errormaps.R2complexFixed_gtinitialised=R2maps.complexFixed_gtinitialised-vgrid;
 
 errormaps.S0standard_gtinitialised=(S0maps.standard_gtinitialised-S0)/S0;
 errormaps.S0Rician_gtinitialised=(S0maps.Rician_gtinitialised-S0)/S0;
 errormaps.S0complex_gtinitialised=(S0maps.complex_gtinitialised-S0)/S0;
+errormaps.S0complexFixed_gtinitialised=(S0maps.complexFixed_gtinitialised-S0)/S0;
 
 %% Get SD of grids over repetitions
 
@@ -262,33 +290,39 @@ errormaps.S0complex_gtinitialised=(S0maps.complex_gtinitialised-S0)/S0;
 sdmaps.R2standard=std(vhat_standard,0,3);
 sdmaps.R2Rician=std(vhat_Rician,0,3);
 sdmaps.R2complex=std(vhat_complex,0,3);
+sdmaps.R2complexFixed=std(vhat_complexFixed,0,3);
 
-sdmaps.FFstandard=100*std(FF_standard,0,3);
-sdmaps.FFRician=100*std(FF_Rician,0,3);
-sdmaps.FFcomplex=100*std(FF_complex,0,3);
+sdmaps.FFstandard=std(FF_standard,0,3);
+sdmaps.FFRician=std(FF_Rician,0,3);
+sdmaps.FFcomplex=std(FF_complex,0,3);
+sdmaps.FFcomplexFixed=std(FF_complexFixed,0,3);
 
 sdmaps.S0standard=std(S0_standard,0,3); 
 sdmaps.S0Rician=std(S0_Rician,0,3);
 sdmaps.S0complex=std(S0_complex,0,3);
+sdmaps.S0complexFixed=std(S0_complexFixed,0,3);
 
 %For ground-truth initialisation
 sdmaps.R2standard_gtinitialised=std(vhat_standard_gtinitialised,0,3);
 sdmaps.R2Rician_gtinitialised=std(vhat_Rician_gtinitialised,0,3);
 sdmaps.R2complex_gtinitialised=std(vhat_complex_gtinitialised,0,3);
+sdmaps.R2complexFixed_gtinitialised=std(vhat_complexFixed_gtinitialised,0,3);
 
-sdmaps.FFstandard_gtinitialised=100*std(FF_standard_gtinitialised,0,3);
-sdmaps.FFRician_gtinitialised=100*std(FF_Rician_gtinitialised,0,3);
-sdmaps.FFcomplex_gtinitialised=100*std(FF_complex_gtinitialised,0,3);
+sdmaps.FFstandard_gtinitialised=std(FF_standard_gtinitialised,0,3);
+sdmaps.FFRician_gtinitialised=std(FF_Rician_gtinitialised,0,3);
+sdmaps.FFcomplex_gtinitialised=std(FF_complex_gtinitialised,0,3);
+sdmaps.FFcomplexFixed_gtinitialised=std(FF_complexFixed_gtinitialised,0,3);
 
 sdmaps.S0standard_gtinitialised=std(S0_standard_gtinitialised,0,3); 
 sdmaps.S0Rician_gtinitialised=std(S0_Rician_gtinitialised,0,3);
 sdmaps.S0complex_gtinitialised=std(S0_complex_gtinitialised,0,3);
-
+sdmaps.S0complexFixed_gtinitialised=std(S0_complexFixed_gtinitialised,0,3);
 
 %% Find mean parameter error values
 meanerror.standard=mean(abs(errormaps.FFstandard),'all');
 meanerror.Rician=mean(abs(errormaps.FFRician),'all');
 meanerror.complex=mean(abs(errormaps.FFcomplex),'all');
+meanerror.complexFixed=mean(abs(errormaps.FFcomplexFixed),'all');
 
 %% Residuals
 residuals.standard.fmin1=mean(fmin1standard,3);
@@ -317,6 +351,24 @@ residuals.complex.SSEvstruenoise=mean(SSEvsTrueNoise_complex,3);
 residuals.complex.SSEgtinit=mean(SSEgtinit_complex,3);
 residuals.complex.SSEgtinit_true=mean(SSEgtinit_true_complex,3);
 residuals.complex.SSEgtinitvstruenoise=mean(SSEgtinitvsTrueNoise_complex,3);
+
+residuals.complex.fmin1=mean(fmin1complex,3);
+residuals.complex.fmin2=mean(fmin2complex,3);
+residuals.complex.SSE=mean(SSEcomplex,3);
+residuals.complex.SSEtrue=mean(SSEtrue_complex,3);
+residuals.complex.SSEvstruenoise=mean(SSEvsTrueNoise_complex,3);
+residuals.complex.SSEgtinit=mean(SSEgtinit_complex,3);
+residuals.complex.SSEgtinit_true=mean(SSEgtinit_true_complex,3);
+residuals.complex.SSEgtinitvstruenoise=mean(SSEgtinitvsTrueNoise_complex,3);
+
+residuals.complexFixed.fmin1=mean(fmin1complexFixed,3);
+residuals.complexFixed.fmin2=mean(fmin2complexFixed,3);
+residuals.complexFixed.SSE=mean(SSEcomplexFixed,3);
+residuals.complexFixed.SSEtrue=mean(SSEtrue_complexFixed,3);
+residuals.complexFixed.SSEvstruenoise=mean(SSEvsTrueNoise_complexFixed,3);
+residuals.complexFixed.SSEgtinit=mean(SSEgtinit_complexFixed,3);
+residuals.complexFixed.SSEgtinit_true=mean(SSEgtinit_true_complexFixed,3);
+residuals.complexFixed.SSEgtinitvstruenoise=mean(SSEgtinitvsTrueNoise_complexFixed,3);
 
 %% Create figures
 Createfig(FFmaps,errormaps,sdmaps,residuals)
