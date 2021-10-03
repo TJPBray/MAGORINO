@@ -34,19 +34,19 @@ Ricianfitting.lb = algoparams.lb;
 Ricianfitting.ub = algoparams.ub; 
 
 % First assume LOW FF (WATER DOMINANT) TISSUE (Use first echo to provide water guess)
-Ricianfitting.x0 = [0.001, algoparams.Sinit, algoparams.vinit, 0]'; 
+Ricianfitting.x0 = [0.001, algoparams.Sinit, algoparams.vinit]'; 
 
 % run the optimisation
 [pmin1, fmin1] = fmincon(Ricianfitting); %fmin is the minimised SSE
 
 % Next assume HIGH FF (FAT DOMINANT) TISSUE (Use first echo to provide water guess)
-Ricianfitting.x0 = [algoparams.Sinit, 0.001, algoparams.vinit, 0]'; 
+Ricianfitting.x0 = [algoparams.Sinit, 0.001, algoparams.vinit]'; 
 
 % run the optimisation
 [pmin2, fmin2] = fmincon(Ricianfitting); %fmin is the minimised SSE
 
 % Next INITIALISE WITH GROUND TRUTH
-Ricianfitting.x0 = GT.p; %Use all four params for complex fitting
+Ricianfitting.x0 = GT.p(1:3); %Use all four params for complex fitting
 
 % run the optimisation
 [pmin3, fmin3] = fmincon(Ricianfitting); %fmin is the minimised SSE
