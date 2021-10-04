@@ -1,5 +1,3 @@
-
-
 function Fitsuccess(FF,v,SNR,reps)
 
 %  Description:
@@ -162,20 +160,27 @@ plot([FF FF],[yl(1) yl(2)],'LineWidth',2,'color','red','Linestyle','--') %..add 
 hold off
 legend('Estimates','Ground truth')
 
+
+%Findoutliers for simplifying desplay
+[b,outliers]=rmoutliers(likdiff_complex,'percentiles',[2 98]);
+
+%Find datapoints to be kept
+kept=1-outliers;
+
 s2=subplot(2,3,6)
-scatter(fittedFF_complex,likdiff_complex)
+scatter(kept.*fittedFF_complex,kept.*likdiff_complex)
 set(s2,'YGrid','on','GridAlpha',0.5)
 title('Likelihood difference plot (Complex)')
 ylabel('Likelihood difference','FontSize',12)
 xlabel('FF estimate (%)','FontSize',12)
 xlim([0 100])
-ylim(yl) %set ylim to match previous plot
+yl=ylim;
 hold on
 plot([FF FF],[yl(1) yl(2)],'LineWidth',2,'color','red','Linestyle','--') %..add ground truth as line
 hold off
 legend('Estimates','Ground truth')
 
-%Generate histogram for R2*
+%% Generate histogram for R2*
 figure('name',strcat('R2* Estimates for FF= ',num2str(FF),'  R2*= ',num2str(v)))
 
 title(strcat('R2* Estimates for FF= ',num2str(FF),'  R2*= ',num2str(v)))
