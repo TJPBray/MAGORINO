@@ -24,7 +24,7 @@ Smagnitude=abs(Smeasured); %otherwise use magnitude
 %Set initialisation value for R2*: vinit
 vinit=0.1;
 algoparams.vinit=0.1;
-vmax=1;
+vmax=2;
 vmin=0; %negative value for min to avoid penalisation at boundary
 
 %Set signal initialisation for fat and water: Sinit
@@ -34,9 +34,11 @@ algoparams.Sinit=Sinit;
 % Sinit=100;
 
 %% Set optimisation options
-algoparams.options=optimoptions('fmincon', 'Algorithm', 'interior-point','InitBarrierParam',100000,'ScaleProblem',true,'FiniteDifferenceType','central');
+
 algoparams.solver = 'fmincon';
 
+algoparams.options=optimoptions('fmincon', 'Algorithm', 'interior-point','InitBarrierParam',100000,'ScaleProblem',true,'FiniteDifferenceType','central');
+   
 %% Gaussian ('standard') magnitude fitting
 
 % set the parameter lower bound
@@ -46,9 +48,9 @@ algoparams.lb = [0, 0, vmin]';
 algoparams.ub = [3*Sinit, 3*Sinit, vmax]'; 
 
 % Call GaussianMagnitudeFitting
-outparams.standard = GaussianMagnitudeFitting (echotimes, tesla, Scomplex, sig, GT, algoparams);
+outparams.standard = GaussianMagnitudeFitting(echotimes, tesla, Smagnitude, sig, GT, algoparams);
 
-%% Gaussian ('standard') magnitude fitting
+%% Rician magnitude fitting
 
 % set the parameter lower bound
 algoparams.lb = [0, 0, vmin]';
@@ -57,7 +59,7 @@ algoparams.lb = [0, 0, vmin]';
 algoparams.ub = [3*Sinit, 3*Sinit, vmax]'; 
 
 % Call RicianMagnitudeFitting
-outparams.Rician = RicianMagnitudeFitting (echotimes, tesla, Scomplex, sig, GT, algoparams);
+outparams.Rician = RicianMagnitudeFitting (echotimes, tesla, Smagnitude, sig, GT, algoparams);
 
 %% Complex fitting
 
