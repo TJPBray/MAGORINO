@@ -51,6 +51,10 @@ sNoiseFree=MultiPeakFatSingleR2(echotimes,tesla,GT.p(1),GT.p(2),GT.p(3),GT.p(4))
 GT.S=sNoiseFree;
 
 %% Add noise
+
+%Fix the random seed
+% rng(2);
+
 sNoisy = sNoiseFree + normrnd(0,noiseSD,[1 numel(echotimes)]) + i*normrnd(0,noiseSD,[1 numel(echotimes)]);
 
 sMagNoisy=abs(sNoisy);
@@ -110,6 +114,20 @@ coords.gridsearch.Rician.R2=100*r2GridRician+1;
 coords.gridsearch.complex.FF=ffGridComplex+1;
 coords.gridsearch.complex.R2=100*r2GridComplex+1;
 
+%% Set constants for initialisation
+
+%Set initialisation value for R2*: vinit
+vinit=0.1;
+algoparams.vinit=0.1;
+vmax=2;
+vmin=0; %negative value for min to avoid penalisation at boundary
+
+%Set signal initialisation for fat and water: Sinit
+C=exp(vinit);
+Sinit=C*max(abs(sNoisy)); %partially compensates for R2* to improve initialisation
+algoparams.Sinit=Sinit;
+% Sinit=100;
+
 %% Fit simulated signal
 
 %Perform fitting
@@ -129,11 +147,11 @@ outparams.complex.gridR2=r2GridComplex;
 %% Re-implement fitting to show path on objective function
 
 %Set option to perform with search history
-searchhist=0;
+searchhist=1;
 
 %Perform fit with searchist if searchhist is set to 1
 if searchhist==1
-[outparams_hist,searchdir] = runfmincon(echotimes, tesla, Snoisy, noiseSD);
+[outparams_hist,searchdir] = runfmincon(echotimes, tesla, sNoisy, noiseSD, algoparams);
 
 else ;
 end
@@ -220,7 +238,7 @@ if figshow==1
 
 f=figure
 
-% 1 For standard (Gaussian)
+%% 1 For standard (Gaussian)
 
 subplot(1,3,1)
 imshow(loglikMag,[3*max(loglikMag,[],'all') max(loglikMag,[],'all')])
@@ -248,6 +266,7 @@ plot(coords.gridsearch.standard.R2,coords.gridsearch.standard.FF,'rd','MarkerFac
 %Breakpoint here to generate simplified figure without contours and labels
 
 contour(loglikMag,[2*max(loglikMag,[],'all'):-0.2*max(loglikMag,[],'all'):max(loglikRic,[],'all')],'color',[0.5 0.5 0.5],'LineWidth',1)
+
 try 
 %Add path on objective function
 plot(100*outparams_hist.standard.R2_1+1,outparams_hist.standard.FF1+1,'--b.','MarkerSize',12,'LineWidth',2,'Color','black') %NB
@@ -266,11 +285,11 @@ plot(coords.chosen.standard.R2, coords.chosen.standard.FF,'ro','MarkerSize',12,'
 
 %Add legend
 % lgnd=legend('GT','MLE','contour','path1','path2', 'min1', 'min2', 'Fit output');
-lgnd=legend('GT','MLE (grid search)','contour', 'opt1', 'opt2', 'Fit output');
+lgnd=legend('GT','MLE (grid search)','contour', 'path1','path2','opt1', 'opt2', 'Fit output');
 set(lgnd,'color','none');
 hold off
 
-% 2 For Rician
+%% 2 For Rician
 
 subplot(1,3,2)
 % image(exp(loglikRic),'CDataMapping','scaled')
@@ -301,6 +320,14 @@ plot(coords.gridsearch.Rician.R2,coords.gridsearch.Rician.FF,'rd','MarkerFaceCol
 %Add contours
 contour(loglikRic,[2*max(loglikRic,[],'all'):-0.2*max(loglikRic,[],'all'):max(loglikRic,[],'all')],'color',[0.5 0.5 0.5],'LineWidth',1)
 
+try 
+%Add path on objective function
+plot(100*outparams_hist.Rician.R2_1+1,outparams_hist.Rician.FF1+1,'--b.','MarkerSize',12,'LineWidth',2,'Color','black') %NB
+%Add path on objective function
+plot(100*outparams_hist.Rician.R2_2+1,outparams_hist.Rician.FF2+1,'--b.','MarkerSize',12,'LineWidth',2,'Color','black') %NB
+catch
+end
+
 %Add two candidate solutions from fitting
 plot(coords.pmin1.Rician.R2,coords.pmin1.Rician.FF,'rx','MarkerSize',12,'LineWidth',2)
 plot(coords.pmin2.Rician.R2,coords.pmin2.Rician.FF,'rx','MarkerSize',12,'LineWidth',2)
@@ -310,13 +337,13 @@ plot(coords.chosen.Rician.R2, coords.chosen.Rician.FF,'ro','MarkerSize',12,'Line
 
 
 %Add legend
-lgnd=legend('GT', 'MLE (grid search)','contour',  'opt1', 'opt2', 'Fit output');
+lgnd=legend('GT','MLE (grid search)','contour', 'path1','path2','opt1', 'opt2', 'Fit output');
 % lgnd=legend('GT', 'MLE','contour', 'Fit output');
 set(lgnd,'color','none');
 
 hold off
 
-% 3 For complex
+%% 3 For complex
 
 subplot(1,3,3)
 % image(exp(loglikRic),'CDataMapping','scaled')
@@ -347,6 +374,14 @@ plot(coords.gridsearch.complex.R2,coords.gridsearch.complex.FF,'rd','MarkerFaceC
 %Add contours
 contour(loglikComplex,[2*max(loglikComplex,[],'all'):-0.2*max(loglikComplex,[],'all'):max(loglikRic,[],'all')],'color',[0.5 0.5 0.5],'LineWidth',1)
 
+try 
+%Add path on objective function
+plot(100*outparams_hist.complex.R2_1+1,outparams_hist.complex.FF1+1,'--b.','MarkerSize',12,'LineWidth',2,'Color','black') %NB
+%Add path on objective function
+plot(100*outparams_hist.complex.R2_2+1,outparams_hist.complex.FF2+1,'--b.','MarkerSize',12,'LineWidth',2,'Color','black') %NB
+catch
+end
+
 %Add two candidate solutions from fitting
 plot(coords.pmin1.complex.R2,coords.pmin1.complex.FF,'rx','MarkerSize',12,'LineWidth',2)
 plot(coords.pmin2.complex.R2,coords.pmin2.complex.FF,'rx','MarkerSize',12,'LineWidth',2)
@@ -356,7 +391,7 @@ plot(coords.chosen.complex.R2, coords.chosen.complex.FF,'ro','MarkerSize',12,'Li
 
 
 %Add legend
-lgnd=legend('GT', 'MLE (grid search)','contour',  'opt1', 'opt2', 'Fit output');
+lgnd=legend('GT','MLE (grid search)','contour', 'path1','path2','opt1', 'opt2', 'Fit output');
 % lgnd=legend('GT', 'MLE','contour', 'Fit output');
 set(lgnd,'color','none');
 
