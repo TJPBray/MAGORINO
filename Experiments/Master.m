@@ -20,18 +20,18 @@ reps=10;
 
 % Combination 1 (R2*=0, both methods likely to succeed): 
     %Run likelihood function analysis
-    [outparams] = VisObjFun(20,0,60,1)
+    [outparams] = VisObjFun(0.2,0,60,1)
     %Show proportion of successful fits
-    Fitsuccess(20,0,60,200)
+    Fitsuccess(0.2,0,60,200)
 
 % Combination 2 (Larger R2*, Rician may outperform): 
     %Run likelihood function analysis
-    [outparams] = VisObjFun(20,0.3,60,1)
+    [outparams] = VisObjFun(0.2,0.3,60,1)
     %Show proportion of successful fits
-    Fitsuccess(20,0.3,60,200)
+    Fitsuccess(0.2,0.3,60,200)
     
 % Combination 3 (Largest R2*, challenging case but Rician best): 
     %Run likelihood function analysis
-    [outparams] = VisObjFun(20,0.5,60,1)
+    [outparams] = VisObjFun(0.2,0.5,60,1)
     %Show proportion of successful fits
-    Fitsuccess(20,0.5,60,200) %Can use larger number of reps here as only one value pair / set
+    Fitsuccess(0.2,0.5,60,200) %Can use larger number of reps here as only one value pair / set

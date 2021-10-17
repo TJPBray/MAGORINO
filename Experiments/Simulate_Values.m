@@ -18,7 +18,7 @@ function [FFmaps,errormaps,sdmaps,residuals] = Simulate_Values(SNR,reps)
 %% Create grid for different options of each param
 
 %Specify S0
-S0=1;
+S0=100;
 
 %Create grids of ground truth values
 FFgrid=repelem([0:0.02:1]',1,11);
@@ -75,8 +75,9 @@ GT=struct();
 
 %% Loop through values
 
+for x=1:size(Fgrid,2)
 for y=1:size(Fgrid,1)
-    for x=1:size(Fgrid,2)
+
         
         W=Wgrid(y,x);
         F=Fgrid(y,x);
@@ -253,10 +254,10 @@ S0maps.complexFixed_gtinitialised=mean(S0_complexFixed_gtinitialised,3);
 %% Create error grids
 
 %For two-point initialisation
-errormaps.FFstandard=FFmaps.standard-Fgrid;
-errormaps.FFRician=FFmaps.Rician-Fgrid;
-errormaps.FFcomplex=FFmaps.complex-Fgrid;
-errormaps.FFcomplexFixed=FFmaps.complexFixed-Fgrid;
+errormaps.FFstandard=FFmaps.standard-FFgrid;
+errormaps.FFRician=FFmaps.Rician-FFgrid;
+errormaps.FFcomplex=FFmaps.complex-FFgrid;
+errormaps.FFcomplexFixed=FFmaps.complexFixed-FFgrid;
 
 errormaps.R2standard=R2maps.standard-vgrid;
 errormaps.R2Rician=R2maps.Rician-vgrid;
@@ -269,10 +270,10 @@ errormaps.S0complex=(S0maps.complex-S0)/S0;
 errormaps.S0complexFixed=(S0maps.complexFixed-S0)/S0;
 
 %For ground-truth initialisation
-errormaps.FFstandard_gtinitialised=FFmaps.standard_gtinitialised-Fgrid;
-errormaps.FFRician_gtinitialised=FFmaps.Rician_gtinitialised-Fgrid;
-errormaps.FFcomplex_gtinitialised=FFmaps.complex_gtinitialised-Fgrid;
-errormaps.FFcomplexFixed_gtinitialised=FFmaps.complexFixed_gtinitialised-Fgrid;
+errormaps.FFstandard_gtinitialised=FFmaps.standard_gtinitialised-FFgrid;
+errormaps.FFRician_gtinitialised=FFmaps.Rician_gtinitialised-FFgrid;
+errormaps.FFcomplex_gtinitialised=FFmaps.complex_gtinitialised-FFgrid;
+errormaps.FFcomplexFixed_gtinitialised=FFmaps.complexFixed_gtinitialised-FFgrid;
 
 errormaps.R2standard_gtinitialised=R2maps.standard_gtinitialised-vgrid;
 errormaps.R2Rician_gtinitialised=R2maps.Rician_gtinitialised-vgrid;
@@ -297,10 +298,10 @@ sdmaps.FFRician=std(FF_Rician,0,3);
 sdmaps.FFcomplex=std(FF_complex,0,3);
 sdmaps.FFcomplexFixed=std(FF_complexFixed,0,3);
 
-sdmaps.S0standard=std(S0_standard,0,3); 
-sdmaps.S0Rician=std(S0_Rician,0,3);
-sdmaps.S0complex=std(S0_complex,0,3);
-sdmaps.S0complexFixed=std(S0_complexFixed,0,3);
+sdmaps.S0standard=std(S0_standard,0,3)/S0; 
+sdmaps.S0Rician=std(S0_Rician,0,3)/S0;
+sdmaps.S0complex=std(S0_complex,0,3)/S0;
+sdmaps.S0complexFixed=std(S0_complexFixed,0,3)/S0;
 
 %For ground-truth initialisation
 sdmaps.R2standard_gtinitialised=std(vhat_standard_gtinitialised,0,3);
