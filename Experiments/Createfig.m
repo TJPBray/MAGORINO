@@ -397,7 +397,7 @@ figure('Name', 'Fitting error')
 s2=subplot(3,4,1)
 image(residuals.standard.SSE,'CDataMapping','scaled')
 ax=gca;
-ax.CLim=[0 0.01];
+ax.CLim=[0 100];
 xticks([1 2 3 4 5 6 7 8 9 10 11]);
 xticklabels({'0','.1', '.2', '.3', '.4', '.5', '.6', '.7', '.8', '.9','1.0'});
 xlabel('R2* (ms^-^1)','FontSize',12)
@@ -411,7 +411,7 @@ colorbar
 s2=subplot(3,4,2)
 image(residuals.Rician.SSE,'CDataMapping','scaled')
 ax=gca;
-ax.CLim=[0 0.01];
+ax.CLim=[0 100];
 xticks([1 2 3 4 5 6 7 8 9 10 11]);
 xticklabels({'0','.1', '.2', '.3', '.4', '.5', '.6', '.7', '.8', '.9','1.0'});
 xlabel('R2* (ms^-^1)','FontSize',12)
@@ -425,7 +425,7 @@ colorbar
 s2=subplot(3,4,3)
 image(residuals.complex.SSE,'CDataMapping','scaled')
 ax=gca;
-ax.CLim=[0 0.01];
+ax.CLim=[0 100];
 xticks([1 2 3 4 5 6 7 8 9 10 11]);
 xticklabels({'0','.1', '.2', '.3', '.4', '.5', '.6', '.7', '.8', '.9','1.0'});
 xlabel('R2* (ms^-^1)','FontSize',12)
@@ -439,7 +439,7 @@ colorbar
 s2=subplot(3,4,4)
 image(residuals.complexFixed.SSE,'CDataMapping','scaled')
 ax=gca;
-ax.CLim=[0 0.01];
+ax.CLim=[0 100];
 xticks([1 2 3 4 5 6 7 8 9 10 11]);
 xticklabels({'0','.1', '.2', '.3', '.4', '.5', '.6', '.7', '.8', '.9','1.0'});
 xlabel('R2* (ms^-^1)','FontSize',12)
@@ -454,56 +454,56 @@ colorbar
 s2=subplot(3,4,5)
 image(residuals.standard.SSEtrue,'CDataMapping','scaled')
 ax=gca;
-ax.CLim=[0 0.01];
+ax.CLim=[0 50];
 xticks([1 2 3 4 5 6 7 8 9 10 11]);
 xticklabels({'0','.1', '.2', '.3', '.4', '.5', '.6', '.7', '.8', '.9','1.0'});
 xlabel('R2* (ms^-^1)','FontSize',12)
 yticks([1 6 11 16 21 26 31 36 41 46 51]);
 yticklabels({'0','10','20','30','40','50','60','70','80','90','100'});
 ylabel('Fat fraction (%)','FontSize',12)
-title('Gaussian fitting True SSE (error vs noiseless signal)')
+title('Gaussian fitting "True SSE"')
 colormap(s2,gray)
 colorbar
 
 s2=subplot(3,4,6)
 image(residuals.Rician.SSEtrue,'CDataMapping','scaled')
 ax=gca;
-ax.CLim=[0 0.01];
+ax.CLim=[0 50];
 xticks([1 2 3 4 5 6 7 8 9 10 11]);
 xticklabels({'0','.1', '.2', '.3', '.4', '.5', '.6', '.7', '.8', '.9','1.0'});
 xlabel('R2* (ms^-^1)','FontSize',12)
 yticks([1 6 11 16 21 26 31 36 41 46 51]);
 yticklabels({'0','10','20','30','40','50','60','70','80','90','100'});
 ylabel('Fat fraction (%)','FontSize',12)
-title('Rician fitting True SSE (error vs noiseless signal)')
+title('Rician fitting "True SSE"')
 colormap(s2,gray)
 colorbar
 
 s2=subplot(3,4,7)
 image(residuals.complex.SSEtrue,'CDataMapping','scaled')
 ax=gca;
-ax.CLim=[0 0.01];
+ax.CLim=[0 50];
 xticks([1 2 3 4 5 6 7 8 9 10 11]);
 xticklabels({'0','.1', '.2', '.3', '.4', '.5', '.6', '.7', '.8', '.9','1.0'});
 xlabel('R2* (ms^-^1)','FontSize',12)
 yticks([1 6 11 16 21 26 31 36 41 46 51]);
 yticklabels({'0','10','20','30','40','50','60','70','80','90','100'});
 ylabel('Fat fraction (%)','FontSize',12)
-title('Complex fitting True SSE (error vs noiseless signal)')
+title('Complex fitting "True SSE"')
 colormap(s2,gray)
 colorbar
 
 s2=subplot(3,4,8)
 image(residuals.complexFixed.SSEtrue,'CDataMapping','scaled')
 ax=gca;
-ax.CLim=[0 0.01];
+ax.CLim=[0 50];
 xticks([1 2 3 4 5 6 7 8 9 10 11]);
 xticklabels({'0','.1', '.2', '.3', '.4', '.5', '.6', '.7', '.8', '.9','1.0'});
 xlabel('R2* (ms^-^1)','FontSize',12)
 yticks([1 6 11 16 21 26 31 36 41 46 51]);
 yticklabels({'0','10','20','30','40','50','60','70','80','90','100'});
 ylabel('Fat fraction (%)','FontSize',12)
-title('Complex fitting True SSE (error vs noiseless signal) with fB fixed')
+title('Complex fitting with fB fixed "True SSE"')
 colormap(s2,gray)
 colorbar
 
