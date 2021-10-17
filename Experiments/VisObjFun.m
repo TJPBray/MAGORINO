@@ -99,33 +99,11 @@ for y=1:size(Fgrid,1)
     end
 end
 
-%% Find maximum likelihood using grid search
+%% Find global and local likelihood optima using grid search
 
-%For standard / Gaussian
-[max1,ind1] = max(loglikMag,[],'all','linear');
-ffGridStandard=Fgrid(ind1);
-r2GridStandard=vgrid(ind1);
-
-%For Rician
-[max2,ind2] = max(loglikRic,[],'all','linear');
-ffGridRician=Fgrid(ind2);
-r2GridRician=vgrid(ind2);
-
-%For complex
-[max3,ind3] = max(loglikComplex,[],'all','linear');
-ffGridComplex=Fgrid(ind3);
-r2GridComplex=vgrid(ind3);
-
-%% Find coords for grid search estimates
-
-coords.gridsearch.standard.FF=100*ffGridStandard+1;
-coords.gridsearch.standard.R2=100*r2GridStandard+1;
-
-coords.gridsearch.Rician.FF=100*ffGridRician+1;
-coords.gridsearch.Rician.R2=100*r2GridRician+1;
-
-coords.gridsearch.complex.FF=100*ffGridComplex+1;
-coords.gridsearch.complex.R2=100*r2GridComplex+1;
+coords.gridsearch.standard.maxima=FindCoords(loglikMag,FFgrid,vgrid);
+coords.gridsearch.Rician.maxima=FindCoords(loglikRic,FFgrid,vgrid);
+coords.gridsearch.complex.maxima=FindCoords(loglikComplex,FFgrid,vgrid);
 
 %% Set constants for initialisation
 
@@ -149,13 +127,12 @@ outparams = R2fitting (echotimes, tesla, sNoisy, noiseSD, GT);
 
 %% Add grid search estimates to Outparams structure (needed for Fitsuccess)
 
-outparams.standard.gridFF=ffGridStandard;
-outparams.standard.gridR2=r2GridStandard;
-outparams.Rician.gridFF=ffGridRician;
-outparams.Rician.gridR2=r2GridRician;
-outparams.complex.gridFF=ffGridComplex;
-outparams.complex.gridR2=r2GridComplex;
-
+outparams.standard.gridFF=coords.gridsearch.standard.maxima.globalmax.values.FF;
+outparams.standard.gridR2=coords.gridsearch.standard.maxima.globalmax.values.R2;
+outparams.Rician.gridFF=coords.gridsearch.Rician.maxima.globalmax.values.FF;
+outparams.Rician.gridR2=coords.gridsearch.Rician.maxima.globalmax.values.R2;
+outparams.complex.gridFF=coords.gridsearch.complex.maxima.globalmax.values.FF;
+outparams.complex.gridR2=coords.gridsearch.complex.maxima.globalmax.values.R2;
 
 %% Re-implement fitting to show path on objective function
 
@@ -248,7 +225,7 @@ coords.chosen.complex.R2=100*outparams.complex.R2+1;
 
 %Specify whether path should be shown
 
-pathshow=0;
+fitshow=0;
 
 if figshow==1
   
@@ -273,38 +250,41 @@ colorbar
 hold on
 colormap('parula')
 
-%Add ground truth
-plot(coords.gt.R2,coords.gt.FF,'wd','MarkerFaceColor','white','MarkerSize',8,'LineWidth',4)
-
-% Add MLE from grid search
-plot(coords.gridsearch.standard.R2,coords.gridsearch.standard.FF,'bd','MarkerFaceColor','white','MarkerSize',8,'LineWidth',2) %NB
-
-%Breakpoint here to generate simplified figure without contours and labels
-
+%Add contour
 contour(loglikMag,[-3*abs(max(loglikMag,[],'all')):abs(max(loglikMag,[],'all')):max(loglikMag,[],'all')],'color',[0.5 0.5 0.5],'LineWidth',1)
 
-if pathshow==1
+%Add ground truth as two intersecting lines
+plot([coords.gt.R2 coords.gt.R2],[0 100],'LineWidth',2,'color','red','Linestyle',':') %..add ground truth as line
+plot([0 100],[coords.gt.FF coords.gt.FF],'LineWidth',2,'color','red','Linestyle',':') %..add ground truth as line
+
+% Add MLE from grid search
+plot(coords.gridsearch.standard.maxima.globalmax.coords.R2,coords.gridsearch.standard.maxima.globalmax.coords.FF,'kd','MarkerFaceColor','black','MarkerSize',8,'LineWidth',2)
+
+%Add local optimum from grid swarch
+plot(coords.gridsearch.standard.maxima.localmax.coords.R2,coords.gridsearch.standard.maxima.localmax.coords.FF,'wd','MarkerFaceColor','white','MarkerSize',8,'LineWidth',2)
+
+%Show fit results if fitshow==1
+if fitshow==1
+    
 %Add path on objective function
-plot(100*outparams_hist.standard.R2_1+1,outparams_hist.standard.FF1+1,'--b.','MarkerSize',12,'LineWidth',2,'Color','black') %NB
+plot(100*outparams_hist.standard.R2_1+1,outparams_hist.standard.FF1+1,'--b.','MarkerSize',12,'LineWidth',2,'Color','black')
+
 %Add path on objective function
-plot(100*outparams_hist.standard.R2_2+1,outparams_hist.standard.FF2+1,'--b.','MarkerSize',12,'LineWidth',2,'Color','black') %NB
-else ;
-end
+plot(100*outparams_hist.standard.R2_2+1,outparams_hist.standard.FF2+1,'--b.','MarkerSize',12,'LineWidth',2,'Color','black')
 
 %Add two candidate solutions from fitting
 plot(coords.pmin1.standard.R2,coords.pmin1.standard.FF,'rx','MarkerSize',12,'LineWidth',2)
-plot(coords.pmin2.standard.R2,coords.pmin2.standard.FF,'rx','MarkerSize',12,'LineWidth',2)
+plot(coords.pmin2.standard.R2,coords.pmin2.standard.FF,'r+','MarkerSize',12,'LineWidth',2)
 
 %Add solution from fitting
-plot(coords.chosen.standard.R2, coords.chosen.standard.FF,'ro','MarkerSize',12,'LineWidth',2) %NB
+plot(coords.chosen.standard.R2, coords.chosen.standard.FF,'ro','MarkerSize',12,'LineWidth',2) 
 
+lgnd=legend('Contour','Ground truth R2*','Ground truth FF', 'MLE (grid search)','Local optimum (grid search)','path1','path2','opt1', 'opt2', 'Fit output');
 
-%Add legend
-% lgnd=legend('GT','MLE','contour','path1','path2', 'min1', 'min2', 'Fit output');
-if pathshow==1
-lgnd=legend('GT','MLE (grid search)','contour', 'path1','path2','opt1', 'opt2', 'Fit output');
-else
-lgnd=legend('GT','MLE (grid search)','contour','opt1', 'opt2', 'Fit output');
+else ;
+    
+lgnd=legend('Contour','Ground truth R2*','Ground truth FF', 'MLE (grid search)','Local optimum (grid search)');
+
 end
 
 set(lgnd,'color','none');
@@ -330,39 +310,41 @@ hold on
 colormap('parula')
 
 
-%Add ground truth
-plot(coords.gt.R2,coords.gt.FF,'wd','MarkerFaceColor','white','MarkerSize',8,'LineWidth',4)
-
-% Add MLE from grid search
-plot(coords.gridsearch.Rician.R2,coords.gridsearch.Rician.FF,'bd','MarkerFaceColor','white','MarkerSize',8,'LineWidth',2) %NB
-
-%Breakpoint here to generate simplified figure without contours and labels
-
 %Add contours
 contour(loglikRic,[-3*abs(max(loglikMag,[],'all')):abs(max(loglikMag,[],'all')):max(loglikMag,[],'all')],'color',[0.5 0.5 0.5],'LineWidth',1)
 
-if pathshow==1
+%Add ground truth as two intersecting lines
+plot([coords.gt.R2 coords.gt.R2],[0 100],'LineWidth',2,'color','red','Linestyle',':') %..add ground truth as line
+plot([0 100],[coords.gt.FF coords.gt.FF],'LineWidth',2,'color','red','Linestyle',':') %..add ground truth as line
+
+% Add MLE from grid search
+plot(coords.gridsearch.Rician.maxima.globalmax.coords.R2,coords.gridsearch.Rician.maxima.globalmax.coords.FF,'kd','MarkerFaceColor','black','MarkerSize',8,'LineWidth',2)
+
+%Add local optimum from grid swarch
+plot(coords.gridsearch.Rician.maxima.localmax.coords.R2,coords.gridsearch.Rician.maxima.localmax.coords.FF,'wd','MarkerFaceColor','white','MarkerSize',8,'LineWidth',2)
+
+
+%Show fit results if fitshow==1
+if fitshow==1
+    
 %Add path on objective function
 plot(100*outparams_hist.Rician.R2_1+1,outparams_hist.Rician.FF1+1,'--b.','MarkerSize',12,'LineWidth',2,'Color','black') %NB
 %Add path on objective function
 plot(100*outparams_hist.Rician.R2_2+1,outparams_hist.Rician.FF2+1,'--b.','MarkerSize',12,'LineWidth',2,'Color','black') %NB
-else ;
-end
 
 %Add two candidate solutions from fitting
 plot(coords.pmin1.Rician.R2,coords.pmin1.Rician.FF,'rx','MarkerSize',12,'LineWidth',2)
-plot(coords.pmin2.Rician.R2,coords.pmin2.Rician.FF,'rx','MarkerSize',12,'LineWidth',2)
+plot(coords.pmin2.Rician.R2,coords.pmin2.Rician.FF,'r+','MarkerSize',12,'LineWidth',2)
 
 %Add solution from fitting
-plot(coords.chosen.Rician.R2, coords.chosen.Rician.FF,'ro','MarkerSize',12,'LineWidth',2) %NB
+plot(coords.chosen.Rician.R2, coords.chosen.Rician.FF,'ro','MarkerSize',12,'LineWidth',2) 
 
+lgnd=legend('Contour','Ground truth R2*','Ground truth FF', 'MLE (grid search)','Local optimum (grid search)','path1','path2','opt1', 'opt2', 'Fit output');
 
-%Add legend
-% lgnd=legend('GT','MLE','contour','path1','path2', 'min1', 'min2', 'Fit output');
-if pathshow==1
-lgnd=legend('GT','MLE (grid search)','contour', 'path1','path2','opt1', 'opt2', 'Fit output');
-else
-lgnd=legend('GT','MLE (grid search)','contour','opt1', 'opt2', 'Fit output');
+else ;
+    
+lgnd=legend('Contour','Ground truth R2*','Ground truth FF', 'MLE (grid search)','Local optimum (grid search)');
+
 end
 
 set(lgnd,'color','none');
@@ -387,40 +369,41 @@ colorbar
 hold on
 colormap('parula')
 
-
-%Add ground truth
-plot(coords.gt.R2,coords.gt.FF,'wd','MarkerFaceColor','white','MarkerSize',8,'LineWidth',4)
+%Add ground truth as two intersecting lines
+plot([coords.gt.R2 coords.gt.R2],[0 100],'LineWidth',2,'color','red','Linestyle',':') %..add ground truth as line
+plot([0 100],[coords.gt.FF coords.gt.FF],'LineWidth',2,'color','red','Linestyle',':') %..add ground truth as line
 
 % Add MLE from grid search
-plot(coords.gridsearch.complex.R2,coords.gridsearch.complex.FF,'bd','MarkerFaceColor','white','MarkerSize',8,'LineWidth',2) %NB
+plot(coords.gridsearch.complex.maxima.globalmax.coords.R2,coords.gridsearch.complex.maxima.globalmax.coords.FF,'kd','MarkerFaceColor','black','MarkerSize',8,'LineWidth',2)
+
+% %Add local optimum from grid swarch
+% plot(coords.gridsearch.complex.maxima.localmax.coords.R2,coords.gridsearch.complex.maxima.localmax.coords.FF,'wd','MarkerFaceColor','white','MarkerSize',8,'LineWidth',2)
 
 %Breakpoint here to generate simplified figure without contours and labels
 
 %Add contours
 contour(loglikComplex,[-3*abs(max(loglikMag,[],'all')):abs(max(loglikMag,[],'all')):max(loglikMag,[],'all')],'color',[0.5 0.5 0.5],'LineWidth',1)
 
-if pathshow==1
+if fitshow==1
+    
 %Add path on objective function
 plot(100*outparams_hist.complex.R2_1+1,outparams_hist.complex.FF1+1,'--b.','MarkerSize',12,'LineWidth',2,'Color','black') %NB
 %Add path on objective function
 plot(100*outparams_hist.complex.R2_2+1,outparams_hist.complex.FF2+1,'--b.','MarkerSize',12,'LineWidth',2,'Color','black') %NB
-else ;
-end
 
 %Add two candidate solutions from fitting
 plot(coords.pmin1.complex.R2,coords.pmin1.complex.FF,'rx','MarkerSize',12,'LineWidth',2)
-plot(coords.pmin2.complex.R2,coords.pmin2.complex.FF,'rx','MarkerSize',12,'LineWidth',2)
+plot(coords.pmin2.complex.R2,coords.pmin2.complex.FF,'r+','MarkerSize',12,'LineWidth',2)
 
 %Add solution from fitting
 plot(coords.chosen.complex.R2, coords.chosen.complex.FF,'ro','MarkerSize',12,'LineWidth',2) %NB
 
+lgnd=legend('Contour','Ground truth R2*','Ground truth FF', 'MLE (grid search)','path1','path2','opt1', 'opt2', 'Fit output');
 
-%Add legend
-% lgnd=legend('GT','MLE','contour','path1','path2', 'min1', 'min2', 'Fit output');
-if pathshow==1
-lgnd=legend('GT','MLE (grid search)','contour', 'path1','path2','opt1', 'opt2', 'Fit output');
-else
-lgnd=legend('GT','MLE (grid search)','contour','opt1', 'opt2', 'Fit output');
+else ;
+    
+lgnd=legend('Contour','Ground truth R2*','Ground truth FF', 'MLE (grid search)');
+
 end
 
 set(lgnd,'color','none');
