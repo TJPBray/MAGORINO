@@ -25,7 +25,7 @@ Smagnitude=abs(Smeasured); %otherwise use magnitude
 vinit=0.1;
 algoparams.vinit=0.1;
 vmax=2;
-vmin=0; %negative value for min to avoid penalisation at boundary
+vmin=0;
 
 %Set signal initialisation for fat and water: Sinit
 C=exp(vinit);
