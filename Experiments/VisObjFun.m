@@ -225,7 +225,8 @@ coords.chosen.complex.R2=100*outparams.complex.R2+1;
 
 %Specify whether path should be shown
 
-fitshow=0;
+fitshow=1;
+fitpath=1;
 
 if figshow==1
   
@@ -245,7 +246,7 @@ xlabel('R2* (ms^-^1)','FontSize',12)
 yticks([1 11 21 31 41 51 61 71 81 91 101]);
 yticklabels({'0','10','20','30','40','50','60','70','80','90','100'});
 ylabel('Fat fraction (%)','FontSize',12)
-title(strcat('Standard: Log likelihood for true FF =  ',num2str(GT.p(1)),', and true R2star =  ', num2str(GT.p(3))))
+title(strcat('Gaussian: Log likelihood for true FF =  ',num2str(GT.p(1)),', and true R2star =  ', num2str(GT.p(3))))
 colorbar
 hold on
 colormap('parula')
@@ -261,7 +262,7 @@ plot([0 100],[coords.gt.FF coords.gt.FF],'LineWidth',2,'color','red','Linestyle'
 plot(coords.gridsearch.standard.maxima.globalmax.coords.R2,coords.gridsearch.standard.maxima.globalmax.coords.FF,'kd','MarkerFaceColor','black','MarkerSize',8,'LineWidth',2)
 
 %Add local optimum from grid swarch
-plot(coords.gridsearch.standard.maxima.localmax.coords.R2,coords.gridsearch.standard.maxima.localmax.coords.FF,'wd','MarkerFaceColor','white','MarkerSize',8,'LineWidth',2)
+plot(coords.gridsearch.standard.maxima.localmax.coords.R2,coords.gridsearch.standard.maxima.localmax.coords.FF,'kd','MarkerFaceColor','white','MarkerSize',8,'LineWidth',1)
 
 %Show fit results if fitshow==1
 if fitshow==1
@@ -287,7 +288,7 @@ lgnd=legend('Contour','Ground truth R2*','Ground truth FF', 'MLE (grid search)',
 
 end
 
-set(lgnd,'color','none');
+set(lgnd,'color','none','TextColor','white');
 hold off
 
 %% 2 For Rician
@@ -321,7 +322,7 @@ plot([0 100],[coords.gt.FF coords.gt.FF],'LineWidth',2,'color','red','Linestyle'
 plot(coords.gridsearch.Rician.maxima.globalmax.coords.R2,coords.gridsearch.Rician.maxima.globalmax.coords.FF,'kd','MarkerFaceColor','black','MarkerSize',8,'LineWidth',2)
 
 %Add local optimum from grid swarch
-plot(coords.gridsearch.Rician.maxima.localmax.coords.R2,coords.gridsearch.Rician.maxima.localmax.coords.FF,'wd','MarkerFaceColor','white','MarkerSize',8,'LineWidth',2)
+plot(coords.gridsearch.Rician.maxima.localmax.coords.R2,coords.gridsearch.Rician.maxima.localmax.coords.FF,'kd','MarkerFaceColor','white','MarkerSize',8,'LineWidth',1)
 
 
 %Show fit results if fitshow==1
@@ -347,7 +348,7 @@ lgnd=legend('Contour','Ground truth R2*','Ground truth FF', 'MLE (grid search)',
 
 end
 
-set(lgnd,'color','none');
+set(lgnd,'color','none','TextColor','white');
 hold off
 
 %% 3 For complex
@@ -406,7 +407,7 @@ lgnd=legend('Contour','Ground truth R2*','Ground truth FF', 'MLE (grid search)')
 
 end
 
-set(lgnd,'color','none');
+set(lgnd,'color','none','TextColor','white');
 hold off
 
 % print(gcf,'-dtiff',fullfile('/Users/tjb57/Dropbox/MATLAB/Rician FW/Figures',strcat('FF Estimates for FF= ',num2str(FF),'  R2star= ',num2str(v),'.tiff')))
@@ -418,17 +419,21 @@ hold off
 % would need to plot a sloping line through both
 % Use to generate figures for illustration of concept
 
+profile=0;
+
+if profile==1
+
 figure
 subplot(1,2,1)
 
 %Get log likelihood for Gaussian fitting (profile across 3D plot)
 
-
 %First get gradient for profile line 
-grad=[(coords.pmin2.standard.FF-coords.pmin1.standard.FF)/(coords.pmin2.standard.R2-coords.pmin1.standard.R2)];%gradient specified in terms of FF/R2
+%gradient specified in terms of FF/R2
+grad=[(coords.gridsearch.standard.maxima.globalmax.coords.FF-coords.gridsearch.standard.maxima.localmax.coords.FF)/(coords.gridsearch.standard.maxima.globalmax.coords.R2-coords.gridsearch.standard.maxima.localmax.coords.R2)]
 
 %Now get left y-intercept and right y-intercept
-yint=coords.pmin1.standard.FF-coords.pmin1.standard.R2*grad;
+yint=coords.gridsearch.standard.maxima.globalmax.coords.FF-coords.gridsearch.standard.maxima.globalmax.coords.R2*grad;
 yhigh=yint+100*grad;
 
 %Get profile
@@ -441,6 +446,9 @@ xvals_standard=improfile(Fgrid,[0 100], [yint yhigh]); %get profile
 plot(xvals_standard,profile_standard_smooth,'LineWidth',2,'color','black','Linestyle','-')
 ylabel('Likelihood','FontSize',12)
 xlabel('Fat fraction (%)','FontSize',12)
+xticks([0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0]);
+xticklabels({'0','10','20','30','40','50','60','70','80','90','100'});
+
 
 %Add GT
 hold on
@@ -459,11 +467,12 @@ subplot(1,2,2)
 
 %Get log likelihood for Rician (profile across 3D plot)
 
-%First get gradient and y-intercept for profile line 
-grad=[(coords.pmin2.Rician.FF-coords.pmin1.Rician.FF)/(coords.pmin2.Rician.R2-coords.pmin1.Rician.R2)];%gradient specified in terms of y/x
+%First get gradient for profile line 
+%gradient specified in terms of FF/R2
+grad=[(coords.gridsearch.Rician.maxima.globalmax.coords.FF-coords.gridsearch.Rician.maxima.localmax.coords.FF)/(coords.gridsearch.Rician.maxima.globalmax.coords.R2-coords.gridsearch.Rician.maxima.localmax.coords.R2)]
 
 %Now get left y-intercept and right y-intercept
-yint=coords.pmin1.Rician.FF-coords.pmin1.Rician.R2*grad;
+yint=coords.gridsearch.Rician.maxima.globalmax.coords.FF-coords.gridsearch.Rician.maxima.globalmax.coords.R2*grad;
 yhigh=yint+100*grad;
 
 %Get profile
@@ -476,6 +485,8 @@ xvals_Rician=improfile(Fgrid,[0 100], [yint yhigh]); %get profile
 plot(xvals_Rician,profile_Rician_smooth,'LineWidth',2,'color','black','Linestyle','-')
 ylabel('Likelihood','FontSize',12)
 xlabel('Fat fraction (%)','FontSize',12)
+xticks([0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0]);
+xticklabels({'0','10','20','30','40','50','60','70','80','90','100'});
 
 %Add GT
 hold on
@@ -506,6 +517,9 @@ hold off
 % plot([xl(1) xl(2)],[max(loglikMag(:,100*v+1)) max(loglikMag(:,100*v+1))],'LineWidth',2,'color','red','Linestyle','--') 
 % plot([xl(1) xl(2)],[max(loglikRic(:,100*v+1)) max(loglikRic(:,100*v+1))],'LineWidth',2,'color','blue','Linestyle','--') 
 % hold off
+
+else; 
+end
 
 
 else ;
