@@ -1,5 +1,5 @@
 
-function [FFmaps,errormaps,sdmaps,residuals] = Simulate_Values(SNR,reps)
+function [FFmaps,errormaps,sdmaps,residuals] = Simulate_Values(SNR, sigmaError, reps)
 % function [FFmaps,errormaps,sdmaps,residuals] = Simulate_Values(SNR)
 
 % Description:
@@ -7,7 +7,13 @@ function [FFmaps,errormaps,sdmaps,residuals] = Simulate_Values(SNR,reps)
 % R2* values
 
 % Input: 
-% SNR, reps
+% SNR is the true SNR; sigma is calculated from this assuming ground truth
+% S0 value
+
+% sigmaError is the proportional error on sigma due to inaccurate
+% estimation
+
+% reps is number of simulation instantiations
 
 % Output: 
 % FF, error, standard deviation and residuals over a range of FF and R2* values
@@ -47,7 +53,9 @@ tesla=3;
 % at 1.5T and 60 at 3T. However, may be lower in the presence of iron or
 % marrow. The SNR is a function input. 
 
-noiseSD=S0/SNR; %here assume total signal is 100 for simplicity (since FF maps are used as input)
+noiseSD=S0/SNR;
+
+estimatedNoiseSD= noiseSD + noiseSD*sigmaError;
 
 %Loop through SNR values, finding noise SD for each
 
@@ -74,6 +82,10 @@ noise_grid = noiseReal_grid + 1i*noiseImag_grid;
 GT=struct();
 
 %% Loop through values
+
+%Add waitbar
+w1 = waitbar(0,'Progress in R2* dimension of parameter space');
+w2 = waitbar(0,'Progress in FF dimension of parameter space');
 
 for x=1:size(Fgrid,2)
 for y=1:size(Fgrid,1)
@@ -112,7 +124,7 @@ Snoisy=Snoisefree+noise;
 % This will implement both standard magnitude fitting and with Rician noise
 % modelling
 
-outparams = R2fitting(echotimes,3,Snoisy,noiseSD,GT);
+outparams = R2fitting(echotimes,3,Snoisy,estimatedNoiseSD,GT);
 
 
 %% Add parameter estimates to grid
@@ -211,8 +223,14 @@ SSEgtinitvsTrueNoise_Rician(y,x,r)=outparams.Rician.SSEgtinit / (noise'*noise);
 SSEgtinitvsTrueNoise_complex(y,x,r)=outparams.complex.SSEgtinit / (noise'*noise);
 SSEgtinitvsTrueNoise_complexFixed(y,x,r)=outparams.complexFixed.SSEgtinit / (noise'*noise);
 
-    end
 end
+
+waitbar(y/size(Fgrid,1),w2)
+
+end
+
+waitbar(x/size(Fgrid,2),w1)
+
 end
 
 close all 
