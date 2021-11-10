@@ -11,10 +11,10 @@ R2star = 0.1;
 fieldStrengthOffset = 0;
 
 % S0 (arbitrary unit) - corresponding to the theoretical signal at TE = 0
-S0 = 100;
+S0 = 1;
 
 % fat fraction
-fatFraction = 0.5;
+fatFraction = 0.2;
 
 % convert S0 and fat fraction to fat and water signals
 
@@ -86,17 +86,39 @@ loglik(a,b) = R2ComplexObj(p,echoTimes,3,signalNoisy,sigma);
 end
 end
 
-% 3.5 Plot
-figure, 
+% 3.5 Find index for swapped solution
+[maxima] = FindCoords(loglik,Sfatgrid,fBgrid); %Note that fBgrid is a 'dummy' input here - normally R2* variation but in this case fB varies
+swappedFF=maxima.localmax.values.FF;
+
+% 3.6 Plot
+figure('Name','Likelihood dependence on fB for varying PDFF')
 
 subplot(2,2,1)
-plot(fBgrid(Sfatgrid==0),loglik(Sfatgrid==0))
+plot(fBgrid(Sfatgrid==fatFraction),loglik(Sfatgrid==fatFraction))
+xlabel('fB (kHz)')
+ylabel('Log likelihood')
+title('Likelihood at true FF')
+yl=ylim;
 
 subplot(2,2,2)
-plot(fBgrid(Sfatgrid==100),loglik(Sfatgrid==100))
+plot(fBgrid(Sfatgrid==swappedFF),loglik(Sfatgrid==swappedFF))
+xlabel('fB (kHz)')
+ylabel('Log likelihood')
+title('Likelihood at swapped FF')
+ylim(yl)
 
 subplot(2,2,3)
 surf(fBgrid,Sfatgrid,loglik)
 ylabel('Fat fraction')
 xlabel('fB (kHz)')
 zlabel('Log likelihood')
+title('2D Likelihood function (oblique view)')
+
+subplot(2,2,4)
+surf(fBgrid,Sfatgrid,loglik,'LineStyle','none')
+ylabel('Fat fraction')
+xlabel('fB (kHz)')
+zlabel('Log likelihood')
+view(0,90)
+title('2D Likelihood function (top-down view)')
+colorbar;
