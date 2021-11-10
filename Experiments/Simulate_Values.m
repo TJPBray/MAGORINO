@@ -111,7 +111,7 @@ parfor r=1:reps
 noise=noise_grid(y,x,:,r);
 
 %Reshape
-noise=reshape(noise,[],1);
+noise=reshape(noise,1,[]);
 
 %Add noise
 Snoisy=Snoisefree+noise;
@@ -199,10 +199,10 @@ SSEtrue_complex(y,x,r)=outparams.complex.SSEtrue;
 SSEtrue_complexFixed(y,x,r)=outparams.complexFixed.SSEtrue;
 
 %SSE versus true noise 
-SSEvsTrueNoise_standard(y,x,r)=outparams.standard.SSE / (noise'*noise); %Use conjugate transpose for calculation of 'noise SSE' (denominator)
-SSEvsTrueNoise_Rician(y,x,r)=outparams.Rician.SSE / (noise'*noise);
-SSEvsTrueNoise_complex(y,x,r)=outparams.complex.SSE / (noise'*noise);
-SSEvsTrueNoise_complexFixed(y,x,r)=outparams.complexFixed.SSE / (noise'*noise);
+SSEvsTrueNoise_standard(y,x,r)=outparams.standard.SSE / (noise*noise'); %Use conjugate transpose for calculation of 'noise SSE' (denominator)
+SSEvsTrueNoise_Rician(y,x,r)=outparams.Rician.SSE / (noise*noise');
+SSEvsTrueNoise_complex(y,x,r)=outparams.complex.SSE / (noise*noise');
+SSEvsTrueNoise_complexFixed(y,x,r)=outparams.complexFixed.SSE / (noise*noise');
 
 %SSE with ground-truth initialisation 
 SSEgtinit_standard(y,x,r)=outparams.standard.SSEgtinit;
@@ -218,10 +218,10 @@ SSEgtinit_true_complexFixed(y,x,r)=outparams.complexFixed.SSEtrue_gtinit;
 
 %SSE with ground-truth initialisation vs true noise
 %SSE versus true noise 
-SSEgtinitvsTrueNoise_standard(y,x,r)=outparams.standard.SSEgtinit / (noise'*noise); %Use conjugate transpose for calculation of 'noise SSE' (denominator)
-SSEgtinitvsTrueNoise_Rician(y,x,r)=outparams.Rician.SSEgtinit / (noise'*noise);
-SSEgtinitvsTrueNoise_complex(y,x,r)=outparams.complex.SSEgtinit / (noise'*noise);
-SSEgtinitvsTrueNoise_complexFixed(y,x,r)=outparams.complexFixed.SSEgtinit / (noise'*noise);
+SSEgtinitvsTrueNoise_standard(y,x,r)=outparams.standard.SSEgtinit / (noise*noise'); %Use conjugate transpose for calculation of 'noise SSE' (denominator)
+SSEgtinitvsTrueNoise_Rician(y,x,r)=outparams.Rician.SSEgtinit / (noise*noise');
+SSEgtinitvsTrueNoise_complex(y,x,r)=outparams.complex.SSEgtinit / (noise*noise');
+SSEgtinitvsTrueNoise_complexFixed(y,x,r)=outparams.complexFixed.SSEgtinit / (noise*noise');
 
 end
 

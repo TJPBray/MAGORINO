@@ -3,7 +3,7 @@
 % Author: Tim Bray (t.bray@ucl.ac.uk)
 
 %% Set number of reps across simulations
-reps=10;
+reps=1000;
 
 %% Run simulations for varying FF and SNR with R2* = 0
 % [FFmaps,errormaps,sdmaps] = Simulate_Values_SNR(v,reps)
@@ -13,7 +13,12 @@ reps=10;
 %% Run simulations for varying FF and R2* with SNR = 60
 % [FFmaps,errormaps,sdmaps] = Simulate_Values(SNR,reps)
 
-[FFmaps,errormaps,sdmaps] = Simulate_Values(60,reps)
+[FFmaps,errormaps,sdmaps] = Simulate_Values(60,0,reps)
+
+%% Run simulations for varying FF and R2* with SNR = 20
+% [FFmaps,errormaps,sdmaps] = Simulate_Values(SNR,reps)
+
+[FFmaps,errormaps,sdmaps] = Simulate_Values(20,0,reps)
 
 %% Run likelihood function analysis for chosen FF, R2*, SNR
 % [outparams] = Likelihood(FF,R2*,SNR,figshow) %Set figshow=1 for display
