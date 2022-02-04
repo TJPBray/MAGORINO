@@ -235,7 +235,7 @@ figure('Name', 'Parameter SD')
 s1=subplot(3,4,1)
 image(abs(sdmaps.FFstandard),'CDataMapping','scaled')
 ax=gca;
-ax.CLim=[0 1];
+ax.CLim=[0 2*max(abs(sdmaps.FFstandard),[],'all')];
 xticks([1 2 3 4 5 6 7 8 9 10 11]);
 xticklabels({'0','.1', '.2', '.3', '.4', '.5', '.6', '.7', '.8', '.9','1.0'});
 xlabel('R2* (ms^-^1)','FontSize',12)
@@ -248,7 +248,7 @@ colorbar
 s2=subplot(3,4,2)
 image(abs(sdmaps.FFRician),'CDataMapping','scaled')
 ax=gca;
- ax.CLim=[0 1];
+ ax.CLim=[0 2*max(abs(sdmaps.FFstandard),[],'all')];
 xticks([1 2 3 4 5 6 7 8 9 10 11]);
 xticklabels({'0','.1', '.2', '.3', '.4', '.5', '.6', '.7', '.8', '.9','1.0'});
 xlabel('R2* (ms^-^1)','FontSize',12)
@@ -261,9 +261,9 @@ colorbar
 s3=subplot(3,4,3)
 image(abs(sdmaps.FFcomplex),'CDataMapping','scaled')
 ax=gca;
-ax.CLim=[0 1];
+ax.CLim=[0 2*max(abs(sdmaps.FFstandard),[],'all')];
 xticks([1 2 3 4 5 6 7 8 9 10 11]);
-xticklabels({'0','0.1', '0.2', '0.3', '0.4', '0.5', '0.6', '0.7', '0.8', '0.9','1.0'});
+xticklabels({'0','.1', '.2', '.3', '.4', '.5', '.6', '.7', '.8', '.9','1.0'});
 xlabel('R2* (ms^-^1)','FontSize',12)
 yticks([1 6 11 16 21 26 31 36 41 46 51]);
 yticklabels({'0','10','20','30','40','50','60','70','80','90','100'});
@@ -274,9 +274,9 @@ colorbar
 s3=subplot(3,4,4)
 image(abs(sdmaps.FFcomplexFixed),'CDataMapping','scaled')
 ax=gca;
-ax.CLim=[0 1];
+ax.CLim=[0 2*max(abs(sdmaps.FFstandard),[],'all')];
 xticks([1 2 3 4 5 6 7 8 9 10 11]);
-xticklabels({'0','0.1', '0.2', '0.3', '0.4', '0.5', '0.6', '0.7', '0.8', '0.9','1.0'});
+xticklabels({'0','.1', '.2', '.3', '.4', '.5', '.6', '.7', '.8', '.9','1.0'});
 xlabel('R2* (ms^-^1)','FontSize',12)
 yticks([1 6 11 16 21 26 31 36 41 46 51]);
 yticklabels({'0','10','20','30','40','50','60','70','80','90','100'});
@@ -288,7 +288,7 @@ colorbar
 s1=subplot(3,4,5);
 image(abs(sdmaps.R2standard),'CDataMapping','scaled')
 ax=gca;
-ax.CLim=[0 1];
+ax.CLim=[0 2*max(abs(sdmaps.R2standard),[],'all')];
 xticks([1 2 3 4 5 6 7 8 9 10 11]);
 xticklabels({'0','.1', '.2', '.3', '.4', '.5', '.6', '.7', '.8', '.9','1.0'});
 xlabel('R2* (ms^-^1)','FontSize',12)
@@ -301,7 +301,7 @@ colorbar
 subplot(3,4,6)
 image(abs(sdmaps.R2Rician),'CDataMapping','scaled')
 ax=gca;
-ax.CLim=[0 1];
+ax.CLim=[0 2*max(abs(sdmaps.R2standard),[],'all')];
 xticks([1 2 3 4 5 6 7 8 9 10 11]);
 xticklabels({'0','.1', '.2', '.3', '.4', '.5', '.6', '.7', '.8', '.9','1.0'});
 xlabel('R2* (ms^-^1)','FontSize',12)
@@ -314,7 +314,7 @@ colorbar
 subplot(3,4,7)
 image(abs(sdmaps.R2complex),'CDataMapping','scaled')
 ax=gca;
-ax.CLim=[0 1];
+ax.CLim=[0 2*max(abs(sdmaps.R2standard),[],'all')];
 xticks([1 2 3 4 5 6 7 8 9 10 11]);
 xticklabels({'0','.1', '.2', '.3', '.4', '.5', '.6', '.7', '.8', '.9','1.0'});
 xlabel('R2* (ms^-^1)','FontSize',12)
@@ -327,7 +327,7 @@ colorbar
 subplot(3,4,8)
 image(abs(sdmaps.R2complexFixed),'CDataMapping','scaled')
 ax=gca;
-ax.CLim=[0 1];
+ax.CLim=[0 2*max(abs(sdmaps.R2standard),[],'all')];
 xticks([1 2 3 4 5 6 7 8 9 10 11]);
 xticklabels({'0','.1', '.2', '.3', '.4', '.5', '.6', '.7', '.8', '.9','1.0'});
 xlabel('R2* (ms^-^1)','FontSize',12)
@@ -341,7 +341,7 @@ colorbar
 s1=subplot(3,4,9);
 image(abs(sdmaps.S0standard),'CDataMapping','scaled')
 ax=gca;
-ax.CLim=[0 1];
+ax.CLim=[0 2*max(abs(sdmaps.S0standard),[],'all')];
 xticks([1 2 3 4 5 6 7 8 9 10 11]);
 xticklabels({'0','.1', '.2', '.3', '.4', '.5', '.6', '.7', '.8', '.9','1.0'});
 xlabel('R2* (ms^-^1)','FontSize',12)
@@ -354,7 +354,7 @@ colorbar
 subplot(3,4,10)
 image(abs(sdmaps.S0Rician),'CDataMapping','scaled')
 ax=gca;
-ax.CLim=[0 1];
+ax.CLim=[0 2*max(abs(sdmaps.S0standard),[],'all')];
 xticks([1 2 3 4 5 6 7 8 9 10 11]);
 xticklabels({'0','.1', '.2', '.3', '.4', '.5', '.6', '.7', '.8', '.9','1.0'});
 xlabel('R2* (ms^-^1)','FontSize',12)
@@ -367,7 +367,7 @@ colorbar
 subplot(3,4,11)
 image(abs(sdmaps.S0complex),'CDataMapping','scaled')
 ax=gca;
-ax.CLim=[0 1];
+ax.CLim=[0 2*max(abs(sdmaps.S0standard),[],'all')];
 xticks([1 2 3 4 5 6 7 8 9 10 11]);
 xticklabels({'0','.1', '.2', '.3', '.4', '.5', '.6', '.7', '.8', '.9','1.0'});
 xlabel('R2* (ms^-^1)','FontSize',12)
@@ -380,7 +380,7 @@ colorbar
 subplot(3,4,12)
 image(abs(sdmaps.S0complexFixed),'CDataMapping','scaled')
 ax=gca;
-ax.CLim=[0 1];
+ax.CLim=[0 2*max(abs(sdmaps.S0standard),[],'all')];
 xticks([1 2 3 4 5 6 7 8 9 10 11]);
 xticklabels({'0','.1', '.2', '.3', '.4', '.5', '.6', '.7', '.8', '.9','1.0'});
 xlabel('R2* (ms^-^1)','FontSize',12)
@@ -397,7 +397,7 @@ figure('Name', 'Fitting error')
 s2=subplot(3,4,1)
 image(residuals.standard.SSE,'CDataMapping','scaled')
 ax=gca;
-ax.CLim=[0 100];
+ax.CLim=[0 2*max(residuals.standard.SSE,[],'all')];
 xticks([1 2 3 4 5 6 7 8 9 10 11]);
 xticklabels({'0','.1', '.2', '.3', '.4', '.5', '.6', '.7', '.8', '.9','1.0'});
 xlabel('R2* (ms^-^1)','FontSize',12)
@@ -411,7 +411,7 @@ colorbar
 s2=subplot(3,4,2)
 image(residuals.Rician.SSE,'CDataMapping','scaled')
 ax=gca;
-ax.CLim=[0 100];
+ax.CLim=[0 2*max(residuals.standard.SSE,[],'all')];
 xticks([1 2 3 4 5 6 7 8 9 10 11]);
 xticklabels({'0','.1', '.2', '.3', '.4', '.5', '.6', '.7', '.8', '.9','1.0'});
 xlabel('R2* (ms^-^1)','FontSize',12)
@@ -425,7 +425,7 @@ colorbar
 s2=subplot(3,4,3)
 image(residuals.complex.SSE,'CDataMapping','scaled')
 ax=gca;
-ax.CLim=[0 100];
+ax.CLim=[0 2*max(residuals.standard.SSE,[],'all')];
 xticks([1 2 3 4 5 6 7 8 9 10 11]);
 xticklabels({'0','.1', '.2', '.3', '.4', '.5', '.6', '.7', '.8', '.9','1.0'});
 xlabel('R2* (ms^-^1)','FontSize',12)
@@ -439,7 +439,7 @@ colorbar
 s2=subplot(3,4,4)
 image(residuals.complexFixed.SSE,'CDataMapping','scaled')
 ax=gca;
-ax.CLim=[0 100];
+ax.CLim=[0 2*max(residuals.standard.SSE,[],'all')];
 xticks([1 2 3 4 5 6 7 8 9 10 11]);
 xticklabels({'0','.1', '.2', '.3', '.4', '.5', '.6', '.7', '.8', '.9','1.0'});
 xlabel('R2* (ms^-^1)','FontSize',12)
@@ -454,7 +454,7 @@ colorbar
 s2=subplot(3,4,5)
 image(residuals.standard.SSEtrue,'CDataMapping','scaled')
 ax=gca;
-ax.CLim=[0 50];
+ax.CLim=[0 2*max(residuals.standard.SSEtrue,[],'all')];
 xticks([1 2 3 4 5 6 7 8 9 10 11]);
 xticklabels({'0','.1', '.2', '.3', '.4', '.5', '.6', '.7', '.8', '.9','1.0'});
 xlabel('R2* (ms^-^1)','FontSize',12)
@@ -468,7 +468,7 @@ colorbar
 s2=subplot(3,4,6)
 image(residuals.Rician.SSEtrue,'CDataMapping','scaled')
 ax=gca;
-ax.CLim=[0 50];
+ax.CLim=[0 2*max(residuals.standard.SSEtrue,[],'all')];
 xticks([1 2 3 4 5 6 7 8 9 10 11]);
 xticklabels({'0','.1', '.2', '.3', '.4', '.5', '.6', '.7', '.8', '.9','1.0'});
 xlabel('R2* (ms^-^1)','FontSize',12)
@@ -482,7 +482,7 @@ colorbar
 s2=subplot(3,4,7)
 image(residuals.complex.SSEtrue,'CDataMapping','scaled')
 ax=gca;
-ax.CLim=[0 50];
+ax.CLim=[0 2*max(residuals.standard.SSEtrue,[],'all')];
 xticks([1 2 3 4 5 6 7 8 9 10 11]);
 xticklabels({'0','.1', '.2', '.3', '.4', '.5', '.6', '.7', '.8', '.9','1.0'});
 xlabel('R2* (ms^-^1)','FontSize',12)
@@ -496,7 +496,7 @@ colorbar
 s2=subplot(3,4,8)
 image(residuals.complexFixed.SSEtrue,'CDataMapping','scaled')
 ax=gca;
-ax.CLim=[0 50];
+ax.CLim=[0 2*max(residuals.standard.SSEtrue,[],'all')];
 xticks([1 2 3 4 5 6 7 8 9 10 11]);
 xticklabels({'0','.1', '.2', '.3', '.4', '.5', '.6', '.7', '.8', '.9','1.0'});
 xlabel('R2* (ms^-^1)','FontSize',12)
