@@ -11,3 +11,7 @@
 ._*
 .Spotlight-V100
 .Trashes
+
+# Data #
+*.mat
+*.nii
