@@ -1,6 +1,6 @@
 %% Fat-water deep neural network (DNN) w/ Matlab Deep Learning Toolbox
 %
-% Version 0: 
+% Version 2: Train on MLE labels from MAGORINO
 %
 
 %% 1.0 Synthesise training/validation data using multipeak fat model 
@@ -46,6 +46,21 @@ S = Snoisefree + realnoise + imagnoise;
 % Use magnitude for now 
 S=abs(S);
 
+%% 3.0 Find MLE values using MAGORINO to provide alternative labels
+
+GT.p = [0 0 0 0];
+GT.S= [0 0 0 0 0 0 0 0 0 0 0 0];
+
+parfor k=1:s 
+    outparams = R2fitting (echotimes, 3, S(k,:), noiseSD, GT)
+
+    mleFF(k,1)=outparams.Rician.F/(outparams.Rician.F+outparams.Rician.W);
+    mleR2star(k,1)=outparams.Rician.R2;
+
+end
+
+trainingParamsMLE=horzcat(mleFF,mleR2star);
+
 %% 2.0 Split synthesised data into the training and validation set
 %
 % This is now done with matlab's built-in cvpartition tool set.  Initially,
@@ -69,14 +84,15 @@ idxValidation = test(hPartition);
 % extract the training set
 xTrain = S(idxTrain,:);
 yTrain = trainingParams(idxTrain,:);
+yTrainMLE = trainingParamsMLE(idxTrain,:);
 
 % extract the validation set
 xValidation = S(idxValidation,:);
 yValidation = trainingParams(idxValidation,:);
+yValidationMLE = trainingParamsMLE(idxValidation,:);
 
 
-
-%% 3.0 Build a minimal DNN
+%% 4.0 Build a minimal DNN
 
 % number of features
 numOfFeatures = numel(echotimes);
@@ -109,7 +125,7 @@ numOfLayers = size(layers, 1);
 % visualise the layers
 figure; plot(layerGraph(layers));
 
-%% 4.0 Set up the training options
+%% 5.0 Set up the training options
 
 % set up the training options with Stochastic Gradient Descent
 %
@@ -127,9 +143,9 @@ options = trainingOptions('sgdm', ...
     'L2Regularization',0); %No regularisation as low FF values should not be preferred
 
 % include the validation data
-options.ValidationData = {xValidation, yValidation};
+options.ValidationData = {xValidation, yValidationMLE};
 
-%% 5.0 Training
+%% 6.0 Training
 
 % fix the random seed to ease comparison across multiple setups
 rng(5);
@@ -142,10 +158,10 @@ rng(5);
 % The initialisation of learnable parameters occurs in the class
 % TrainingNetworkAssembler within the function assemble
 %
-net = trainNetwork(xTrain, yTrain, layers, options);
+net = trainNetwork(xTrain, yTrainMLE, layers, options);
 
 
-%% 6.0 Visualise predicted values vs ground truth (use all data to ease visualisation)
+%% 7.0 Visualise predicted values vs ground truth (use all data to ease visualisation)
 
 %Get prediction for all simulated values
 predictionVec=net.predict(S);
