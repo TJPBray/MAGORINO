@@ -13,9 +13,9 @@
     %2. Low FF, low R2*
     params(2,:  )=   [0.2*S0, 0.8*S0, 0, 0];
     %3. Middle FF, low R2*
-    params(3,:)  =   [0.6*S0, 0.4*S0, 0, 0];
+    params(3,:)  =   [0.4*S0, 0.4*S0, 0, 0];
     %4. High FF, low R2*
-    params(4,:)  =   [0.9*S0, 0.1*S0, 0, 0];
+    params(4,:)  =   [0.8*S0, 0.2*S0, 0, 0];
     %5. Zero FF, high R2*
     params(5,:)  =   [0*S0, 1*S0, 0.5, 0];
     %6. Low FF, high R2*
@@ -26,7 +26,7 @@
     params(8,:)   =  [0.9*S0, 0.1*S0, 0.5, 0];
 
     %Pick tissue type
-    tissue=2;
+    tissue=4;
     
     %Define parameter vector
     p=params(tissue,:)';
@@ -92,6 +92,9 @@ SNR = 40;
 
 % set the sigma
 sigma = S0/SNR;
+
+%Fix the random seed
+rng(2);
 
 % 2.3 generate the real and imaginary noises
 noiseReal = sigma*randn(numOfMeas, 1);
