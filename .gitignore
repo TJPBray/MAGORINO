@@ -15,3 +15,4 @@
 # Data #
 *.mat
 *.nii
+*.nii.gz
