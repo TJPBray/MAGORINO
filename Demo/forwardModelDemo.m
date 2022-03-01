@@ -8,21 +8,21 @@
 %Define S0
     S0=100;
 
-    %1. Zero FF, low R2*
+    %1. Pure water, low R2*
     params(1,:) =    [0, S0, 0, 0];
     %2. Low FF, low R2*
     params(2,:  )=   [0.2*S0, 0.8*S0, 0, 0];
     %3. Middle FF, low R2*
     params(3,:)  =   [0.4*S0, 0.4*S0, 0, 0];
-    %4. High FF, low R2*
-    params(4,:)  =   [0.8*S0, 0.2*S0, 0, 0];
+    %4. Pure fat, 0 R2*
+    params(4,:)  =   [1*S0, 0*S0, 0, 0];
     %5. Zero FF, high R2*
     params(5,:)  =   [0*S0, 1*S0, 0.5, 0];
     %6. Low FF, high R2*
     params(6,:)  =   [0.2*S0, 0.8*S0, 0.5, 0];
     %7. Middle FF, high R2*
     params(7,:)  =   [0.5*S0, 0.5*S0, 0.5, 0];
-    %8. High FF, high R2*
+    %8. Pure fat, high R2*
     params(8,:)   =  [0.9*S0, 0.1*S0, 0.5, 0];
 
     %Pick tissue type
@@ -97,8 +97,8 @@ sigma = S0/SNR;
 rng(2);
 
 % 2.3 generate the real and imaginary noises
-noiseReal = sigma*randn(numOfMeas, 1);
-noiseImag = sigma*randn(numOfMeas, 1);
+noiseReal = (sigma*randn(numOfMeas, 1))';
+noiseImag = (sigma*randn(numOfMeas, 1))';
 noise = noiseReal + 1i*noiseImag;
 
 % 2.4 visualise the noises
