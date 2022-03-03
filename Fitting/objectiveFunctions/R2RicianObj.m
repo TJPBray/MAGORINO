@@ -12,16 +12,16 @@ function [loglik] = R2RicianObj(p,echotimes,tesla,Smeasured,sig)
 %   p(3) is R2*
 %   p(4) is fB0
 %
-%   echotimes - the n-by-1 echo times
+%   echotimes - the T-by-1 echo times, wherre T is the total number of echo
+%   times
 %
-%   Smeasured - the 1-by-m vector of measured signals for each echo time 
+%   Smeasured - the 1-by-T vector of measured signals for each echo time 
 %
 %   sig is the standard deviation of the Gaussian distributions underlying
 %   the Rician distribution.
 %
 % Model:
 %   
-%
 %
 % Output:
 %   Log likelihood

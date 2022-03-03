@@ -4,17 +4,18 @@ function S=MultiPeakFatSingleR2(t,tesla,F,W,R2star,fB);
 %function S=MultiPeakFatSingleR2(t,tesla,F,W,v,fB);
 
 %Inputs:
-%t is n-by-1 vector of echo times
-%W is water density
-%F is fat density
-%R2star is system R2* (single term for both fat and water)
+%t is T-by-1 vector of echo times, where T is the total number of echo
+%times
+%W is water density (can be a single value or an m-by-1 vector, where m is the number of examples)
+%F is fat density (can be a single value or an m-by-1 vector, where m is the number of examples)
+%R2star is system R2* (single term for both fat and water; can be a single value or an m-by-1 vector, where m is the number of examples)
 
 %Model:
 %Multipeak fat spectrum with frequency shifts and amplitudes as detailed
 %below and single R2* term
 
 %Outputs:
-%S is an m-by-1 vector of complex-valued signal intensities
+%S is an m-by-T vector of complex-valued signal intensities
 
 %% Specify field strength
 %At 3T the Larmor frequency is 128MHz. Fat-water shift (Hz) is 128MHz x ppm (x10^-6). 

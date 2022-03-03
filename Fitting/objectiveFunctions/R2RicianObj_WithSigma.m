@@ -1,5 +1,5 @@
-function [loglik] = R2RicianObj(p,echotimes,tesla,Smeasured)
-%function [loglik] = R2RicianObj(p,echotimes,tesla,Smeasured)
+function [loglik] = R2RicianObj_WithSigma(p,echotimes,tesla,Smeasured)
+%function [loglik] = R2RicianObj_WithSigma(p,echotimes,tesla,Smeasured)
 
 % Description: Gives the log likelihood of measuring the signals Smeasured
 % given the model parameters, which in this case include the noise standard deviation sigma. This
@@ -14,9 +14,10 @@ function [loglik] = R2RicianObj(p,echotimes,tesla,Smeasured)
 %   the Rician distribution; note that the implementation here differs from the standard objective
 %   function implementation where sigma is specified as a separate input parameter)
 %
-%   echotimes - the n-by-1 echo times
+%   echotimes - the T-by-1 echo times, wherre T is the total number of echo
+%   times
 %   tesla   - the field strength in tesla
-%   Smeasured - the 1-by-m vector of measured signals for each echo time 
+%   Smeasured - the 1-by-T vector of measured signals for each echo time 
 %
 %
 % Model:
