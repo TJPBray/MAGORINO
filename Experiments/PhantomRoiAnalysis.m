@@ -50,6 +50,11 @@ colormap('parula')
 colorbar
 
 subplot(1,4,3)
+imshow(maps.FFrician-maps.FFstandard,[-0.1 0.1])
+title('Fat fraction difference, Rician/MAGORINO - Gaussian/MAGO')
+
+
+subplot(1,4,3)
 imshow(maps.FFcomplex,[0 1])
 title('Fat fraction, Complex MAGO-equivalent')
 colormap('parula')
@@ -63,30 +68,30 @@ colorbar
 
 figure
 
-subplot(2,3,1)
-imshow(maps.R2standard,[0 0.3])
+subplot(1,3,1)
+imshow(maps.R2standard,[0 0.25])
 title('R2*, Gaussian MAGO')
 colorbar
 
-subplot(2,3,2)
-imshow(maps.R2rician,[0 0.3])
+subplot(1,3,2)
+imshow(maps.R2rician,[0 0.25])
 title('R2*, MAGORINO')
 colorbar
 
-subplot(2,3,3)
-imshow(maps.R2complex,[0 0.3])
-title('R2* complex MAGO-equivalent')
-colorbar
+% subplot(2,3,3)
+% imshow(maps.R2complex,[0 0.25])
+% title('R2* complex MAGO-equivalent')
+% colorbar
 
-subplot(2,3,5)
-imshow(maps.R2rician - maps.R2standard,[-0.01 0.01])
+subplot(1,3,3)
+imshow(maps.R2rician - maps.R2standard,[-0.03 0.03])
 title('R2* Rician/MAGORINO - Gaussian/MAGO')
 colorbar
-
-subplot(2,3,6)
-imshow(maps.R2complex - maps.R2standard,[-0.01 0.01])
-title('R2* complex MAGO-equivalent - Gaussian/MAGO')
-colorbar
+% 
+% subplot(2,3,6)
+% imshow(maps.R2complex - maps.R2standard,[-0.01 0.01])
+% title('R2* complex MAGO-equivalent - Gaussian/MAGO')
+% colorbar
 
 %% 5. Display values as grids
 
