@@ -1,5 +1,5 @@
 
-function [maps,noisestats] = FitImage(imData,slice,ROI,indent)
+function [maps,noisestats] = FitImage(imData,slice,sigmaMap,indent)
 % function [maps,noisestats] = FitImage(imData,slice,ROI)
     
 %Takes data in imData structure and generates maps
@@ -14,9 +14,8 @@ function [maps,noisestats] = FitImage(imData,slice,ROI,indent)
 
 %2. slice is specified by user (integer value)
     
-%3. ROI is a logical array of dimension nx-by-ny 
-%(matching the size of the images in imData.images)
-% This is applied to the specified slice to obtain sigma for Rician fitting)
+%3. sigmaMap is a map of sigma (normally after smoothing) obtained from
+%initial fitting step 
 
 %4. Specify indent (integer value) to cut down processing time
 %e.g indent=100;
@@ -41,28 +40,28 @@ end
 
 Smag_slice=abs(Scomplex_slice);
 
-%% Get noise measurement based on ROI
-
-%Get image intensities from first echotime
-Scomplex_slice_TE1=Scomplex_slice(:,:,1);
-
-%Get elements from first echotime image present in ROI
-Scomplex_ROI=Scomplex_slice_TE1(ROI==1);
-
-%Take SD of ROI in real and imaginary channels
-sig_real=std(real(Scomplex_ROI));
-sig_imag=std(imag(Scomplex_ROI));
-
-%Average real and imaginary sigs to create estimate for fitting
-sig=(sig_real + sig_imag)/2;
-
-%Add to noisestats structure
-noisestats.sigma=sig;
-
-%Get mean from ROI
-noisestats.meanS=mean(abs(Scomplex_ROI));
-
-noisestats.SNR=noisestats.meanS/sig;
+%% Get noise measurement based on ROI (not currently used as sigma is estimated from prior fitting step)
+% 
+% %Get image intensities from first echotime
+% Scomplex_slice_TE1=Scomplex_slice(:,:,1);
+% 
+% %Get elements from first echotime image present in ROI
+% Scomplex_ROI=Scomplex_slice_TE1(ROI==1);
+% 
+% %Take SD of ROI in real and imaginary channels
+% sig_real=std(real(Scomplex_ROI));
+% sig_imag=std(imag(Scomplex_ROI));
+% 
+% %Average real and imaginary sigs to create estimate for fitting
+% sig=(sig_real + sig_imag)/2;
+% 
+% %Add to noisestats structure
+% noisestats.sigma=sig;
+% 
+% %Get mean from ROI
+% noisestats.meanS=mean(abs(Scomplex_ROI));
+% 
+% noisestats.SNR=noisestats.meanS/sig;
 
 %% Prefill arrays prior to fitting
 FFrician=zeros(size(Smag_slice,1),size(Smag_slice,2));
@@ -81,12 +80,22 @@ GT.S=[0 0 0 0 0 0];
 for posX=(1+indent):(size(Smag_slice,2)-indent)     %Describes location of chosen pixel
 parfor posY=(1+indent):(size(Smag_slice,1)-indent)
     
-%Get pixel data for single pixel
+%Get pixel data for specified pixel
 Smag=Smag_slice(posY,posX,:);
 Smag=reshape(Smag,1,6);
 
+%Get sigma for specified pixel
+sig=sigmaMap(posY,posX);
+
+
+
 %% Implement fitting
 
+%Only perform fitting for voxels where sigma > 0 (avoids error due to 0s introduced at
+%corners of region due to median filtering operation) 
+if sig > 0 
+
+%Perform fitting
 outparams = R2fitting(TE, imData.FieldStrength, Smag, sig, GT); %echotimes, fieldstrength, measured signal, measured sigma
 
 FFrician(posY,posX)=outparams.Rician.F/(outparams.Rician.F+outparams.Rician.W);
@@ -99,6 +108,9 @@ R2complex(posY,posX)=outparams.complex.R2;
 
 posX
 
+else;
+end
+
 end
 
 end
@@ -110,6 +122,18 @@ maps.FFcomplex=FFcomplex;
 maps.R2rician=R2rician;
 maps.R2standard=R2standard;
 maps.R2complex=R2complex;
+
+figure
+subplot(1,3,1)
+imshow(maps.FFrician,[0 1])
+colorbar
+colormap('parula')
+title('PDFF')
+
+subplot(1,3,2)
+imshow(maps.R2rician,[0 0.3])
+colorbar
+title('R2*')
 
 end
 
