@@ -104,14 +104,17 @@ subplot(1,3,1)
 imshow(maps.FFrician,[0 1])
 colorbar
 colormap('parula')
+title('PDFF')
 
 subplot(1,3,2)
 imshow(maps.R2rician,[0 0.3])
 colorbar
+title('R2*')
 
 subplot(1,3,3)
 imshow(maps.sigma,[0 100])
 colorbar
+title('Sigma')
 
 end
 
