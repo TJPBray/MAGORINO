@@ -17,7 +17,7 @@ L = max(ROIs,[],'all');
 
 %2.2 Loop through ROIs and extract FF and R2* measurements for each 
 
-for l = 1:L
+for l = 1:(L-1) %Ignore last ROI as placed outside tubes
 
     maskedMap = map(ROIs==l);
 
