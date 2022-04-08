@@ -64,16 +64,26 @@ Smag=reshape(Smag,1,6);
 
 %% 5. Implement fitting
 
-%5.1 Give rough idea of SNR
+%5.1 Determine sigma initialisation value depending on SNR
+if imData.FieldStrength==3;
 SNRest=60;
+elseif imData.FieldStrength==1.5;
+SNRest=30;
+else error('Field Strength not recognised - sigma initialisation failed')
+end
 
 %5.2 Specify initialisation values and bounds 
 algoparams = setAlgoparams(Smag,SNRest,2) %opt=2 specifies inclusion of bounds for sigma in algoParams
 
-%5.3 Run Rician fitting with sigma included as a parameter to estimate the value of sigma
+%5.3 Check all signal values are nonzero (otherwise skip voxel) - Rician
+%likelihood function returns an error otherwise
 
+if prod(Smag)>0
+
+%5.4 Run Rician fitting with sigma included as a parameter to estimate the value of sigma
 outparams = RicianMagnitudeFitting_WithSigma(TE, imData.FieldStrength, Smag, algoparams.sigEst, GT, algoparams); %echotimes, fieldstrength, measured signal, initial estimate of sigma, ground truth initialisation, algoparams
 
+%5.5 Add values to parameter maps 
 FFrician(posY,posX)=outparams.F/(outparams.F+outparams.W);
 % FFstandard(posY,posX)=outparams.standard.F/(outparams.standard.F+outparams.standard.W);
 % FFcomplex(posY,posX)=outparams.complex.F/(outparams.complex.F+outparams.complex.W);
@@ -83,6 +93,10 @@ R2rician(posY,posX)=outparams.R2;
 % R2complex(posY,posX)=outparams.complex.R2;
 
 sigmaEstimates(posY,posX)=outparams.sig;
+
+else ;
+end
+
 
 posX
 
