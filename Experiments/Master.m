@@ -2,41 +2,147 @@
 % Runs the various simulations and generates figures
 % Author: Tim Bray (t.bray@ucl.ac.uk)
 
-%% Set number of reps across simulations
+%% 1. Simulations
+
+% 1.1 Set number of reps across simulations
 reps=1000;
 
-%% Run simulations for varying FF and SNR with R2* = 0
+% 1.2 Run simulations for varying FF and SNR with R2* = 0
 % [FFmaps,errormaps,sdmaps] = Simulate_Values_SNR(v,reps)
-
 [FFmaps,errormaps,sdmaps] = Simulate_Values_SNR(0,reps)
 
-%% Run simulations for varying FF and R2* with SNR = 60
+%1.3 Run simulations for varying FF and R2* with SNR = 60
 % [FFmaps,errormaps,sdmaps] = Simulate_Values(SNR,reps)
 
 [FFmaps,errormaps,sdmaps] = Simulate_Values(60,0,reps)
 
-%% Run simulations for varying FF and R2* with SNR = 20
+%1.4 Run simulations for varying FF and R2* with SNR = 20
 % [FFmaps,errormaps,sdmaps] = Simulate_Values(SNR,reps)
 
 [FFmaps,errormaps,sdmaps] = Simulate_Values(20,0,reps)
 
-%% Run likelihood function analysis for chosen FF, R2*, SNR
+%1.5 Run likelihood function analysis for chosen FF, R2*, SNR
 % [outparams] = Likelihood(FF,R2*,SNR,figshow) %Set figshow=1 for display
 
-% Combination 1 (R2*=0, both methods likely to succeed): 
+%1.5.1 Combination 1 (R2*=0, both methods likely to succeed): 
     %Run likelihood function analysis
     [outparams] = VisObjFun(0.2,0,60,1)
     %Show proportion of successful fits
     Fitsuccess(0.2,0,60,200)
 
-% Combination 2 (Larger R2*, Rician may outperform): 
+%1.5.2 Combination 2 (Larger R2*, Rician may outperform): 
     %Run likelihood function analysis
     [outparams] = VisObjFun(0.2,0.3,60,1)
     %Show proportion of successful fits
     Fitsuccess(0.2,0.3,60,200)
     
-% Combination 3 (Largest R2*, challenging case but Rician best): 
+%1.5.3 Combination 3 (Largest R2*, challenging case but Rician best): 
     %Run likelihood function analysis
     [outparams] = VisObjFun(0.2,0.5,60,1)
     %Show proportion of successful fits
     Fitsuccess(0.2,0.5,60,200) %Can use larger number of reps here as only one value pair / set
+
+%% Run multistep fitting for phantom data
+[mapsWithSigma,maps,filteredSigma] = MultistepFitImage(imDataParams,10,40)
+
+%% 2. Run multistep fitting for subject data (FW101)
+[mapsWithSigma,maps,filteredSigma] = MultistepFitImage(imDataParams,20,80)
+
+%% 3. Hernando phantom data - map generation 
+
+%3.1 Define folders for import of multiecho data and ROIs
+imageFolder='/Users/tjb57/Dropbox/MATLAB/Fat-water MAGORINO/Data/Hernando data';
+roiFolder='/Users/tjb57/Dropbox/MATLAB/Fat-water MAGORINO/Data/Hernando ROIs';
+
+%3.2 Get image and ROI folder info
+imageFolderInfo=dir(imageFolder);
+roiFolderInfo=dir(roiFolder);
+
+%3.3. Specify reference values in phantoms
+% Create grid of reference values based on phantom structure
+ReferenceValues.FF = ([0; 0.026; 0.053; 0.079; 0.105; 0.157; 0.209; 0.312; 0.413; 0.514; 1]);
+% ReferenceValues.R2 = repelem([0; 0; 0; 0],1,5);
+
+%3.4 Loop over datasets to fit each dataset
+for n=1:28
+
+%3.5 Define filenames for multiecho data and ROIs
+dataFileName = imageFolderInfo(n+2).name
+roiFileName = roiFolderInfo(n+2).name;
+
+%3.6 Import data
+struct=load(fullfile(imageFolder,dataFileName));
+imData=struct.imDataAll;
+fwmc_ff=struct.fwmc_ff;
+fwmc_r2star=struct.fwmc_r2star;
+
+%3.7 Import ROIs
+phantomROIs = niftiread(fullfile(roiFolder,roiFileName));
+    % phantomImage = niftiread(fullfile(folder,dataFileName));
+
+%3.8 Specify slice (use 1 if only 1 slice)
+sl=2;
+
+% %3.9 Show check image for alignment
+% figure
+% subplot(2,3,1)
+% imshow(phantomROIs(:,:,1),[])
+% title('ROIs')
+% 
+% subplot(2,3,2)
+% imshow(abs(imData.images(:,:,sl,1,1)),[])
+% title('Magnitude image of phantom (first echo)')
+% 
+% subplot(2,3,3)
+% imshow(fwmc_ff(:,:,2),[0 100])
+% title('PDFF map of phantom')
+% 
+% subplot(2,3,4)
+% imshow(phantomROIs(:,:,sl),[0 12])
+% title('Phantom ROIs')
+
+%3.10 Perform fitting of multiecho data, using sigma estimate from phantom ROIs
+
+%3.11 Specify indent (to avoid fitting dead space at edge of phantom) and
+%filtersize
+indent=30;
+filterSize=5;
+
+%3.12 Perform multistep fitting
+[mapsWithSigma,filteredSigma,maps] = MultistepFitImage(imData,sl,indent,filterSize);
+
+
+%3.13 Save variables (mapsWithSigma,filteredSigma,maps)
+%Specify folder name
+saveFolder='/Users/tjb57/Dropbox/MATLAB/Fat-water MAGORINO/Data/Hernando results';
+saveFileName = strcat('MAPS_', dataFileName);
+save(fullfile(saveFolder,saveFileName), 'mapsWithSigma', 'filteredSigma', 'maps');
+
+end
+
+%% 3. Hernando phantom data - ROI analysis (split off to enable rapid modification of figures)
+
+for n=1:28
+
+%3.1 Define filenames for multiecho data and ROIs
+dataFileName = imageFolderInfo(n+2).name
+roiFileName = roiFolderInfo(n+2).name;
+
+%3.2 Import data
+struct=load(fullfile(imageFolder,dataFileName));
+imData=struct.imDataAll;
+fwmc_ff=struct.fwmc_ff;
+fwmc_r2star=struct.fwmc_r2star;
+
+%3.3 Import ROIs
+phantomROIs = niftiread(fullfile(roiFolder,roiFileName));
+
+%3.4 Load pre-generated maps 
+load(fullfile(saveFolder,strcat('MAPS_', dataFileName)));
+
+%3.5 Phantom ROI analysis
+PhantomRoiAnalysis(maps,phantomROIs(:,:,sl),ReferenceValues,fwmc_ff,fwmc_r2star)
+
+end
+
+
