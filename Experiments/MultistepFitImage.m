@@ -1,5 +1,5 @@
-function [maps] = MultistepFitImage(imData,slice,indent)
-%function [maps] = MultistepFitImage(imData,slice,indent)
+function [mapsWithSigma,filteredSigma,maps] = MultistepFitImage(imData,slice,indent,filterSize)
+%function [mapsWithSigma,filteredSigma,maps] = MultistepFitImage(imData,slice,indent,filterSize)
     
 % Multistep fitting consists of: 
 % (a) Generation of sigma maps using FitImageSigma
@@ -23,18 +23,19 @@ function [maps] = MultistepFitImage(imData,slice,indent)
 %4. Specify indent (integer value) to cut down processing time
 %e.g indent=100;
 
+%5. Specify filter size for median filtering operation
+
 %Outputs
 % Maps structure containing FF, R2* and sigma maps from different stages
 
-indent=80;
-slice=20;
+
 matSize=size(imData.images,1);
 
 %% 1. Estimate sigma for image
 mapsWithSigma = FitImageSigma(imData,slice,indent)
 
 %% 2. Median filter sigma to 'smooth' sigma estimates
-filteredSigma=medfilt2(mapsWithSigma.sigma,[25 25]);
+filteredSigma=medfilt2(mapsWithSigma.sigma,[filterSize filterSize]);
 imshow(filteredSigma,[0 100])
 
 %% 3. Used filtered sigma map to initialise fitting with fixed sigma
@@ -42,34 +43,47 @@ maps = FitImage(imData,slice,filteredSigma,indent)
 
 %% 4. Show Step1 and Step2 maps for comparison
 figure
-subplot(3,4,1)
+subplot(2,4,1)
 imshow(mapsWithSigma.FFrician(indent:matSize-indent,indent:matSize-indent),[0 1])
 title('PDFF with floating sigma')
-colorbar 
+colormap('parula') 
 
-subplot(3,4,2)
+subplot(2,4,2)
 imshow(mapsWithSigma.R2rician(indent:matSize-indent,indent:matSize-indent),[0 0.25])
 title('R2* with floating sigma')
-colorbar 
 
-subplot(3,4,3)
+subplot(2,4,3)
 imshow(mapsWithSigma.sigma(indent:matSize-indent,indent:matSize-indent),[0 100])
 title('Sigma estimate')
-colorbar 
 
-subplot(3,4,4)
+subplot(2,4,4)
 imshow(filteredSigma(indent:matSize-indent,indent:matSize-indent),[0 100])
-title('Filtered sigma')
-colorbar 
+title('Filtered sigma estimate')
 
+subplot(2,4,7)
+hist(reshape(mapsWithSigma.sigma(indent:matSize-indent,indent:matSize-indent),1,[]),[0:2.5:150])
+xlabel('Sigma^2')
+ylabel('Voxels')
+title('Sigma histogram')
+
+subplot(2,4,8)
+hist(reshape(filteredSigma(indent:matSize-indent,indent:matSize-indent),1,[]),[0:2.5:150])
+xlabel('Sigma^2')
+ylabel('Voxels')
+title('Filtered sigma histogram')
+
+%% 5. Show Step1 and Step2 maps for comparison
+
+figure
 subplot(3,4,5)
 imshow(maps.FFrician(indent:matSize-indent,indent:matSize-indent),[0 1])
-title('PDFF using sigma fixed from previous step')
-colorbar 
+title('PDFF using fixed sigma')
+colormap('parula')
+colorbar
 
 subplot(3,4,6)
 imshow(maps.R2rician(indent:matSize-indent,indent:matSize-indent),[0 0.25])
-title('R2* using sigma fixed from previous step')
+title('R2* using fixed sigma')
 colorbar 
 
 subplot(3,4,9)
@@ -85,23 +99,25 @@ colorbar
 %% 4. Show MAGORINO vs MAGO
 figure
 subplot(2,3,1)
-imshow(maps.FFstandard,[0 1])
+imshow(maps.FFstandard(indent:matSize-indent,indent:matSize-indent),[0 1])
 title('PDFF Gaussian')
-colorbar 
+colormap('parula')
+colorbar
 
 subplot(2,3,2)
-imshow(maps.FFrician,[0 1])
+imshow(maps.FFrician(indent:matSize-indent,indent:matSize-indent),[0 1])
 title('PDFF Rician')
-colorbar 
+colormap('parula')
+colorbar
 
 subplot(2,3,3)
-imshow(maps.FFrician - maps.FFstandard,[-0.1 0.1])
+imshow(maps.FFrician(indent:matSize-indent,indent:matSize-indent) - maps.FFstandard(indent:matSize-indent,indent:matSize-indent),[-0.1 0.1])
 title('PDFF Rician - PDFF Gaussian')
 colorbar 
 
 subplot(2,3,4)
 imshow(maps.R2standard(indent:matSize-indent,indent:matSize-indent),[0 0.25])
-title('R2* Rician')
+title('R2* Gaussian')
 colorbar 
 
 subplot(2,3,5)
