@@ -26,14 +26,14 @@ function [maps,noisestats] = FitImage(imData,slice,sigmaMap,indent)
 
 % Noisestats structure giving estimated sigma, mean S and SNR
 
-%% Reformat data where needed
+%% 1. Reformat data where needed
 
 %Convert TE to ms
 TE=1000*imData.TE;
 
 TE=reshape(TE,6,1);
 
-%% Get images for the chosen slice
+%% 2. Get images for the chosen slice
 for echoN=1:numel(TE)  
 Scomplex_slice(:,:,echoN)=imData.images(:,:,slice,1,echoN);
 end
@@ -63,7 +63,7 @@ Smag_slice=abs(Scomplex_slice);
 % 
 % noisestats.SNR=noisestats.meanS/sig;
 
-%% Prefill arrays prior to fitting
+%% 3. Prefill arrays prior to fitting
 FFrician=zeros(size(Smag_slice,1),size(Smag_slice,2));
 FFstandard=zeros(size(Smag_slice,1),size(Smag_slice,2));
 FFcomplex=zeros(size(Smag_slice,1),size(Smag_slice,2));
@@ -75,29 +75,32 @@ R2complex=zeros(size(Smag_slice,1),size(Smag_slice,2));
 GT.p=[0 0 0 0];
 GT.S=[0 0 0 0 0 0];
 
-%% Loop over voxels in image and fit each one 
+%% 4. Loop over voxels in image and fit each one 
 
 for posX=(1+indent):(size(Smag_slice,2)-indent)     %Describes location of chosen pixel
 parfor posY=(1+indent):(size(Smag_slice,1)-indent)
     
-%Get pixel data for specified pixel
+%4.1 Get pixel data for specified pixel
 Smag=Smag_slice(posY,posX,:);
 Smag=reshape(Smag,1,6);
 
-%Get sigma for specified pixel
+%4.2 Get sigma for specified pixel
 sig=sigmaMap(posY,posX);
 
 
+%% 5. Implement fitting
 
-%% Implement fitting
-
-%Only perform fitting for voxels where sigma > 0 (avoids error due to 0s introduced at
+%5.1 Only perform fitting for voxels where sigma > 0 (avoids error due to 0s introduced at
 %corners of region due to median filtering operation) 
-if sig > 0 
+%Also Check all signal values are nonzero (otherwise skip voxel) - Rician
+%likelihood function returns an error otherwise
 
-%Perform fitting
+if (sig>0) & (prod(Smag)>0)
+
+%5.2 Perform fitting
 outparams = R2fitting(TE, imData.FieldStrength, Smag, sig, GT); %echotimes, fieldstrength, measured signal, measured sigma
 
+%5.3 Add values to parameter maps 
 FFrician(posY,posX)=outparams.Rician.F/(outparams.Rician.F+outparams.Rician.W);
 FFstandard(posY,posX)=outparams.standard.F/(outparams.standard.F+outparams.standard.W);
 FFcomplex(posY,posX)=outparams.complex.F/(outparams.complex.F+outparams.complex.W);
