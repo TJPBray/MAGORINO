@@ -3,7 +3,7 @@
 % Tim Bray, t.bray@ucl.ac.uk
 % January 2022
 
-function PhantomRoiAnalysis(maps,phantomROIs,ReferenceValues,ffVendor,r2starVendor)
+function regressionModels = PhantomRoiAnalysis(maps,phantomROIs,ReferenceValues,ffVendor,r2starVendor)
 
 
 %% 2. Get measurements for each ROI
@@ -33,6 +33,21 @@ function PhantomRoiAnalysis(maps,phantomROIs,ReferenceValues,ffVendor,r2starVend
 % r2.rician.meangrid = reshape(r2.rician.mean,[4,5]);
 % r2.complex.meangrid = reshape(r2.complex.mean,[4,5]);
 % r2.vendor.meangrid = reshape(r2.vendor.mean,[4,5]);
+
+
+
+%% 4. Perform linear regression
+
+% 5.1 For FF
+regressionModels.ffGaussian = fitlm(ReferenceValues.FF,ff.standard.mean); %RM denotes regression model
+regressionModels.ffRician = fitlm(ReferenceValues.FF,ff.rician.mean);
+
+
+%% Choose whether to display data
+disp = 0;
+
+if disp ==1
+
 
 %% 4. Display phantom images
 
@@ -92,9 +107,11 @@ colorbar
 % title('R2* complex MAGO-equivalent - Gaussian/MAGO')
 % colorbar
 
-%% 5. Display agreement plots
 
-% 5.1 For FF
+%% 6. Display agreement plots
+
+
+% 6.1 For FF
 figure('Name', 'FF')
 subplot(2,4,1)
 plot(ReferenceValues.FF,ff.standard.mean,'x-','LineWidth',1)
@@ -107,7 +124,7 @@ legend('Gaussian fitting','Rician fitting','Hernando complex fitting')
 xlim([0 1])
 ylim([0 1])
 
-%% 5. Display values as grids
+%% 7. Display values as grids
 
 % % 5.1 For FF
 % figure('Name', 'FF')
@@ -297,6 +314,11 @@ ylim([0 1])
 % % ylabel('Bone mineral density','FontSize',12)
 % % title('BMD')
 % % colorbar
+
+else ;
+end
+
+
 
 end
 
