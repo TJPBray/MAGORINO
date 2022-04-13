@@ -45,8 +45,14 @@ reps=1000;
 %% Run multistep fitting for phantom data
 [mapsWithSigma,maps,filteredSigma] = MultistepFitImage(imDataParams,10,40)
 
-%% 2. Run multistep fitting for subject data (FW101)
+%% 2. Run multistep fitting for subject data (FW111)
+
+%2.1 Run fitting to generate maps
 [mapsWithSigma,maps,filteredSigma] = MultistepFitImage(imDataParams,20,80)
+
+%2.2 Analysis of in vivo distribution
+[fittedSimFF,fittedSimR2] = InVivoAnalysis(imDataParams, maps,indent,simErrorMaps)
+
 
 %% 3. Hernando phantom data - map generation 
 
@@ -54,9 +60,13 @@ reps=1000;
 imageFolder='/Users/tjb57/Dropbox/MATLAB/Fat-water MAGORINO/Data/Hernando data';
 roiFolder='/Users/tjb57/Dropbox/MATLAB/Fat-water MAGORINO/Data/Hernando ROIs';
 
+%Folder for saving
+saveFolder='/Users/tjb57/Dropbox/MATLAB/Fat-water MAGORINO/Data/Hernando results';
+
 %3.2 Get image and ROI folder info
 imageFolderInfo=dir(imageFolder);
 roiFolderInfo=dir(roiFolder);
+saveFolderInfo=dir(saveFolder);
 
 %3.3. Specify reference values in phantoms
 % Create grid of reference values based on phantom structure
@@ -64,7 +74,7 @@ ReferenceValues.FF = ([0; 0.026; 0.053; 0.079; 0.105; 0.157; 0.209; 0.312; 0.413
 % ReferenceValues.R2 = repelem([0; 0; 0; 0],1,5);
 
 %3.4 Loop over datasets to fit each dataset
-for n=1:28
+for n=21:28
 
 %3.5 Define filenames for multiecho data and ROIs
 dataFileName = imageFolderInfo(n+2).name
@@ -114,7 +124,6 @@ filterSize=5;
 
 %3.13 Save variables (mapsWithSigma,filteredSigma,maps)
 %Specify folder name
-saveFolder='/Users/tjb57/Dropbox/MATLAB/Fat-water MAGORINO/Data/Hernando results';
 saveFileName = strcat('MAPS_', dataFileName);
 save(fullfile(saveFolder,saveFileName), 'mapsWithSigma', 'filteredSigma', 'maps');
 
@@ -122,7 +131,7 @@ end
 
 %% 3. Hernando phantom data - ROI analysis (split off to enable rapid modification of figures)
 
-for n=1:28
+for n=1:(numel(saveFolderInfo)-2)
 
 %3.1 Define filenames for multiecho data and ROIs
 dataFileName = imageFolderInfo(n+2).name
@@ -141,8 +150,9 @@ phantomROIs = niftiread(fullfile(roiFolder,roiFileName));
 load(fullfile(saveFolder,strcat('MAPS_', dataFileName)));
 
 %3.5 Phantom ROI analysis
-PhantomRoiAnalysis(maps,phantomROIs(:,:,sl),ReferenceValues,fwmc_ff,fwmc_r2star)
+regressionModels{n} = PhantomRoiAnalysis(maps,phantomROIs(:,:,sl),ReferenceValues,fwmc_ff,fwmc_r2star);
 
 end
 
-
+%3.5 Tabulate coefficients
+[tableGaussian, tableRician] = tabulateCoeffs(regressionModels,saveFolderInfo);
