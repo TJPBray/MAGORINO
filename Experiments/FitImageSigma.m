@@ -65,9 +65,9 @@ Smag=reshape(Smag,1,6);
 %% 5. Implement fitting
 
 %5.1 Determine sigma initialisation value depending on SNR
-if imData.FieldStrength==3;
+if round(imData.FieldStrength,0)==3; %round field strength to nearest integer
 SNRest=60;
-elseif imData.FieldStrength==1.5;
+elseif round(imData.FieldStrength,1)==1.5; %round field strength to nearest tenth
 SNRest=30;
 else error('Field Strength not recognised - sigma initialisation failed')
 end
