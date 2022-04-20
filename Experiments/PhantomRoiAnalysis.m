@@ -3,7 +3,7 @@
 % Tim Bray, t.bray@ucl.ac.uk
 % January 2022
 
-function regressionModels = PhantomRoiAnalysis(maps,phantomROIs,ReferenceValues,ffVendor,r2starVendor)
+function [ff,regressionModels] = PhantomRoiAnalysis(maps,phantomROIs,ReferenceValues,ffVendor,r2starVendor)
 
 
 %% 2. Get measurements for each ROI
