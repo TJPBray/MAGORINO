@@ -48,6 +48,7 @@ R2rician=zeros(size(Smag_slice,1),size(Smag_slice,2));
 % R2standard=zeros(size(Smag_slice,1),size(Smag_slice,2));
 % R2complex=zeros(size(Smag_slice,1),size(Smag_slice,2));
 sigmaEstimates=zeros(size(Smag_slice,1),size(Smag_slice,2));
+s0Estimates=zeros(size(Smag_slice,1),size(Smag_slice,2));
 
 % Set ground truth values to 0
 GT.p=[0 0 0 0];
@@ -94,6 +95,8 @@ R2rician(posY,posX)=outparams.R2;
 
 sigmaEstimates(posY,posX)=outparams.sig;
 
+s0Estimates(posY,posX)=outparams.F+outparams.W;
+
 else ;
 end
 
@@ -113,6 +116,9 @@ maps.R2rician=R2rician;
 % maps.R2complex=R2complex;
 maps.sigma=sigmaEstimates;
 
+maps.S0=s0Estimates;
+maps.SNR = s0Estimates./sigmaEstimates;
+
 figure
 subplot(1,3,1)
 imshow(maps.FFrician,[0 1])
@@ -129,6 +135,8 @@ subplot(1,3,3)
 imshow(maps.sigma,[0 100])
 colorbar
 title('Sigma')
+
+
 
 end
 
