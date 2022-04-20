@@ -32,7 +32,7 @@ GT.p = [FF*S0, (1-FF)*S0 v 0];
 %  Specify echotime values
 % MAGO paper at 3T used 12 echoes (TE1 1.1, dTE 1.1)
 % MAGO paper at 1.5T used 6 echoes (TE1 1.2, dTE 2)
-echotimes=1.1:1.1:13.2;
+echotimes=(1.1:1.1:13.2)';
 
 %Specify field strength
 tesla=3;
@@ -226,7 +226,7 @@ coords.chosen.complex.R2=100*outparams.complex.R2+1;
 %Specify whether path should be shown
 
 fitshow=1;
-fitpath=1;
+fitpath=0;
 
 if figshow==1
   
@@ -245,7 +245,7 @@ xticklabels({'0','.1', '.2', '.3', '.4', '.5', '.6', '.7', '.8', '.9','1.0'});
 xlabel('R2* (ms^-^1)','FontSize',12)
 yticks([1 11 21 31 41 51 61 71 81 91 101]);
 yticklabels({'0','10','20','30','40','50','60','70','80','90','100'});
-ylabel('Fat fraction (%)','FontSize',12)
+ylabel('PDFF (%)','FontSize',12)
 title(strcat('Gaussian: Log likelihood for true FF =  ',num2str(GT.p(1)),', and true R2star =  ', num2str(GT.p(3))))
 colorbar
 hold on
@@ -264,15 +264,20 @@ plot(coords.gridsearch.standard.maxima.globalmax.coords.R2,coords.gridsearch.sta
 %Add local optimum from grid swarch
 plot(coords.gridsearch.standard.maxima.localmax.coords.R2,coords.gridsearch.standard.maxima.localmax.coords.FF,'kd','MarkerFaceColor','white','MarkerSize',8,'LineWidth',1)
 
-%Show fit results if fitshow==1
-if fitshow==1
-    
+
+%Show fit path if fitpath==1
+if fitpath==1
 %Add path on objective function
 plot(100*outparams_hist.standard.R2_1+1,outparams_hist.standard.FF1+1,'--b.','MarkerSize',12,'LineWidth',2,'Color','black')
 
 %Add path on objective function
 plot(100*outparams_hist.standard.R2_2+1,outparams_hist.standard.FF2+1,'--b.','MarkerSize',12,'LineWidth',2,'Color','black')
 
+else ;
+end
+
+%Show fit results if fitshow==1
+if fitshow==1
 %Add two candidate solutions from fitting
 plot(coords.pmin1.standard.R2,coords.pmin1.standard.FF,'rx','MarkerSize',12,'LineWidth',2)
 plot(coords.pmin2.standard.R2,coords.pmin2.standard.FF,'r+','MarkerSize',12,'LineWidth',2)
@@ -280,11 +285,11 @@ plot(coords.pmin2.standard.R2,coords.pmin2.standard.FF,'r+','MarkerSize',12,'Lin
 %Add solution from fitting
 plot(coords.chosen.standard.R2, coords.chosen.standard.FF,'ro','MarkerSize',12,'LineWidth',2) 
 
-lgnd=legend('Contour','Ground truth R2*','Ground truth FF', 'MLE (grid search)','Local optimum (grid search)','path1','path2','opt1', 'opt2', 'Fit output');
+lgnd=legend('Contour','Ground truth R2*','Ground truth FF', 'MLE (grid search)','Local optimum (grid search)','opt1', 'opt2', 'Fit output');
 
 else ;
     
-lgnd=legend('Contour','Ground truth R2*','Ground truth FF', 'MLE (grid search)','Local optimum (grid search)');
+lgnd=legend('Contour','Ground truth R2*','Ground truth FF', 'MLE (grid search)','Fit output');
 
 end
 
@@ -304,7 +309,7 @@ xticklabels({'0','.1', '.2', '.3', '.4', '.5', '.6', '.7', '.8', '.9','1.0'});
 xlabel('R2* (ms^-^1)','FontSize',12)
 yticks([1 11 21 31 41 51 61 71 81 91 101]);
 yticklabels({'0','10','20','30','40','50','60','70','80','90','100'});
-ylabel('Fat fraction (%)','FontSize',12)
+ylabel('PDFF (%)','FontSize',12)
 title(strcat('Rician: Log likelihood for true FF =  ',num2str(GT.p(1)),', and true R2star =  ', num2str(GT.p(3))))
 colorbar
 hold on
@@ -324,15 +329,17 @@ plot(coords.gridsearch.Rician.maxima.globalmax.coords.R2,coords.gridsearch.Ricia
 %Add local optimum from grid swarch
 plot(coords.gridsearch.Rician.maxima.localmax.coords.R2,coords.gridsearch.Rician.maxima.localmax.coords.FF,'kd','MarkerFaceColor','white','MarkerSize',8,'LineWidth',1)
 
-
-%Show fit results if fitshow==1
-if fitshow==1
-    
+%Show fit path if fitpath==1
+if fitpath==1
 %Add path on objective function
 plot(100*outparams_hist.Rician.R2_1+1,outparams_hist.Rician.FF1+1,'--b.','MarkerSize',12,'LineWidth',2,'Color','black') %NB
 %Add path on objective function
 plot(100*outparams_hist.Rician.R2_2+1,outparams_hist.Rician.FF2+1,'--b.','MarkerSize',12,'LineWidth',2,'Color','black') %NB
+else ;
+end
 
+%Show fit results if fitshow==1
+if fitshow==1
 %Add two candidate solutions from fitting
 plot(coords.pmin1.Rician.R2,coords.pmin1.Rician.FF,'rx','MarkerSize',12,'LineWidth',2)
 plot(coords.pmin2.Rician.R2,coords.pmin2.Rician.FF,'r+','MarkerSize',12,'LineWidth',2)
@@ -340,11 +347,11 @@ plot(coords.pmin2.Rician.R2,coords.pmin2.Rician.FF,'r+','MarkerSize',12,'LineWid
 %Add solution from fitting
 plot(coords.chosen.Rician.R2, coords.chosen.Rician.FF,'ro','MarkerSize',12,'LineWidth',2) 
 
-lgnd=legend('Contour','Ground truth R2*','Ground truth FF', 'MLE (grid search)','Local optimum (grid search)','path1','path2','opt1', 'opt2', 'Fit output');
+lgnd=legend('Contour','Ground truth R2*','Ground truth FF', 'MLE (grid search)','Local optimum (grid search)','opt1', 'opt2', 'Fit output');
 
 else ;
     
-lgnd=legend('Contour','Ground truth R2*','Ground truth FF', 'MLE (grid search)','Local optimum (grid search)');
+lgnd=legend('Contour','Ground truth R2*','Ground truth FF', 'MLE (grid search)','Fit output');
 
 end
 
@@ -364,11 +371,14 @@ xticklabels({'0','.1', '.2', '.3', '.4', '.5', '.6', '.7', '.8', '.9','1.0'});
 xlabel('R2* (ms^-^1)','FontSize',12)
 yticks([1 11 21 31 41 51 61 71 81 91 101]);
 yticklabels({'0','10','20','30','40','50','60','70','80','90','100'});
-ylabel('Fat fraction (%)','FontSize',12)
+ylabel('PDFF (%)','FontSize',12)
 title(strcat('Complex: Log likelihood for true FF =  ',num2str(GT.p(1)),', and true R2star =  ', num2str(GT.p(3))))
 colorbar
 hold on
 colormap('parula')
+
+%Add contours
+contour(loglikComplex,[-3*abs(max(loglikMag,[],'all')):abs(max(loglikMag,[],'all')):max(loglikMag,[],'all')],'color',[0.5 0.5 0.5],'LineWidth',1)
 
 %Add ground truth as two intersecting lines
 plot([coords.gt.R2 coords.gt.R2],[0 100],'LineWidth',2,'color','red','Linestyle',':') %..add ground truth as line
@@ -382,16 +392,21 @@ plot(coords.gridsearch.complex.maxima.globalmax.coords.R2,coords.gridsearch.comp
 
 %Breakpoint here to generate simplified figure without contours and labels
 
-%Add contours
-contour(loglikComplex,[-3*abs(max(loglikMag,[],'all')):abs(max(loglikMag,[],'all')):max(loglikMag,[],'all')],'color',[0.5 0.5 0.5],'LineWidth',1)
 
-if fitshow==1
-    
+
+
+% Show path result if fitpath==1
+if fitpath==1
 %Add path on objective function
 plot(100*outparams_hist.complex.R2_1+1,outparams_hist.complex.FF1+1,'--b.','MarkerSize',12,'LineWidth',2,'Color','black') %NB
 %Add path on objective function
 plot(100*outparams_hist.complex.R2_2+1,outparams_hist.complex.FF2+1,'--b.','MarkerSize',12,'LineWidth',2,'Color','black') %NB
+else;
 
+end
+
+% Show fit result if fitshow==1
+if fitshow==1
 %Add two candidate solutions from fitting
 plot(coords.pmin1.complex.R2,coords.pmin1.complex.FF,'rx','MarkerSize',12,'LineWidth',2)
 plot(coords.pmin2.complex.R2,coords.pmin2.complex.FF,'r+','MarkerSize',12,'LineWidth',2)
@@ -399,11 +414,12 @@ plot(coords.pmin2.complex.R2,coords.pmin2.complex.FF,'r+','MarkerSize',12,'LineW
 %Add solution from fitting
 plot(coords.chosen.complex.R2, coords.chosen.complex.FF,'ro','MarkerSize',12,'LineWidth',2) %NB
 
-lgnd=legend('Contour','Ground truth R2*','Ground truth FF', 'MLE (grid search)','path1','path2','opt1', 'opt2', 'Fit output');
+lgnd=legend('Contour','Ground truth R2*','Ground truth FF', 'MLE (grid search)','opt1', 'opt2', 'Fit output');
 
 else ;
     
-lgnd=legend('Contour','Ground truth R2*','Ground truth FF', 'MLE (grid search)');
+lgnd=legend('Contour','Ground truth R2*','Ground truth FF', 'MLE (grid search)','Fit output');
+
 
 end
 
@@ -445,7 +461,7 @@ xvals_standard=improfile(Fgrid,[0 100], [yint yhigh]); %get profile
 %Plot profile against FF
 plot(xvals_standard,profile_standard_smooth,'LineWidth',2,'color','black','Linestyle','-')
 ylabel('Likelihood','FontSize',12)
-xlabel('Fat fraction (%)','FontSize',12)
+xlabel('PDFF (%)','FontSize',12)
 xticks([0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0]);
 xticklabels({'0','10','20','30','40','50','60','70','80','90','100'});
 
@@ -484,7 +500,7 @@ xvals_Rician=improfile(Fgrid,[0 100], [yint yhigh]); %get profile
 %Plot profile against FF
 plot(xvals_Rician,profile_Rician_smooth,'LineWidth',2,'color','black','Linestyle','-')
 ylabel('Likelihood','FontSize',12)
-xlabel('Fat fraction (%)','FontSize',12)
+xlabel('PDFF (%)','FontSize',12)
 xticks([0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0]);
 xticklabels({'0','10','20','30','40','50','60','70','80','90','100'});
 
