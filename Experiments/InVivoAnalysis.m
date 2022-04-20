@@ -46,29 +46,29 @@ figure
 
 subplot(5,6,1)
 imshow(maps.FFstandard(indent:matSize-indent,indent:matSize-indent),[0 1])
-title('PDFF Gaussian')
+title('Gaussian')
 colormap('parula')
 
 subplot(5,6,2)
 imshow(maps.FFrician(indent:matSize-indent,indent:matSize-indent),[0 1])
-title('PDFF Rician')
+title('Rician')
 colormap('parula')
 
 subplot(5,6,3)
 imshow(maps.FFstandard(indent:matSize-indent,indent:matSize-indent) - maps.FFrician(indent:matSize-indent,indent:matSize-indent),[-0.2 0.2])
-title('Gaussian-Rician')
+title('G - R')
 
 subplot(5,6,4)
 imshow(maps.R2standard(indent:matSize-indent,indent:matSize-indent),[0 0.5])
-title('R2* Gaussian')
+title('Gaussian')
 
 subplot(5,6,5)
 imshow(maps.R2rician(indent:matSize-indent,indent:matSize-indent),[0 0.5])
-title('R2* Rician')
+title('Rician')
 
 subplot(5,6,6)
 imshow(maps.R2standard(indent:matSize-indent,indent:matSize-indent) - maps.R2rician(indent:matSize-indent,indent:matSize-indent),[-0.2 0.2])
-title('Gaussian-Rician')
+title('G - R')
 
 subplot(5,2,3)
 scatter(FFrician,FFgaussian)
@@ -152,7 +152,7 @@ ax.CLim=[-0.2 0.2];
 set(gca, 'YDir','reverse')
 
 subplot(5,2,9)
-scatter3(fittedSimR2.Rician,fittedSimFF.Rician,simFFdiff,15,simFFdiff,'o','filled')
+scatter3(fittedSimR2.Rician,fittedSimFF.rician,simFFdiff,15,simFFdiff,'o','filled')
 xlabel('R2* Rician')
 ylabel('PDFF Rician')
 zlabel('PDFF Gaussian - PDFF Rician')
@@ -166,7 +166,7 @@ ax.CLim=[-0.5 0.5];
 set(gca, 'YDir','reverse')
 
 subplot(5,2,10)
-scatter3(fittedSimR2.Rician,fittedSimFF.Rician,simR2diff,15,simR2diff,'o','filled')
+scatter3(fittedSimR2.Rician,fittedSimFF.rician,simR2diff,15,simR2diff,'o','filled')
 xlabel('R2* Rician')
 ylabel('PDFF Rician')
 zlabel('R2* Gaussian - R2* Rician')
@@ -209,6 +209,8 @@ set(gca, 'YDir','reverse')
 % ylabel('Fat fraction (%)','FontSize',12)
 % title('Simulation: R2* Gaussian - R2* Rician')
 % colorbar
+
+
 
 
 end
