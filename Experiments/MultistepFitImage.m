@@ -32,11 +32,12 @@ function [mapsWithSigma,filteredSigma,maps] = MultistepFitImage(imData,slice,ind
 matSize=size(imData.images,1);
 
 %% 1. Estimate sigma for image
-mapsWithSigma = FitImageSigma(imData,slice,indent)
+mapsWithSigma = FitImageSigma(imData,slice,(indent-filterSize)); %Reduce indent by filtersize for first step to avoid introducing 0s with median filter
 
 %% 2. Median filter sigma to 'smooth' sigma estimates
 filteredSigma=medfilt2(mapsWithSigma.sigma,[filterSize filterSize]);
-imshow(filteredSigma,[0 100])
+
+smoothSNR=mapsWithSigma.S0./filteredSigma;
 
 %% 3. Used filtered sigma map to initialise fitting with fixed sigma
 maps = FitImage(imData,slice,filteredSigma,indent)
@@ -60,17 +61,26 @@ subplot(2,4,4)
 imshow(filteredSigma(indent:matSize-indent,indent:matSize-indent),[0 100])
 title('Filtered sigma estimate')
 
-subplot(2,4,7)
+subplot(2,4,6)
 hist(reshape(mapsWithSigma.sigma(indent:matSize-indent,indent:matSize-indent),1,[]),[0:2.5:150])
 xlabel('Sigma^2')
 ylabel('Voxels')
 title('Sigma histogram')
 
-subplot(2,4,8)
+subplot(2,4,7)
 hist(reshape(filteredSigma(indent:matSize-indent,indent:matSize-indent),1,[]),[0:2.5:150])
 xlabel('Sigma^2')
 ylabel('Voxels')
 title('Filtered sigma histogram')
+
+subplot(2,4,8)
+hist(reshape(smoothSNR(indent:matSize-indent,indent:matSize-indent),1,[]),[0:2.5:150])
+xlabel('SNR')
+ylabel('Voxels')
+title('SNR histogram')
+
+nanmedian(smoothSNR,'all')
+
 
 %% 5. Show Step1 and Step2 maps for comparison
 
