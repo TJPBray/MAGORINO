@@ -11,7 +11,8 @@ function [FFmaps,errormaps,sdmaps,residuals] = Simulate_Values(SNR, sigmaError, 
 % S0 value
 
 % sigmaError is the proportional error on sigma due to inaccurate
-% estimation
+% estimation (e.g. for overestimation of 30%, sigmaError = 0.3, for
+% underestimation of 30%, sigmaError = -0.3)
 
 % reps is number of simulation instantiations
 
