@@ -1,6 +1,7 @@
 %% Fat-water deep neural network (DNN) w/ Matlab Deep Learning Toolbox
 %
-% Version 2: Larger network, train on MLE labels from MAGORINO
+% Version 2: Larger network, incorporate noise-free
+% training
 %
 
 %% 1.0 Synthesise training/validation data using multipeak fat model 
@@ -49,13 +50,17 @@ S = Snoisefree + realnoise + imagnoise;
 % Use magnitude for now 
 S=abs(S);
 
+%Also create noise-free dataaset
+Snoisefree=abs(Snoisefree);
+
+
 %% 3.0 Find MLE values using MAGORINO to provide alternative labels (note that in some cases the MLE is a swapped value)
 
 GT.p = [0 0 0 0];
 GT.S= zeros(numel(echotimes));
 
 parfor k=1:s 
-    outparams = R2fitting (echotimes, 3, S(k,:), noiseSD, GT)
+    outparams = R2fitting (echotimes, 3, Snoisefree(k,:), 0.1, GT)
 
 %3.1 Get MLE estimates of FF and R2star from fit
     mleFF(k,1)=outparams.Rician.F/(outparams.Rician.F+outparams.Rician.W);
@@ -129,14 +134,14 @@ idxTrain = training(hPartition);
 idxValidation = test(hPartition);
 
 % extract the training set
-xTrain = S(idxTrain,:);
-yTrain = trainingParams(idxTrain,:);
+xTrain = Snoisefree(idxTrain,:);    %train on noise-free data
+yTrain = trainingParams(idxTrain,:); %validate on noisy data
 yTrainMLE = trainingParamsMLE(idxTrain,:);
 yTrainpmin1 = trainingParamspmin1(idxTrain,:);
 yTrainpmin2 = trainingParamspmin2(idxTrain,:);
 
 % extract the validation set
-xValidation = S(idxValidation,:);
+xValidation = Snoisefree(idxValidation,:);
 yValidation = trainingParams(idxValidation,:);
 yValidationMLE = trainingParamsMLE(idxValidation,:);
 yValidationpmin1 = trainingParamspmin1(idxValidation,:);
@@ -189,10 +194,8 @@ options = trainingOptions('sgdm', ...
     'InitialLearnRate',1e-2, ...
     'MiniBatchSize', 100, ...
     'Verbose',false, ...
-    'Plots','training-progress',...
-    'L2Regularization',0); %No regularisation as low FF values should not be preferred
-
-
+    'Plots','training-progress');
+%     'L2Regularization',0); %No regularisation as low FF values should not be preferred
 
 
 %% 6 Training
@@ -200,7 +203,7 @@ options = trainingOptions('sgdm', ...
 % fix the random seed to ease comparison across multiple setups
 rng(5);
 
-% 6.0 Train on MLE from MAGORINO
+% 6.0 First train on ground truth solution
 
 % include the validation data
 options.ValidationData = {xValidation, yValidationMLE};  %Try training and validation on results from one MAGORINO initialisation only
@@ -245,7 +248,7 @@ net2 = trainNetwork(xTrain, yTrainpmin2, layers, options);
 %% 7.0 Visualise predicted values vs ground truth (use all data to ease visualisation)
 
 
-%7.1 Predictions for net 0 (MLE training):
+%7.1 Predictions for net 0 (ground truth training):
 % Get prediction for all simulated values
 predictionVec=net0.predict(S);
 predictionVecFF=predictionVec(:,1);

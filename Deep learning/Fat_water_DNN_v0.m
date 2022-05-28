@@ -1,6 +1,6 @@
 %% Fat-water deep neural network (DNN) w/ Matlab Deep Learning Toolbox
 %
-% Version 0: 
+% Version 0: Small network, ground truth labels
 %
 
 %% 1.0 Synthesise training/validation data using multipeak fat model 
