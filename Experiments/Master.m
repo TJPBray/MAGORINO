@@ -49,16 +49,23 @@ reps=1000;
     Fitsuccess(0.2,0.7,60,200) %Can use larger number of reps here as only one value pair / set    
 
 %1.4 Run simulations for varying FF and R2* with SNR = 60 and sigma
-%overestimated by 30% (sigmaError = 1.3) corresponding to size of
+%overestimated by 30% (sigmaError = 0.3) corresponding to size of
 %inaccuracy from earlier simulation
 % [FFmaps,errormaps,sdmaps] = Simulate_Values(SNR,reps)
 
-[FFmaps,errormaps,sdmaps,residuals] = Simulate_Values(60, 1.3, 1000);
+[FFmaps,errormaps,sdmaps,residuals] = Simulate_Values(60, 0.3, 1000);
+
+%1.5 Run simulations for varying FF and R2* with SNR = 60 and sigma
+%underestimated by 30% (sigmaError = -0.3) corresponding to size of
+%inaccuracy from earlier simulation
+% [FFmaps,errormaps,sdmaps] = Simulate_Values(SNR,reps)
+[FFmaps,errormaps,sdmaps,residuals] = Simulate_Values(60, -0.3, 1000);
+
 
 %% 2. Run multistep fitting for subject data (FW111)
 
 %2.1 Load data 
-subjFolder='/Users/tjb57/Dropbox/MATLAB/Fat-water MAGORINO/Data/Subjects';
+subjFolder='/Users/TJPB/Dropbox/MATLAB/Fat-water MAGORINO/Data/Subjects';
 subjFileName='FW111_raw_monopolar.mat';
 load(fullfile(subjFolder,subjFileName));
 
