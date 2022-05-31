@@ -81,7 +81,7 @@ sig=std(real(NoiseROI));
 %% Implement fitting with noisy data
 % This will implement both standard magnitude fitting and with Rician noise
 % modelling
-outparams = R2fitting(echotimes,3,Snoisy,sig); %Pass Snoisy to fitting as complex data
+outparams = FittingWrapper(echotimes,3,Snoisy,sig); %Pass Snoisy to fitting as complex data
 
 
 %% Add parameter estimates to grid

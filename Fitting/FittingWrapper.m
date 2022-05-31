@@ -1,5 +1,5 @@
-function outparams = R2fitting (echotimes, tesla, Smeasured, sig, GT) %noise SD needed for Rician fit
-%function outparams = R2fitting (echotimes, tesla, Smeasured, sig, GT)
+function outparams = FittingWrapper (echotimes, tesla, Smeasured, sig, GT) %noise SD needed for Rician fit
+%function outparams = FittingWrapper (echotimes, tesla, Smeasured, sig, GT)
 
 % Description: Fitting 'wrapper' implements standard Gaussian, Rician and
 % complex fitting and generates outputs for each

@@ -125,7 +125,7 @@ Snoisy=Snoisefree+noise;
 % This will implement both standard magnitude fitting and with Rician noise
 % modelling
 
-outparams = R2fitting(echotimes,3,Snoisy,estimatedNoiseSD,GT);
+outparams = FittingWrapper(echotimes,3,Snoisy,estimatedNoiseSD,GT);
 
 
 %% Add parameter estimates to grid

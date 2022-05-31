@@ -98,7 +98,7 @@ sig=sigmaMap(posY,posX);
 if (sig>0) & (prod(Smag)>0)
 
 %5.2 Perform fitting
-outparams = R2fitting(TE, imData.FieldStrength, Smag, sig, GT); %echotimes, fieldstrength, measured signal, measured sigma
+outparams = FittingWrapper(TE, imData.FieldStrength, Smag, sig, GT); %echotimes, fieldstrength, measured signal, measured sigma
 
 %5.3 Add values to parameter maps 
 FFrician(posY,posX)=outparams.Rician.F/(outparams.Rician.F+outparams.Rician.W);

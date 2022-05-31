@@ -64,7 +64,7 @@ Snoisy=Snoisefree+noise;
 % Implement fitting with noisy data
 % This will implement both standard magnitude fitting and with Rician noise
 % modelling
-outparams = R2fitting(echotimes,3,Snoisy,noiseSD,GT);
+outparams = FittingWrapper(echotimes,3,Snoisy,noiseSD,GT);
 
 %For FF
 FFstandard(n)=outparams.standard.F/(outparams.standard.W+outparams.standard.F);

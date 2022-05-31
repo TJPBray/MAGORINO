@@ -122,7 +122,7 @@ algoparams.Sinit=Sinit;
 %% Fit simulated signal
 
 %Perform fitting
-outparams = R2fitting (echotimes, tesla, sNoisy, noiseSD, GT);
+outparams = FittingWrapper (echotimes, tesla, sNoisy, noiseSD, GT);
 
 
 %% Add grid search estimates to Outparams structure (needed for Fitsuccess)
