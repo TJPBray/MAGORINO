@@ -44,11 +44,11 @@ R2=struct;
 rng(2);
 
 %Waitbar
-f=waitbar(0,'Progress');
+% f=waitbar(0,'Progress');
 
 
 %% Loop over voxels
-for n=1:size(Fvals,1)
+parfor n=1:size(Fvals,1)
 
 %Simulate noise-free signal
 Snoisefree=MultiPeakFatSingleR2(echotimes,3,Fvals(n),Wvals(n),R2vals(n),fB);
@@ -74,7 +74,7 @@ FFRician(n)=outparams.Rician.F/(outparams.Rician.W+outparams.Rician.F);
 R2standard(n)=outparams.standard.R2;
 R2Rician(n)=outparams.Rician.R2;
 
-waitbar(n/size(Fvals,1), f);
+n/size(Fvals,1)
 
 end
 
