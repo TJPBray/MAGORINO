@@ -1,6 +1,6 @@
 
-function [maps,noisestats] = FitImage(imData,slice,sigmaMap,indent)
-% function [maps,noisestats] = FitImage(imData,slice,ROI)
+function [maps,noisestats] = FitImage(imData,slice,sigma)
+% function [maps,noisestats] = FitImage(imData,slice,sigma)
     
 %Takes data in imData structure and generates maps
 
@@ -11,14 +11,11 @@ function [maps,noisestats] = FitImage(imData,slice,sigmaMap,indent)
     %imData.images is a 5-D array of size (nx,ny,nz,ncoils,nTE)
     %imData.TE is 1-by-n vector of echotime values
     %imData.FieldStrength is field strength in Tesla
+    %imData.fittingIndent is indent for fitting
 
 %2. slice is specified by user (integer value)
     
-%3. sigmaMap is a map of sigma (normally after smoothing) obtained from
-%initial fitting step 
-
-%4. Specify indent (integer value) to cut down processing time
-%e.g indent=100;
+%3. sigmaMap is estimate of sigma determined a priori
 
 %Outputs
 % Maps structure containing FF and R2* maps for standard, Rician and
@@ -32,6 +29,8 @@ function [maps,noisestats] = FitImage(imData,slice,sigmaMap,indent)
 TE=1000*imData.TE;
 
 TE=reshape(TE,6,1);
+
+indent=imData.fittingIndent;
 
 %% 2. Get images for the chosen slice
 for echoN=1:numel(TE)  
@@ -84,21 +83,16 @@ parfor posY=(1+indent):(size(Smag_slice,1)-indent)
 Smag=Smag_slice(posY,posX,:);
 Smag=reshape(Smag,1,6);
 
-%4.2 Get sigma for specified pixel
-sig=sigmaMap(posY,posX);
-
 
 %% 5. Implement fitting
 
-%5.1 Only perform fitting for voxels where sigma > 0 (avoids error due to 0s introduced at
-%corners of region due to median filtering operation) 
-%Also Check all signal values are nonzero (otherwise skip voxel) - Rician
+%5.1 Only perform fitting for voxels where all signal values are nonzero (otherwise skip voxel) - Rician
 %likelihood function returns an error otherwise
 
-if (sig>0) & (prod(Smag)>0)
+if prod(Smag)>0
 
 %5.2 Perform fitting
-outparams = FittingWrapper(TE, imData.FieldStrength, Smag, sig, GT); %echotimes, fieldstrength, measured signal, measured sigma
+outparams = FittingWrapper(TE, imData.FieldStrength, Smag, sigma, GT); %echotimes, fieldstrength, measured signal, measured sigma
 
 %5.3 Add values to parameter maps 
 FFrician(posY,posX)=outparams.Rician.F/(outparams.Rician.F+outparams.Rician.W);
@@ -127,16 +121,42 @@ maps.R2standard=R2standard;
 maps.R2complex=R2complex;
 
 figure
-subplot(1,3,1)
+subplot(2,3,1)
 imshow(maps.FFrician,[0 1])
 colorbar
 colormap('parula')
-title('PDFF')
+title('PDFF rician')
 
-subplot(1,3,2)
+subplot(2,3,2)
 imshow(maps.R2rician,[0 0.3])
 colorbar
-title('R2*')
+colormap('gray')
+title('R2* rician')
+
+subplot(2,3,3)
+imshow(maps.FFrician - maps.FFstandard,[0 1])
+colorbar
+colormap('parula')
+title('PDFF rician')
+
+subplot(2,3,4)
+imshow(maps.FFstandard,[0 1])
+colorbar
+colormap('parula')
+title('PDFF gaussian')
+
+subplot(2,3,5)
+imshow(maps.R2standard,[0 0.3])
+colorbar
+colormap('gray')
+title('R2 gaussian')
+
+subplot(2,3,6)
+imshow(maps.R2rician - maps.R2standard,[-0.05 0.05])
+colorbar
+colormap('gray')
+title('R2% Rician - R2* Gaussian')
+
 
 end
 
