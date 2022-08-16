@@ -27,7 +27,7 @@ Ricianfitting.options=algoparams.options;
 Ricianfitting.objective = @(p) -R2RicianObj_WithSigma(p,echotimes,tesla,Smagnitude);
 
 
-%% Implement complex fitting for both water-dominant and fat-dominant initialisations
+%% Implement fitting for both water-dominant and fat-dominant initialisations
 % [F W R2* fB0]
 
 %allow fB0 to vary:
@@ -78,11 +78,11 @@ results.sig=pmin1(4)
 results.fmin = fmin1;
 results.chosenmin=1;
 
-% % Calculate SSE for complex fitting
-% [~,results.SSE]=R2Obj(pmin1,echotimes,tesla,Smagnitude,sig);
-% 
-% % Calculate SSE for complex fitting relative to noise-free signal
-% [~,results.SSEtrue]=R2Obj(pmin1,echotimes,tesla,abs(GT.S),sig);
+% Calculate SSE for complex fitting
+[~,results.SSE]=R2Obj(pmin1,echotimes,tesla,Smagnitude,sigmaInit);
+
+% Calculate SSE for complex fitting relative to noise-free signal
+[~,results.SSEtrue]=R2Obj(pmin1,echotimes,tesla,abs(GT.S),sigmaInit);
 
 else
     
@@ -94,11 +94,11 @@ results.sig=pmin2(4)
 results.fmin = fmin2;
 results.chosenmin=2;
 
-% % Calculate SSE for complex fitting
-% [~,results.SSE]=R2Obj(pmin2,echotimes,tesla,Smagnitude,sig);
-% 
-% % Calculate SSE for complex fitting relative to noise-free signal
-% [~,results.SSEtrue]=R2Obj(pmin2,echotimes,tesla,abs(GT.S),sig);
+% Calculate SSE for complex fitting
+[~,results.SSE]=R2Obj(pmin2,echotimes,tesla,Smagnitude,sigmaInit);
+
+% Calculate SSE for complex fitting relative to noise-free signal
+[~,results.SSEtrue]=R2Obj(pmin2,echotimes,tesla,abs(GT.S),sigmaInit);
 
 end
 
