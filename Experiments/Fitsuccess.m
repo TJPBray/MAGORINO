@@ -6,6 +6,7 @@ function Fitsuccess(FF,v,SNR,reps)
 
 % Input: 
 % FF, R2*, SNR, repetitions
+% Specify FF as a fraction and R2* in ms-1
 
 % Output:
 % Generates histograms showing frequency of estimates in relation to ground
@@ -62,10 +63,7 @@ title(strcat('FF Estimates for FF= ',num2str(FF),'  R2*= ',num2str(v)))
 subplot(2,3,1)
 histogram(fittedFF_mag,[0:0.02:1])
 title('Fitting estimates (Gaussian)')
-xticks([0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0]);
-xticklabels({'0','10', '20', '30', '40', '50', '60', '70', '80', '90','100'});
-xlabel('FF estimate (%)','FontSize',12)
-ylabel('Frequency of estimate','FontSize',12)
+AxLabelsHist;
 yl=1.5*ylim; %get y limit from histogram, then..
 ylim(yl)
 hold on
@@ -78,10 +76,7 @@ legend('Estimates','Ground truth')
 subplot(2,3,2)
 histogram(fittedFF_Ric,[0:0.02:1])
 title('Fitting estimates (Rician)')
-xticks([0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0]);
-xticklabels({'0','10', '20', '30', '40', '50', '60', '70', '80', '90','100'});
-xlabel('FF estimate (%)','FontSize',12)
-ylabel('Frequency of estimate','FontSize',12)
+AxLabelsHist;
 ylim(yl)
 hold on
 plot([FF FF],[yl(1) yl(2)],'LineWidth',2,'color','red','Linestyle','--') %..add ground truth as line
@@ -94,10 +89,7 @@ legend('Estimates','Ground truth')
 subplot(2,3,3)
 histogram(fittedFF_complex,[0:0.02:1])
 title('Fitting estimates (complex)')
-xticks([0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0]);
-xticklabels({'0','10', '20', '30', '40', '50', '60', '70', '80', '90','100'});
-xlabel('FF estimate (%)','FontSize',12)
-ylabel('Frequency of estimate','FontSize',12)
+AxLabelsHist;
 ylim(yl)
 hold on
 plot([FF FF],[yl(1) yl(2)],'LineWidth',2,'color','red','Linestyle','--') %..add ground truth as line
@@ -136,12 +128,8 @@ legend('Estimates','Ground truth')
 %Generate likelihood difference plot
 s1=subplot(2,3,4)
 scatter(fittedFF_mag,likdiff_mag)
-xticks([0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0]);
-xticklabels({'0','10', '20', '30', '40', '50', '60', '70', '80', '90','100'});
-set(s1,'YGrid','on','GridAlpha',0.5)
+AxLabelsLikeDiff(s1);
 title('Likelihood difference plot (Gaussian)')
-ylabel('Likelihood difference','FontSize',12)
-xlabel('FF estimate (%)','FontSize',12)
 xlim([0 1])
 yl=ylim; %get ylim to enable setting for next plot
 hold on
@@ -151,12 +139,8 @@ legend('Estimates','Ground truth')
 
 s2=subplot(2,3,5)
 scatter(fittedFF_Ric,likdiff_Ric)
-xticks([0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0]);
-xticklabels({'0','10', '20', '30', '40', '50', '60', '70', '80', '90','100'});
-set(s2,'YGrid','on','GridAlpha',0.5)
+AxLabelsLikeDiff(s2);
 title('Likelihood difference plot (Rician)')
-ylabel('Likelihood difference','FontSize',12)
-xlabel('FF estimate (%)','FontSize',12)
 xlim([0 1])
 ylim(yl) %set ylim to match previous plot
 hold on
@@ -164,25 +148,21 @@ plot([FF FF],[yl(1) yl(2)],'LineWidth',2,'color','red','Linestyle','--') %..add 
 hold off
 legend('Estimates','Ground truth')
 
-
 %Findoutliers for simplifying desplay
 [b,outliers]=rmoutliers(likdiff_complex,'percentiles',[2 98]);
 
 %Find datapoints to be kept
 kept=1-outliers;
 
-s2=subplot(2,3,6)
+s3=subplot(2,3,6)
 scatter(kept.*fittedFF_complex,kept.*likdiff_complex)
-xticks([0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0]);
-xticklabels({'0','10', '20', '30', '40', '50', '60', '70', '80', '90','100'});
-set(s2,'YGrid','on','GridAlpha',0.5)
-title('Likelihood difference plot (Complex)')
-ylabel('Likelihood difference','FontSize',12)
-xlabel('FF estimate (%)','FontSize',12)
-xlim([0 1])
 yl=ylim;
+AxLabelsLikeDiff(s3);
+title('Likelihood difference plot (complex)')
+xlim([0 1])
 hold on
 plot([FF FF],[yl(1) yl(2)],'LineWidth',2,'color','red','Linestyle','--') %..add ground truth as line
+ylim(yl)
 hold off
 legend('Estimates','Ground truth')
 
@@ -194,9 +174,9 @@ title(strcat('R2* Estimates for FF= ',num2str(FF),'  R2*= ',num2str(v)))
 subplot(2,3,1)
 histogram(fittedv_mag,[0:0.05:1])
 title('Fitting estimates (Gaussian)')
-xticks([0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0]);
-xticklabels({'0','.1', '.2', '.3', '.4', '.5', '.6', '.7', '.8', '.9','1.0'});
-xlabel('R2* estimate (ms^-1)','FontSize',12)
+xticks([0 0.2 0.4 0.6 0.8 1.0]);
+xticklabels({'0','200', '400', '600', '800', '1000'});
+xlabel('R2* estimate (s^-1)','FontSize',12)
 ylabel('Frequency of estimate','FontSize',12)
 yl=1.5*ylim; %get y limit from histogram, then..
 ylim(yl)
@@ -210,9 +190,9 @@ legend('Estimates','Ground truth')
 subplot(2,3,2)
 histogram(fittedv_Ric,[0:0.05:1])
 title('Fitting estimates (Rician)')
-xticks([0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0]);
-xticklabels({'0','.1', '.2', '.3', '.4', '.5', '.6', '.7', '.8', '.9','1.0'});
-xlabel('R2* estimate (ms^-1)','FontSize',12)
+xticks([0 0.2 0.4 0.6 0.8 1.0]);
+xticklabels({'0','200', '400', '600', '800', '1000'});
+xlabel('R2* estimate (s^-1)','FontSize',12)
 ylabel('Frequency of estimate','FontSize',12)
 %Use y limit from first histogram
 ylim(yl)
@@ -226,9 +206,9 @@ legend('Estimates','Ground truth')
 subplot(2,3,3)
 histogram(fittedv_complex,[0:0.05:1])
 title('Fitting estimates (Complex)')
-xticks([0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0]);
-xticklabels({'0','.1', '.2', '.3', '.4', '.5', '.6', '.7', '.8', '.9','1.0'});
-xlabel('R2* estimate (ms^-1)','FontSize',12)
+xticks([0 0.2 0.4 0.6 0.8 1.0]);
+xticklabels({'0','200', '400', '600', '800', '1000'});
+xlabel('R2* estimate (s^-1)','FontSize',12)
 ylabel('Frequency of estimate','FontSize',12)
 %Use y limit from first histogram
 ylim(yl)
@@ -241,14 +221,14 @@ legend('Estimates','Ground truth')
 
 s1=subplot(2,3,4)
 scatter(fittedFF_mag,fittedv_mag)
-xticks([0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0]);
-xticklabels({'0','10', '20', '30', '40', '50', '60', '70', '80', '90','100'});
+xticks([0 0.2 0.4 0.6 0.8 1.0]);
+xticklabels({'0','0.2','0.4', '0.6', '0.8','1.0'});
 yticks([0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0]);
-yticklabels({'0','.1', '.2', '.3', '.4', '.5', '.6', '.7', '.8', '.9','1.0'});
+yticklabels({'0','100', '200', '300', '400', '500', '600', '700', '800', '900','1000'});
 set(s1,'YGrid','on','GridAlpha',0.5)
 title('FF / R2* scatterplot (Gaussian)')
-ylabel('R2* (ms^-1)','FontSize',12)
-xlabel('FF estimate (%)','FontSize',12)
+ylabel('R2* (s^-1)','FontSize',12)
+xlabel('PDFF estimate','FontSize',12)
 xlim([0 1])
 ylim([0 1]); %get ylim to enable setting for next plot
 hold on
@@ -258,14 +238,14 @@ legend('Estimates','Ground truth')
 
 s1=subplot(2,3,5)
 scatter(fittedFF_Ric,fittedv_Ric)
-xticks([0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0]);
-xticklabels({'0','10', '20', '30', '40', '50', '60', '70', '80', '90','100'});
+xticks([0 0.2 0.4 0.6 0.8 1.0]);
+xticklabels({'0','0.2','0.4', '0.6', '0.8','1.0'});
 yticks([0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0]);
-yticklabels({'0','.1', '.2', '.3', '.4', '.5', '.6', '.7', '.8', '.9','1.0'});
+yticklabels({'0','100', '200', '300', '400', '500', '600', '700', '800', '900','1000'});
 set(s1,'YGrid','on','GridAlpha',0.5)
-title('FF / R2* scatterplot (Rician)')
-ylabel('R2* (ms^-1)','FontSize',12)
-xlabel('FF estimate (%)','FontSize',12)
+title('FF / R2* scatterplot (Gaussian)')
+ylabel('R2* (s^-1)','FontSize',12)
+xlabel('PDFF estimate','FontSize',12)
 xlim([0 1])
 ylim([0 1]); %get ylim to enable setting for next plot
 hold on
@@ -276,14 +256,14 @@ legend('Estimates','Ground truth')
 
 s1=subplot(2,3,6)
 scatter(fittedFF_complex,fittedv_complex)
-xticks([0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0]);
-xticklabels({'0','10', '20', '30', '40', '50', '60', '70', '80', '90','100'});
+xticks([0 0.2 0.4 0.6 0.8 1.0]);
+xticklabels({'0','0.2','0.4', '0.6', '0.8','1.0'});
 yticks([0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0]);
-yticklabels({'0','.1', '.2', '.3', '.4', '.5', '.6', '.7', '.8', '.9','1.0'});
+yticklabels({'0','100', '200', '300', '400', '500', '600', '700', '800', '900','1000'});
 set(s1,'YGrid','on','GridAlpha',0.5)
-title('FF / R2* scatterplot (complex)')
-ylabel('R2* (ms^-1)','FontSize',12)
-xlabel('FF estimate (%)','FontSize',12)
+title('FF / R2* scatterplot (Gaussian)')
+ylabel('R2* (s^-1)','FontSize',12)
+xlabel('PDFF estimate','FontSize',12)
 xlim([0 1])
 ylim([0 1]); %get ylim to enable setting for next plot
 hold on
@@ -292,4 +272,19 @@ hold off
 legend('Estimates','Ground truth')
 
 
+end
+
+function AxLabelsHist
+xticks([0 0.2 0.4 0.6 0.8 1.0]);
+xticklabels({'0', '0.2', '0.4', '0.6', '0.8', '1.0'});
+xlabel('PDFF estimate','FontSize',12)
+ylabel('Frequency of estimate','FontSize',12)
+end
+
+function AxLabelsLikeDiff(s1)
+xticks([0 0.2 0.4 0.6 0.8 1.0]);
+xticklabels({'0', '0.2', '0.4', '0.6', '0.8', '1.0'});
+set(s1,'YGrid','on','GridAlpha',0.5)
+ylabel('Likelihood difference','FontSize',12)
+xlabel('PDFF estimate','FontSize',12)
 end
