@@ -19,71 +19,36 @@ function outparams = FittingWrapper (echotimes, tesla, Smeasured, sig, GT) %nois
 Scomplex=Smeasured; %retain complex data for use in complex fitting
 Smagnitude=abs(Smeasured); %otherwise use magnitude
 
-%% Set constants for initialisation
+%% Set algorithm parameters (initialisation values and bounds, choose optimiser)
 
-%Set initialisation value for R2*: vinit
-vinit=0.1;
-algoparams.vinit=0.1;
-vmax=2;
-vmin=0;
+% algoparams = setAlgoparams (S,sig,opt);
+algoparams = setAlgoparams (Smagnitude,sig,1); % Choose 1 for standard fitting without sigma
 
-%Set signal initialisation for fat and water: Sinit
-C=exp(vinit);
-Sinit=C*max(Smagnitude); %partially compensates for R2* to improve initialisation
-algoparams.Sinit=Sinit;
-% Sinit=100;
-
-%% Set optimisation options
-
-algoparams.solver = 'fmincon';
-
-algoparams.options=optimoptions('fmincon', 'Algorithm', 'interior-point','InitBarrierParam',100000,'ScaleProblem',true,'FiniteDifferenceType','central');
-   
 %% Gaussian ('standard') magnitude fitting
-
-% set the parameter lower bound
-algoparams.lb = [0, 0, vmin]';
-
-% % set the parameter upper bound
-algoparams.ub = [3*Sinit, 3*Sinit, vmax]'; 
 
 % Call GaussianMagnitudeFitting
 outparams.standard = GaussianMagnitudeFitting(echotimes, tesla, Smagnitude, sig, GT, algoparams);
 
-%% Rician magnitude fitting
+%% Rician magnitude fitting with sigma known a priori
 
-% set the parameter lower bound
-algoparams.lb = [0, 0, vmin]';
-
-% % set the parameter upper bound
-algoparams.ub = [3*Sinit, 3*Sinit, vmax]'; 
-
-% Call RicianMagnitudeFitting
 outparams.Rician = RicianMagnitudeFitting (echotimes, tesla, Smagnitude, sig, GT, algoparams);
 
 %% Complex fitting
 
 % 1. Perform with variable fB
+    %Set new algoparams
+    algoparams = setAlgoparams (Smagnitude,sig,3); % Choose 3 for fitting including floating fB
+    
+    % Call ComplexFitting
+    outparams.complex = ComplexFitting (echotimes, tesla, Scomplex, sig, GT, algoparams);
 
-% set the parameter lower bound
-algoparams.lb = [0, 0, vmin, -Inf]';
-
-% % set the parameter upper bound
-algoparams.ub = [3*Sinit, 3*Sinit, vmax, Inf]'; 
-
-% Call ComplexFitting
-outparams.complex = ComplexFitting (echotimes, tesla, Scomplex, sig, GT, algoparams);
-
-% 2. Perform with fixed fB
-
-% set the parameter lower bound
-algoparams.lb = [0, 0, vmin, 0]';
-
-% % set the parameter upper bound
-algoparams.ub = [3*Sinit, 3*Sinit, vmax, 0]'; 
-
-% Call ComplexFitting
-outparams.complexFixed = ComplexFitting (echotimes, tesla, Scomplex, sig, GT, algoparams);
+% % 2. Perform with fixed fB
+% 
+%     %Set new algoparams
+%     algoparams = setAlgoparams (Smagnitude,tesla,4); % Choose 3 for fitting including floating fB
+% 
+%     % Call ComplexFitting
+%     outparams.complexFixed = ComplexFitting (echotimes, tesla, Scomplex, sig, GT, algoparams);
 
 
 end
