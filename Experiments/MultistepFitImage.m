@@ -1,5 +1,5 @@
-function [mapsWithSigma,filteredSigma,maps] = MultistepFitImage(imData,slice,indent,filterSize)
-%function [mapsWithSigma,filteredSigma,maps] = MultistepFitImage(imData,slice,indent,filterSize)
+function [maps] = MultistepFitImage(imData,roi)
+%function [maps] = MultistepFitImage(imData,indent,roi)
     
 % Multistep fitting consists of: 
 % (a) Generation of sigma maps using FitImageSigma
@@ -13,12 +13,11 @@ function [mapsWithSigma,filteredSigma,maps] = MultistepFitImage(imData,slice,ind
     %imData.images is a 5-D array of size (nx,ny,nz,ncoils,nTE)
     %imData.TE is 1-by-n vector of echotime values
     %imData.FieldStrength is field strength in Tesla
-
-%2. slice is specified by user (integer value)
     
-%3. ROI is a logical array of dimension nx-by-ny 
-%(matching the size of the images in imData.images)
-% This is applied to the specified slice to obtain sigma for Rician fitting)
+%3. ROI is a structure containing 
+% (i) a logical array of dimension nx-by-ny (matching the size of the images in imData.images)
+% The slice number 
+% The size of the array (matching the size of the images)
 
 %4. Specify indent (integer value) to cut down processing time
 %e.g indent=100;
@@ -30,83 +29,132 @@ function [mapsWithSigma,filteredSigma,maps] = MultistepFitImage(imData,slice,ind
 
 
 matSize=size(imData.images,1);
+indent = imData.fittingIndent;
 
-%% 1. Estimate sigma for image
-mapsWithSigma = FitImageSigma(imData,slice,(indent-filterSize)); %Reduce indent by filtersize for first step to avoid introducing 0s with median filter
+
+
+%% 1. Estimate sigma for roi
+[mapsWithSigma,sigmaFromRoi,sigmaFromFit] = FitImageSigma(imData,roi); %Reduce indent by filtersize for first step to avoid introducing 0s with median filter
 
 %% 2. Median filter sigma to 'smooth' sigma estimates
-filteredSigma=medfilt2(mapsWithSigma.sigma,[filterSize filterSize]);
+% filteredSigma=medfilt2(mapsWithSigma.sigma,[filterSize filterSize]);
+% 
+% smoothSNR=mapsWithSigma.S0./filteredSigma;
 
-smoothSNR=mapsWithSigma.S0./filteredSigma;
+%% 3. Used sigma estimate to fit with fixed sigma
 
-%% 3. Used filtered sigma map to initialise fitting with fixed sigma
-maps = FitImage(imData,slice,filteredSigma,indent)
+%Decide whether to use both sigma 
+sigmaBoth = 0;
 
-%% 4. Show Step1 and Step2 maps for comparison
-figure
-subplot(2,4,1)
-imshow(mapsWithSigma.FFrician(indent:matSize-indent,indent:matSize-indent),[0 1])
-title('PDFF with floating sigma')
-colormap('parula') 
+%3.1 Using sigma from fit
+mapsFittedSigma = FitImage(imData,roi.slice,sigmaFromFit);
 
-subplot(2,4,2)
-imshow(mapsWithSigma.R2rician(indent:matSize-indent,indent:matSize-indent),[0 0.25])
-title('R2* with floating sigma')
+if sigmaBoth == 1 
 
-subplot(2,4,3)
-imshow(mapsWithSigma.sigma(indent:matSize-indent,indent:matSize-indent),[0 100])
-title('Sigma estimate')
-
-subplot(2,4,4)
-imshow(filteredSigma(indent:matSize-indent,indent:matSize-indent),[0 100])
-title('Filtered sigma estimate')
-
-subplot(2,4,6)
-hist(reshape(mapsWithSigma.sigma(indent:matSize-indent,indent:matSize-indent),1,[]),[0:2.5:150])
-xlabel('Sigma^2')
-ylabel('Voxels')
-title('Sigma histogram')
-
-subplot(2,4,7)
-hist(reshape(filteredSigma(indent:matSize-indent,indent:matSize-indent),1,[]),[0:2.5:150])
-xlabel('Sigma^2')
-ylabel('Voxels')
-title('Filtered sigma histogram')
-
-subplot(2,4,8)
-hist(reshape(smoothSNR(indent:matSize-indent,indent:matSize-indent),1,[]),[0:2.5:150])
-xlabel('SNR')
-ylabel('Voxels')
-title('SNR histogram')
-
-nanmedian(smoothSNR,'all')
+%3.1 Using sigma from ROI
+mapsRoiSigma = FitImage(imData,roi.slice,sigmaFromRoi);
 
 
-%% 5. Show Step1 and Step2 maps for comparison
+% %% 4. Show Step1 and Step2 maps for comparison
+% 
+% indent=imDataParams.fittingIndent;
+% 
+% figure
+% subplot(2,4,1)
+% imshow(mapsWithSigma.FFrician(indent:matSize-indent,indent:matSize-indent),[0 1])
+% title('PDFF with floating sigma')
+% colormap('parula') 
+% 
+% subplot(2,4,2)
+% imshow(mapsWithSigma.R2rician(indent:matSize-indent,indent:matSize-indent),[0 0.25])
+% title('R2* with floating sigma')
+% 
+% subplot(2,4,3)
+% imshow(mapsWithSigma.sigma(indent:matSize-indent,indent:matSize-indent),[0 100])
+% title('Sigma estimate')
 
-figure
-subplot(3,4,5)
-imshow(maps.FFrician(indent:matSize-indent,indent:matSize-indent),[0 1])
-title('PDFF using fixed sigma')
-colormap('parula')
-colorbar
+% %% 4. Show effect of different sigma estimation methods
+% indent = 110;
+% 
+% figure
+% subplot(4,3,1)
+% imshow(mapsRoiSigma.FFstandard(indent:matSize-indent,indent:matSize-indent),[0 1])
+% title('PDFF Gaussian')
+% colormap('parula')
+% colorbar
+% 
+% subplot(4,3,2)
+% imshow(mapsRoiSigma.FFrician(indent:matSize-indent,indent:matSize-indent),[0 1])
+% title('PDFF Rician with ROI-based sigma')
+% colormap('parula')
+% colorbar
+% 
+% subplot(4,3,3)
+% imshow(mapsFittedSigma.FFrician(indent:matSize-indent,indent:matSize-indent),[0 1])
+% title('PDFF Rician with fitting-based sigma')
+% colormap('parula')
+% colorbar
+% 
+% subplot(4,3,4)
+% imshow(mapsRoiSigma.R2standard(indent:matSize-indent,indent:matSize-indent),[0 0.3])
+% title('R2* Gaussian')
+% colorbar
+% 
+% subplot(4,3,5)
+% imshow(mapsRoiSigma.R2rician(indent:matSize-indent,indent:matSize-indent),[0 0.3])
+% title('R2* Rician with ROI-based sigma')
+% colorbar
+% 
+% subplot(4,3,6)
+% imshow(mapsFittedSigma.R2rician(indent:matSize-indent,indent:matSize-indent),[0 0.3])
+% title('R2* Rician with fitting-based sigma')
+% colorbar
+% 
+% subplot(4,3,8)
+% imshow(mapsRoiSigma.R2rician(indent:matSize-indent,indent:matSize-indent) - mapsRoiSigma.R2standard(indent:matSize-indent,indent:matSize-indent),[-0.02 0.02])
+% title('R2* Rician with ROI-based sigma - Gaussian')
+% colorbar
+% 
+% subplot(4,3,9)
+% imshow(mapsFittedSigma.R2rician(indent:matSize-indent,indent:matSize-indent) - mapsFittedSigma.R2standard(indent:matSize-indent,indent:matSize-indent),[-0.02 0.02])
+% title('R2* Rician with fitting-based sigma - Gaussian')
+% colorbar
+% 
+% subplot(4,3,12)
+% imshow(mapsRoiSigma.R2rician(indent:matSize-indent,indent:matSize-indent) - mapsFittedSigma.R2rician(indent:matSize-indent,indent:matSize-indent), [-0.02 0.02])
+% title('R2* Rician with fitting-based sigma - R2* Rician with ROI-based sigma')
+% colorbar
 
-subplot(3,4,6)
-imshow(maps.R2rician(indent:matSize-indent,indent:matSize-indent),[0 0.25])
-title('R2* using fixed sigma')
-colorbar 
 
-subplot(3,4,9)
-imshow(maps.FFrician(indent:matSize-indent,indent:matSize-indent)-mapsWithSigma.FFrician(indent:matSize-indent,indent:matSize-indent),[-0.1 0.1])
-title('PDFF difference (step2 - step1)')
-colorbar 
+% figure
+% subplot(1,3,1)
+% scatter(mapsRoiSigma.R2rician(indent:matSize-indent,indent:matSize-indent),mapsRoiSigma.R2standard(indent:matSize-indent,indent:matSize-indent))
+% xlim([0 1])
+% ylim([0 1])
+% xlabel('R2* with ROI-based sigma')
+% ylabel('R2* Gaussian')
+% 
+% subplot(1,3,2)
+% scatter(mapsFittedSigma.R2rician(indent:matSize-indent,indent:matSize-indent),mapsRoiSigma.R2standard(indent:matSize-indent,indent:matSize-indent))
+% xlim([0 1])
+% ylim([0 1])
+% xlabel('R2* with Fitting-based sigma')
+% ylabel('R2* Gaussian')
+% 
+% subplot(1,3,3)
+% scatter(mapsRoiSigma.R2rician(indent:matSize-indent,indent:matSize-indent),mapsFittedSigma.R2rician(indent:matSize-indent,indent:matSize-indent))
+% xlim([0 1])
+% ylim([0 1])
+% xlabel('R2* with ROI-based sigma')
+% ylabel('R2* fitting-based sigma')
 
-subplot(3,4,10)
-imshow(maps.R2rician(indent:matSize-indent,indent:matSize-indent)-mapsWithSigma.R2rician(indent:matSize-indent,indent:matSize-indent),[-0.05 0.05])
-title('R2* difference (step2 - step1)')
-colorbar 
+else; 
+end
 
-%% 4. Show MAGORINO vs MAGO
+% Assign chosen method to maps structure to enable illustration
+maps = mapsFittedSigma; 
+
+%% 5. Show MAGORINO vs MAGO
 figure
 subplot(2,3,1)
 imshow(maps.FFstandard(indent:matSize-indent,indent:matSize-indent),[0 1])
@@ -126,17 +174,17 @@ title('PDFF Rician - PDFF Gaussian')
 colorbar 
 
 subplot(2,3,4)
-imshow(maps.R2standard(indent:matSize-indent,indent:matSize-indent),[0 0.25])
+imshow(1000*maps.R2standard(indent:matSize-indent,indent:matSize-indent),[0 250])
 title('R2* Gaussian')
 colorbar 
 
 subplot(2,3,5)
-imshow(maps.R2rician(indent:matSize-indent,indent:matSize-indent),[0 0.25])
+imshow(1000*maps.R2rician(indent:matSize-indent,indent:matSize-indent),[0 250])
 title('R2* Rician')
 colorbar 
 
 subplot(2,3,6)
-imshow(maps.R2rician(indent:matSize-indent,indent:matSize-indent) - maps.R2standard(indent:matSize-indent,indent:matSize-indent),[-0.05 0.05])
+imshow(1000*maps.R2rician(indent:matSize-indent,indent:matSize-indent) - 1000*maps.R2standard(indent:matSize-indent,indent:matSize-indent),[-50 50])
 title('R2* Rician - R2* Gaussian')
 colorbar 
 
