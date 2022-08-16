@@ -240,13 +240,13 @@ imshow(loglikMag,[-3*abs(max(loglikMag,[],'all')) max(loglikMag,[],'all')])
 
 % ax.CLim=[];
 axis on
-xticks([1 11 21 31 41 51 61 71 81 91 101]);
-xticklabels({'0','.1', '.2', '.3', '.4', '.5', '.6', '.7', '.8', '.9','1.0'});
+xticks([1 21 41 61 81 101]);
+xticklabels({'0','200', '400', '600', '800', '1000'});
 xlabel('R2* (ms^-^1)','FontSize',12)
 yticks([1 11 21 31 41 51 61 71 81 91 101]);
-yticklabels({'0','10','20','30','40','50','60','70','80','90','100'});
-ylabel('PDFF (%)','FontSize',12)
-title(strcat('Gaussian: Log likelihood for true FF =  ',num2str(GT.p(1)),', and true R2star =  ', num2str(GT.p(3))))
+yticklabels({'0','0.1','0.2','0.3','0.4','0.5','0.6','0.7','0.8','0.9','1.0'});
+ylabel('PDFF','FontSize',12)
+title(strcat('Gaussian: True PDFF =  ',num2str(GT.p(1)),' & R2^* =  ', num2str(1000*GT.p(3))))
 colorbar
 hold on
 colormap('parula')
@@ -304,13 +304,13 @@ imshow(loglikRic,[-3*abs(max(loglikMag,[],'all')) max(loglikMag,[],'all')])
 ax=gca;
 % ax.CLim=[];
 axis on
-xticks([1 11 21 31 41 51 61 71 81 91 101]);
-xticklabels({'0','.1', '.2', '.3', '.4', '.5', '.6', '.7', '.8', '.9','1.0'});
+xticks([1 21 41 61 81 101]);
+xticklabels({'0','200', '400', '600', '800', '1000'});
 xlabel('R2* (ms^-^1)','FontSize',12)
 yticks([1 11 21 31 41 51 61 71 81 91 101]);
-yticklabels({'0','10','20','30','40','50','60','70','80','90','100'});
-ylabel('PDFF (%)','FontSize',12)
-title(strcat('Rician: Log likelihood for true FF =  ',num2str(GT.p(1)),', and true R2star =  ', num2str(GT.p(3))))
+yticklabels({'0','0.1','0.2','0.3','0.4','0.5','0.6','0.7','0.8','0.9','1.0'});
+ylabel('PDFF','FontSize',12)
+title(strcat('Rician: True PDFF =  ',num2str(GT.p(1)),' & R2^* =  ', num2str(1000*GT.p(3))))
 colorbar
 hold on
 colormap('parula')
@@ -366,13 +366,13 @@ imshow(loglikComplex,[-3*abs(max(loglikMag,[],'all')) max(loglikMag,[],'all')])
 ax=gca;
 % ax.CLim=[];
 axis on
-xticks([1 11 21 31 41 51 61 71 81 91 101]);
-xticklabels({'0','.1', '.2', '.3', '.4', '.5', '.6', '.7', '.8', '.9','1.0'});
+xticks([1 21 41 61 81 101]);
+xticklabels({'0','200', '400', '600', '800', '1000'});
 xlabel('R2* (ms^-^1)','FontSize',12)
 yticks([1 11 21 31 41 51 61 71 81 91 101]);
-yticklabels({'0','10','20','30','40','50','60','70','80','90','100'});
-ylabel('PDFF (%)','FontSize',12)
-title(strcat('Complex: Log likelihood for true FF =  ',num2str(GT.p(1)),', and true R2star =  ', num2str(GT.p(3))))
+yticklabels({'0','0.1','0.2','0.3','0.4','0.5','0.6','0.7','0.8','0.9','1.0'});
+ylabel('PDFF','FontSize',12)
+title(strcat('Complex: True PDFF =  ',num2str(GT.p(1)),' & R2^* =  ', num2str(1000*GT.p(3))))
 colorbar
 hold on
 colormap('parula')
@@ -461,9 +461,9 @@ xvals_standard=improfile(Fgrid,[0 100], [yint yhigh]); %get profile
 %Plot profile against FF
 plot(xvals_standard,profile_standard_smooth,'LineWidth',2,'color','black','Linestyle','-')
 ylabel('Likelihood','FontSize',12)
-xlabel('PDFF (%)','FontSize',12)
-xticks([0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0]);
-xticklabels({'0','10','20','30','40','50','60','70','80','90','100'});
+xlabel('PDFF','FontSize',12)
+xticks([0  0.2  0.4  0.6  0.8  1.0]);
+xticklabels({'0','0.2', '0.4', '0.6', '0.8', '1.0'});
 
 
 %Add GT
@@ -501,8 +501,8 @@ xvals_Rician=improfile(Fgrid,[0 100], [yint yhigh]); %get profile
 plot(xvals_Rician,profile_Rician_smooth,'LineWidth',2,'color','black','Linestyle','-')
 ylabel('Likelihood','FontSize',12)
 xlabel('PDFF (%)','FontSize',12)
-xticks([0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0]);
-xticklabels({'0','10','20','30','40','50','60','70','80','90','100'});
+xticks([0  0.2  0.4  0.6  0.8  1.0]);
+xticklabels({'0','0.2', '0.4', '0.6', '0.8', '1.0'});
 
 %Add GT
 hold on
