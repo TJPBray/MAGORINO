@@ -1,4 +1,4 @@
-function algoparams = setAlgoparams (S,SNRest,opt) 
+function algoparams = setAlgoparams (S,sigmaEstimateFromRoi,opt) 
 % function algoparams = setAlgoparams (S,SNRest,opt) 
 
 % Description: Creates a standard set of fitting options
@@ -13,7 +13,8 @@ function algoparams = setAlgoparams (S,SNRest,opt)
 % opt - 1 for conventional fitting with 3 parameters, 2 for
 %        fitting with four parameters (where the fourth parameter is
 %        sigma), 3 for fitting with four parameters (where the fourth
-%        parameter is fB)
+%        parameter is fB), 4 for fitting with four parameters (where the fourth
+%        parameter, fB, is fixed to 0),
 
 %% 1. Set constants for initialisation
 
@@ -31,12 +32,10 @@ algoparams.Sinit=Sinit;
 
 %1.3 Calculate bounds for sigma based on SNR and Sinit
 % Calculate rough sigma
-sigEst = Sinit/SNRest;
-sigLB=sigEst*0.2;
-sigUB=sigEst*4;
+algoparams.sigEst = sigmaEstimateFromRoi;
+sigLB=sigmaEstimateFromRoi*0.2;
+sigUB=sigmaEstimateFromRoi*2;
 
-%Add rough sigma to algoparams
-algoparams.sigEst=sigEst;
 
 %% Set optimisation options
 
@@ -61,7 +60,22 @@ algoparams.lb = [0, 0, vmin, sigLB]';
 % % set the parameter upper bound
 algoparams.ub = [3*Sinit, 3*Sinit, vmax, sigUB]'; 
 
-else ;
+elseif opt==3
+
+% set the parameter lower bound
+algoparams.lb = [0, 0, vmin, -Inf]';
+
+% % set the parameter upper bound
+algoparams.ub = [3*Sinit, 3*Sinit, vmax, Inf]'; 
+
+elseif opt==4
+
+% set the parameter lower bound
+algoparams.lb = [0, 0, vmin, 0]';
+
+% % set the parameter upper bound
+algoparams.ub = [3*Sinit, 3*Sinit, vmax, 0]'; 
+
 end
 
 end
