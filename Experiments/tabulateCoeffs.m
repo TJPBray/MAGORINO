@@ -96,6 +96,7 @@ if site(n)==6 & protocol(n)==4
     legend('Unity','Site 1','Site 2','Site 3', 'Site 4', ' Site 5', 'Site 6', 'Site 7','FontSize',12)
 else ;
 end
+
 hold off
 
 %% 3. Protocol name
