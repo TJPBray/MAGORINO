@@ -27,7 +27,8 @@ function [maps,sigmaFromRoi,sigmaFromFit] = FitImageSigma(imData,roi)
 
 %Outputs
 % Maps structure containing FF, R2* and sigma maps for Rician fitting
-
+%sigmaFromRoi is sigma from signal intensity values in ROI
+%sigmaFromFit is sigma value from fit corrected by sigmaCorrection factor
 
 %% 1. Reformat data where needed / preliminary steps 
 
@@ -156,7 +157,11 @@ imshow(maps.sigma,[])
 colorbar
 title('Sigma')
 
-sigmaFromFit = median(maps.sigma(maps.sigma>0));
+sigmaFromFit = mean(maps.sigma(maps.sigma>0));
+
+%Multiply by sigma correction factor
+load("sigmaCorrection.mat")
+sigmaFromFit = sigmaFromFit*sigmaCorrection(1);
 
 end
 
