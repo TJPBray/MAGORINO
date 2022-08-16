@@ -53,42 +53,104 @@ reps=1000;
 %inaccuracy from earlier simulation
 % [FFmaps,errormaps,sdmaps] = Simulate_Values(SNR,reps)
 
-[FFmaps,errormaps,sdmaps,residuals] = Simulate_Values(60, 0.3, 1000);
+[FFmaps1,errormaps1,sdmaps1,residuals1] = Simulate_Values(60, 0.3, 1000);
 
 %1.5 Run simulations for varying FF and R2* with SNR = 60 and sigma
 %underestimated by 30% (sigmaError = -0.3) corresponding to size of
 %inaccuracy from earlier simulation
 % [FFmaps,errormaps,sdmaps] = Simulate_Values(SNR,reps)
-[FFmaps,errormaps,sdmaps,residuals] = Simulate_Values(60, -0.3, 1000);
+[FFmaps2,errormaps2,sdmaps2,residuals2] = Simulate_Values(60, -0.3, 1000);
+
+%1.6 Generate plots showing effect of sigma uncertainty on estimates
+CreatefigUncertainty(errormaps,errormaps1,errormaps2)
 
 
-%% 2. Run multistep fitting for subject data (FW111)
+%% 2a. Run  fitting for subject data (FW101)
 
-%2.1 Load data 
-subjFolder='/Users/TJPB/Dropbox/MATLAB/Fat-water MAGORINO/Data/Subjects';
-subjFileName='FW111_raw_monopolar.mat';
+%2a.1 Load data 
+subjFolder='/Users/tjb57/Dropbox/MATLAB/Fat-water MAGORINO/Data/Subjects';
+subjFileName='FW101_bipolar.mat';
 load(fullfile(subjFolder,subjFileName));
 
-%2.3 Specify indent (to avoid fitting dead space at edge of phantom) and
-%filtersize
-indent=110;
-sl=20;
-filterSize=25;
+%2a.2 Load ROI and add data to structure
+roiFileName='FW101_bipolar_sigmaRoi.mat';
+load(fullfile(subjFolder,roiFileName));
 
-%2.2 Run fitting to generate maps
-[mapsWithSigma,maps,filteredSigma] = MultistepFitImage(imDataParams,sl,indent,filterSize);
+roi.mask=BW{1};
+roi.slice=slice;
+roi.size=sz_vol;
 
-%2.3 Display / graphical analysis of in vivo distribution
+%2a.3 Specify indent (to avoid fitting dead space at edge of phantom) and
+%add to imData
+imDataParams.fittingIndent=2;
+
+%2a.2 Run fitting to generate maps
+maps = MultistepFitImage(imDataParams,roi);
+
+%2a.3 Display / graphical analysis of in vivo distribution
+indent=100;
+[fittedSimFF,fittedSimR2] = InVivoAnalysis(imDataParams, maps, indent);
+
+%% 2b. Run  fitting for subject data (FW111)
+
+%2b.1 Load data 
+subjFolder='/Users/tjb57/Dropbox/MATLAB/Fat-water MAGORINO/Data/Subjects';
+subjFileName='FW111_monopolar.mat';
+load(fullfile(subjFolder,subjFileName));
+
+%2b.2 Load ROI and add data to structure
+roiFileName='FW111_monopolar_sigmaRoi.mat';
+load(fullfile(subjFolder,roiFileName));
+
+roi.mask=BW{1};
+roi.slice=slice;
+roi.size=sz_vol;
+
+%2b.3 Specify indent (to avoid fitting dead space at edge of phantom) and
+%add to imData
+imDataParams.fittingIndent=2;
+
+%2b.4 Run fitting to generate maps
+maps = MultistepFitImage(imDataParams,roi);
+
+%2b.5 Display / graphical analysis of in vivo distribution
+indent=100;
 [fittedSimFF,fittedSimR2] = InVivoAnalysis(imDataParams, maps,indent);
 
-%% 3. Run multistep fitting for Hernando phantom data
+%% 2c. Run  fitting for subject data (LegsSwapData)
+
+%2c.1 Load data 
+subjFolder='/Users/tjb57/Dropbox/MATLAB/Fat-water MAGORINO/Data/Subjects';
+subjFileName='LegsSwapData.mat';
+load(fullfile(subjFolder,subjFileName));
+
+%2c.2 Load ROI and add data to structure
+roiFileName='LegsSwapData_sigmaRoi.mat';
+load(fullfile(subjFolder,roiFileName));
+
+roi.mask=BW{1};
+roi.slice=slice;
+roi.size=sz_vol;
+
+%2c.3 Specify indent (to avoid fitting dead space at edge of phantom) and
+%add to imData
+imDataParams.fittingIndent=2;
+
+%2c.2 Run fitting to generate maps
+maps = MultistepFitImage(imDataParams,roi);
+
+%2c.3 Display / graphical analysis of in vivo distribution
+[fittedSimFF,fittedSimR2] = InVivoAnalysis(imDataParams, maps,indent);
+
+
+%% 3. Run  fitting for Hernando phantom data
 
 %3.1 Define folders for import of multiecho data and ROIs
 imageFolder='/Users/tjb57/Dropbox/MATLAB/Fat-water MAGORINO/Data/Hernando data';
 roiFolder='/Users/tjb57/Dropbox/MATLAB/Fat-water MAGORINO/Data/Hernando ROIs';
 
 %Folder for saving
-saveFolder='/Users/tjb57/Dropbox/MATLAB/Fat-water MAGORINO/Data/Hernando results';
+saveFolder='/Users/tjb57/Dropbox/MATLAB/Fat-water MAGORINO/Data/Hernando results Revision2';
 
 %3.2 Get image and ROI folder info
 imageFolderInfo=dir(imageFolder);
@@ -104,7 +166,7 @@ ReferenceValues.FF = ([0; 0.026; 0.053; 0.079; 0.105; 0.157; 0.209; 0.312; 0.413
 sl=2;
 
 %3.5 Loop over datasets to fit each dataset
-for n=21:28
+for n=1:28
 
 %3.5 Define filenames for multiecho data and ROIs
 dataFileName = imageFolderInfo(n+2).name
@@ -117,7 +179,10 @@ fwmc_ff=struct.fwmc_ff;
 fwmc_r2star=struct.fwmc_r2star;
 
 %3.7 Import ROIs
-phantomROIs = niftiread(fullfile(roiFolder,roiFileName));
+mask = niftiread(fullfile(roiFolder,roiFileName));
+roi.mask=mask(:,:,sl);
+roi.slice=sl;
+
     % phantomImage = niftiread(fullfile(folder,dataFileName));
 
 % % Show check image for alignment
@@ -142,21 +207,23 @@ phantomROIs = niftiread(fullfile(roiFolder,roiFileName));
 
 %3.8 Specify indent (to avoid fitting dead space at edge of phantom) and
 %filtersize
-indent=30;
-filterSize=5;
+imData.fittingIndent=30;
 
 %3.9 Perform multistep fitting
-[mapsWithSigma,filteredSigma,maps] = MultistepFitImage(imData,sl,indent,filterSize);
-
+maps = MultistepFitImage(imData,roi);
 
 %3.10 Save variables (mapsWithSigma,filteredSigma,maps)
 %Specify folder name
 saveFileName = strcat('MAPS_', dataFileName);
-save(fullfile(saveFolder,saveFileName), 'mapsWithSigma', 'filteredSigma', 'maps');
+save(fullfile(saveFolder,saveFileName), 'maps');
 
 end
 
 %% 3. Hernando phantom data ROI analysis (split off to enable rapid modification of figures)
+
+%Folder for analysis
+saveFolder='/Users/tjb57/Dropbox/MATLAB/Fat-water MAGORINO/Data/Hernando results Revision2';
+saveFolderInfo=dir(saveFolder);
 
 for n=1:(numel(saveFolderInfo)-2)
 
@@ -179,30 +246,29 @@ load(fullfile(saveFolder,strcat('MAPS_', dataFileName)));
 %3.5 Generate example figure for site 1, 3T, protocol 2
 if n==4
 figure
+
 subplot(1,3,1)
+imshow(maps.FFstandard(50:200,50:200),[0 1])
+a=colorbar
+colormap('parula')
+ylabel(a,'Gaussian PDFF','FontSize',12)
+
+subplot(1,3,2)
 imshow(maps.FFrician(50:200,50:200),[0 1])
 a=colorbar
 colormap('parula')
-ylabel(a,'MAGORINO PDFF','FontSize',12)
-
-subplot(1,3,2)
-imshow(0.01*fwmc_ff(50:200,50:200,2),[0 1])
-a=colorbar
-colormap('parula')
-ylabel(a,'Hernando PDFF','FontSize',12)
+ylabel(a,'Rician PDFF','FontSize',12)
 
 subplot(1,3,3)
-imshow(maps.FFrician(50:200,50:200) - 0.01*fwmc_ff(50:200,50:200,2),[-0.1 0.1])
+imshow(maps.FFrician(50:200,50:200) - maps.FFstandard(50:200,50:200),[-0.1 0.1])
 a=colorbar
-ylabel(a,'MAGORINO PDFF - Hernando PDFF','FontSize',12)
+ylabel(a,'Rician PDFF - Gaussian PDFF','FontSize',12)
 else ;
 end
 
 %3.5 Phantom ROI analysis
 [ff{n},regressionModels{n}] = PhantomRoiAnalysis(maps,phantomROIs(:,:,sl),ReferenceValues,fwmc_ff,fwmc_r2star);
-
 end
-
 
 
 %3.7 Tabulate coefficients and get figures
