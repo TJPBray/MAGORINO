@@ -215,7 +215,7 @@ xlabel('R2* (s^-^1)','FontSize',12)
 yticks([1 11 21 31 41 51 61 71 81 91 101]);
 yticklabels({'0','0.1','0.2','0.3','0.4','0.5','0.6','0.7','0.8','0.9','1.0'});
 ylabel('PDFF','FontSize',12)
-title(strcat('Gaussian: True PDFF =  ',num2str(GT.p(1)),' & R2^* =  ', num2str(1000*GT.p(3))))
+title(strcat('Rician: True PDFF =  ',num2str(GT.p(1)),' & R2^* =  ', num2str(1000*GT.p(3))))
 colorbar
 hold on
 colormap('parula')
