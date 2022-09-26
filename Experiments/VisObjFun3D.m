@@ -26,7 +26,7 @@ noiseSD=100/SNR; %here assume total signal is 100 for simplicity (since FF maps 
 
 
 %% Simulate signal
-Smeasured=Fatfunction(echotimes,tesla,p(1),p(2),p(3),p(4));
+Smeasured=MultiPeakFatSingleR2(echotimes,tesla,p(1),p(2),p(3),p(4));
 
 %% Add noise
 Snoisy = Smeasured + normrnd(0,noiseSD,[1 numel(echotimes)]) + i*normrnd(0,noiseSD,[1 numel(echotimes)]);
