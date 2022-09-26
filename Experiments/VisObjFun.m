@@ -226,7 +226,7 @@ coords.chosen.complex.R2=100*outparams.complex.R2+1;
 %Specify whether path should be shown
 
 fitshow=1;
-fitpath=0;
+fitpath=1;
 
 if figshow==1
   
@@ -242,7 +242,7 @@ imshow(loglikMag,[-3*abs(max(loglikMag,[],'all')) max(loglikMag,[],'all')])
 axis on
 xticks([1 21 41 61 81 101]);
 xticklabels({'0','200', '400', '600', '800', '1000'});
-xlabel('R2* (ms^-^1)','FontSize',12)
+xlabel('R2* (s^-^1)','FontSize',12)
 yticks([1 11 21 31 41 51 61 71 81 91 101]);
 yticklabels({'0','0.1','0.2','0.3','0.4','0.5','0.6','0.7','0.8','0.9','1.0'});
 ylabel('PDFF','FontSize',12)
@@ -285,7 +285,7 @@ plot(coords.pmin2.standard.R2,coords.pmin2.standard.FF,'r+','MarkerSize',12,'Lin
 %Add solution from fitting
 plot(coords.chosen.standard.R2, coords.chosen.standard.FF,'ro','MarkerSize',12,'LineWidth',2) 
 
-lgnd=legend('Contour','Ground truth R2*','Ground truth FF', 'MLE (grid search)','Local optimum (grid search)','opt1', 'opt2', 'Fit output');
+lgnd=legend('Contour','Ground truth R2*','Ground truth FF', 'MLE (grid search)','Local optimum (grid search)','fitpath1','fitpath2','opt1', 'opt2', 'Fit output');
 
 else ;
     
@@ -306,7 +306,7 @@ ax=gca;
 axis on
 xticks([1 21 41 61 81 101]);
 xticklabels({'0','200', '400', '600', '800', '1000'});
-xlabel('R2* (ms^-^1)','FontSize',12)
+xlabel('R2* (s^-^1)','FontSize',12)
 yticks([1 11 21 31 41 51 61 71 81 91 101]);
 yticklabels({'0','0.1','0.2','0.3','0.4','0.5','0.6','0.7','0.8','0.9','1.0'});
 ylabel('PDFF','FontSize',12)
@@ -347,7 +347,7 @@ plot(coords.pmin2.Rician.R2,coords.pmin2.Rician.FF,'r+','MarkerSize',12,'LineWid
 %Add solution from fitting
 plot(coords.chosen.Rician.R2, coords.chosen.Rician.FF,'ro','MarkerSize',12,'LineWidth',2) 
 
-lgnd=legend('Contour','Ground truth R2*','Ground truth FF', 'MLE (grid search)','Local optimum (grid search)','opt1', 'opt2', 'Fit output');
+lgnd=legend('Contour','Ground truth R2*','Ground truth FF', 'MLE (grid search)','Local optimum (grid search)','fitpath1','fitpath2','opt1', 'opt2', 'Fit output');
 
 else ;
     
@@ -368,7 +368,7 @@ ax=gca;
 axis on
 xticks([1 21 41 61 81 101]);
 xticklabels({'0','200', '400', '600', '800', '1000'});
-xlabel('R2* (ms^-^1)','FontSize',12)
+xlabel('R2* (s^-^1)','FontSize',12)
 yticks([1 11 21 31 41 51 61 71 81 91 101]);
 yticklabels({'0','0.1','0.2','0.3','0.4','0.5','0.6','0.7','0.8','0.9','1.0'});
 ylabel('PDFF','FontSize',12)
@@ -414,7 +414,7 @@ plot(coords.pmin2.complex.R2,coords.pmin2.complex.FF,'r+','MarkerSize',12,'LineW
 %Add solution from fitting
 plot(coords.chosen.complex.R2, coords.chosen.complex.FF,'ro','MarkerSize',12,'LineWidth',2) %NB
 
-lgnd=legend('Contour','Ground truth R2*','Ground truth FF', 'MLE (grid search)','opt1', 'opt2', 'Fit output');
+lgnd=legend('Contour','Ground truth R2*','Ground truth FF', 'MLE (grid search)','Local optimum (grid search)','fitpath1','fitpath2','opt1', 'opt2', 'Fit output');
 
 else ;
     
