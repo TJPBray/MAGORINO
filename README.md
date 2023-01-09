@@ -7,3 +7,6 @@ Briefly, MAGORINO is a method for proton density fat fraction (PDFF) and R2* est
 
 To use the method ot try any of the experiments in the paper, start by taking a look at the master script master.m in the 'Experiments' folder. 
 
+For more information, feel free to contact me at 
+t.bray@ucl.ac.uk
+
