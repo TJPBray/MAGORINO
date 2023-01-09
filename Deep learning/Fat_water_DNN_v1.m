@@ -5,21 +5,45 @@
 
 %% 1.0 Synthesise training/validation data using multipeak fat model 
 
+rng(2)
+
 % 1.1 First try uniformly spaced samples over the parameter space (vary
 % both FF and R2*)
 
 %Specify dataset size
 s=1000;
 
-% S0 (au)
+% Specify S0 (au)
 S0 = 1;
 
-rng(2)
+%Specify ff and R2* range
+r2range = [0 0.5];
 
-FFvec=rand(s,1);
+% 1.2 Specify whether to use single range of ff values or dual range
+dualRange = 0;
+
+if dualRange == 0
+
+    % ffRange = [0 1];
+    ffRange = [0 1];
+    FFvec=ffRange(1) + (ffRange(2)-ffRange(1))*rand(s,1);
+
+elseif dualRange == 1
+
+    ffRange = [0 0.53];
+    FFvec=ffRange(1) + (ffRange(2)-ffRange(1))*rand(s/2,1);
+
+    ffRange2 = [0.73 1];
+    FFvec2 = ffRange2(1) + (ffRange2(2)-ffRange2(1))*rand(s/2,1);
+
+    FFvec = vertcat(FFvec,FFvec2);
+
+else ;
+end
+
 Fvec=S0*FFvec;
 Wvec=S0-Fvec;
-R2starvec=0.5*rand(s,1);
+R2starvec=r2range(2)*rand(s,1);
 
 %Concatenate vectors chosen for training
 trainingParams=horzcat(FFvec,R2starvec);
@@ -31,20 +55,33 @@ fB = 0;
 echotimes=[1.1:1.1:13.2]';
 
 % (normalised) signal samples
-Snoisefree = MultiPeakFatSingleR2(echotimes,3,Fvec,Wvec,R2starvec,fB);
+sNoiseFree = MultiPeakFatSingleR2(echotimes,3,Fvec,Wvec,R2starvec,fB);
+
+% Generate noise-free training data
+Sreal = real(sNoiseFree);
+Simag = imag(sNoiseFree);
+
+sCompNoiseFree = horzcat(Sreal,Simag);
+sMagNoiseFree = abs(sNoiseFree);
 
 %Create noise
-SNR=60;
+SNR=70;
 noiseSD=1/SNR;
 
 realnoise=(noiseSD)*randn(s,numel(echotimes));
 imagnoise=1i*(noiseSD)*randn(s,numel(echotimes));
 
-% Create noisy signal
-S = Snoisefree + realnoise + imagnoise; 
+% Add noise to signal to create noisy signal
+sCompNoisy = sNoiseFree + realnoise + imagnoise; 
 
-% Use magnitude for now 
-S=abs(S);
+%Get noise magnitude data
+sMagNoisy=abs(sCompNoisy);
+
+%Reformat complex data for DL
+sCompNoisy = horzcat(real(sCompNoisy),imag(sCompNoisy));
+
+%Choose which data to use for training
+S = sMagNoiseFree;
 
 %% 2.0 Split synthesised data into the training and validation set
 %
@@ -52,6 +89,8 @@ S=abs(S);
 % used setdiff, which orders the data by default.  This ends up corrupting
 % the association between the input and the output set.  This could be
 % fixed with using the 'stable' option of setdiff.
+
+%2.1 Create randomly spaced training and validation datasets
 
 % percentage of the data to be held out as validation
 hPercentage = 0.2;
@@ -74,12 +113,39 @@ yTrain = trainingParams(idxTrain,:);
 xValidation = S(idxValidation,:);
 yValidation = trainingParams(idxValidation,:);
 
+% create a separate test set with values on a grid 
 
+%% 3.  Create test dataset with constant spacing of FF values and R2* values (to add visualisation)
+%Select values
+S0=1;
+FFvals = (0:0.01:1)';
+R2vals = (0:(0.05*r2range(2)):r2range(2));
+
+%Call helper function (sVecFixedSpacing) to generate vectors of values with
+%fixed spacing
+[paramVec, sVec] = sVecFixedSpacing(S0,FFvals,R2vals);
+
+%Create noise
+realnoise=(noiseSD)*randn(size(sVec,1),numel(echotimes));
+imagnoise=1i*(noiseSD)*randn(size(sVec,1),numel(echotimes));
+
+%Add noise to signal 
+% rng(3)
+% sVec = sVec + realnoise + imagnoise;
+
+%Use these vectors to create test dataset
+yTest = paramVec;
+
+%Magnitude
+xTest = abs(sVec);
+
+% Complex
+% xTest = horzcat(real(sVec),imag(sVec));
 
 %% 3.0 Build a minimal DNN
 
 % number of features
-numOfFeatures = numel(echotimes);
+numOfFeatures = size(S,2);
 
 % name of the input
 inputName = 'Signal';
@@ -93,21 +159,25 @@ outputName = 'FF R2*';
 % create the layers, including relu layer
 layers = [
     featureInputLayer(numOfFeatures, 'Name', inputName);
-    fullyConnectedLayer(numOfOutput, 'Name', 'fc1');
-    fullyConnectedLayer(numOfOutput, 'Name', 'fc2');
-    fullyConnectedLayer(numOfOutput, 'Name', 'fc3');
-    fullyConnectedLayer(numOfOutput, 'Name', 'fc4');
+    fullyConnectedLayer(numOfFeatures, 'Name', 'fc1');
+    fullyConnectedLayer(numOfFeatures, 'Name', 'fc2');
+    fullyConnectedLayer(numOfFeatures, 'Name', 'fc3');
+    fullyConnectedLayer(numOfFeatures, 'Name', 'fc4');
     fullyConnectedLayer(numOfOutput, 'Name', 'fc5');
-    fullyConnectedLayer(numOfOutput, 'Name', 'fc6');
-    fullyConnectedLayer(numOfOutput, 'Name', 'fc7');
     regressionLayer('Name', outputName);
     ];
+
+% layers = [
+%     featureInputLayer(numOfFeatures, 'Name', inputName);
+%     fullyConnectedLayer(numOfOutput, 'Name', 'fc1');
+%     regressionLayer('Name', outputName);
+%     ];
 
 % number of layers
 numOfLayers = size(layers, 1);
 
 % visualise the layers
-figure; plot(layerGraph(layers));
+analyzeNetwork(layers)
 
 %% 4.0 Set up the training options
 
@@ -123,8 +193,7 @@ options = trainingOptions('sgdm', ...
     'InitialLearnRate',1e-2, ...
     'MiniBatchSize', 100, ...
     'Verbose',false, ...
-    'Plots','training-progress',...
-    'L2Regularization',0); %No regularisation as low FF values should not be preferred
+    'Plots','training-progress'); %No regularisation as low FF values should not be preferred
 
 % include the validation data
 options.ValidationData = {xValidation, yValidation};
@@ -132,7 +201,7 @@ options.ValidationData = {xValidation, yValidation};
 %% 5.0 Training
 
 % fix the random seed to ease comparison across multiple setups
-rng(5);
+rng(1);
 
 % run the training
 %
@@ -148,91 +217,151 @@ net = trainNetwork(xTrain, yTrain, layers, options);
 %% 6.0 Visualise predicted values vs ground truth (use all data to ease visualisation)
 
 %Get prediction for all simulated values
-predictionVec=net.predict(S);
+predictionVec=net.predict(xTest);
 predictionVecFF=predictionVec(:,1);
 predictionVecR2=predictionVec(:,2);
 
+
 %Get errorgrids
-FFerrorVec=predictionVecFF-FFvec;
-R2starErrorVec=predictionVecR2-R2starvec;
+ffErrorVec=predictionVecFF-yTest(:,1);
+r2ErrorVec=predictionVecR2-yTest(:,2);
+
+% Reshape prediction data for plotting
+ffPredictions = reshape(predictionVecFF,[numel(FFvals) numel(R2vals)]);
+r2Predictions = reshape(predictionVecR2,[numel(FFvals) numel(R2vals)]);
+ffError = reshape(ffErrorVec,[numel(FFvals) numel(R2vals)]);
+r2Error = reshape(r2ErrorVec,[numel(FFvals) numel(R2vals)]);
+
+%Plot 
 
 figure('Name', 'FF')
 
-% subplot(3,2,1)
-% for k = 1:(size(Fgrid,2))
-% scatter(FFgrid(:,k),predictionFFgrid(:,k))
-% hold on
-% end
-% hold off
-% legend
-% 
-% subplot(3,2,2)
-% for k = 1:(size(R2stargrid,1))
-% scatter(R2stargrid(k,:),predictionR2grid(k,:))
-% hold on
-% end
-% hold off
-% legend
-
-
-tri=delaunay(R2starvec,FFvec);
-
-s1=subplot(3,2,3)
-trisurf(tri,R2starvec,FFvec,predictionVecFF,'LineStyle','none');
+subplot(2,2,1)
+image(ffPredictions,'CDataMapping','scaled')
 ax=gca;
 ax.CLim=[0 1];
-xticks([0 .1 .2 .3 .4 .5 .6 .7 .8 .9 1.0]);
-xticklabels({'0','.1', '.2', '.3', '.4', '.5', '.6', '.7', '.8', '.9','1.0'});
+FigLabels;
+colorbar
+xticks([1:2:21]);
+xticklabels({'0','.05', '.1', '.15', '.2', '.25', '.3', '.35', '.4', '.45','.5'});
 xlabel('R2* (ms^-^1)','FontSize',12)
-yticks([0 .1 .2 .3 .4 .5 .6 .7 .8 .9 1.0]);
+yticks([0 10 20 30 40 50 60 70 80 90 100]);
 yticklabels({'0','10','20','30','40','50','60','70','80','90','100'});
 ylabel('Fat fraction (%)','FontSize',12)
 title('FF values')
 colorbar
 view(0,90)
 
-s1=subplot(3,2,4)
-trisurf(tri,R2starvec,FFvec,predictionVecR2,'LineStyle','none');
+
+subplot(2,2,2)
+image(r2Predictions,'CDataMapping','scaled')
 ax=gca;
-ax.CLim=[-1 1];
-xticks([0 .1 .2 .3 .4 .5 .6 .7 .8 .9 1.0]);
-xticklabels({'0','.1', '.2', '.3', '.4', '.5', '.6', '.7', '.8', '.9','1.0'});
+ax.CLim=[0 1];
+FigLabels;
+colorbar
+xticks([1:2:21]);
+xticklabels({'0','.05', '.1', '.15', '.2', '.25', '.3', '.35', '.4', '.45','.5'});
 xlabel('R2* (ms^-^1)','FontSize',12)
-yticks([0 .1 .2 .3 .4 .5 .6 .7 .8 .9 1.0]);
+yticks([0 10 20 30 40 50 60 70 80 90 100]);
 yticklabels({'0','10','20','30','40','50','60','70','80','90','100'});
 ylabel('Fat fraction (%)','FontSize',12)
 title('R2* values')
 colorbar
 view(0,90)
 
-
-s1=subplot(3,2,5)
-trisurf(tri,R2starvec,FFvec,FFerrorVec,'LineStyle','none');
+subplot(2,2,3)
+image(ffError,'CDataMapping','scaled')
 ax=gca;
-ax.CLim=[-1 1];
-xticks([1 2 3 4 5 6 7 8 9 10 11]);
-xticklabels({'0','.1', '.2', '.3', '.4', '.5', '.6', '.7', '.8', '.9','1.0'});
+ax.CLim=[-0.1 0.1];
+FigLabels;
+colorbar
+xticks([1:2:21]);
+xticklabels({'0','.05', '.1', '.15', '.2', '.25', '.3', '.35', '.4', '.45','.5'});
 xlabel('R2* (ms^-^1)','FontSize',12)
-yticks([1 6 11 16 21 26 31 36 41 46 51]);
+yticks([0 10 20 30 40 50 60 70 80 90 100]);
 yticklabels({'0','10','20','30','40','50','60','70','80','90','100'});
 ylabel('Fat fraction (%)','FontSize',12)
 title('FF error')
 colorbar
 view(0,90)
 
-s1=subplot(3,2,6)
-trisurf(tri,R2starvec,FFvec,R2starErrorVec,'LineStyle','none');
+subplot(2,2,4)
+image(r2Error,'CDataMapping','scaled')
 ax=gca;
-ax.CLim=[-1 1];
-xticks([1 2 3 4 5 6 7 8 9 10 11]);
-xticklabels({'0','.1', '.2', '.3', '.4', '.5', '.6', '.7', '.8', '.9','1.0'});
+ax.CLim=[-0.1 0.1];
+FigLabels;
+colorbar
+xticks([1:2:21]);
+xticklabels({'0','.05', '.1', '.15', '.2', '.25', '.3', '.35', '.4', '.45','.5'});
 xlabel('R2* (ms^-^1)','FontSize',12)
-yticks([1 6 11 16 21 26 31 36 41 46 51]);
+yticks([0 10 20 30 40 50 60 70 80 90 100]);
 yticklabels({'0','10','20','30','40','50','60','70','80','90','100'});
 ylabel('Fat fraction (%)','FontSize',12)
 title('R2* error')
 colorbar
 view(0,90)
+
+
+%%  Plot for random values 
+% 
+% tri=delaunay(yTest(:,2),yTest(:,1));
+% 
+% s1=subplot(3,2,3)
+% trisurf(tri,yTest(:,2),yTest(:,1),predictionVecFF,'LineStyle','none');
+% ax=gca;
+% ax.CLim=[0 1];
+% xticks([0 .1 .2 .3 .4 .5 .6 .7 .8 .9 1.0]);
+% xticklabels({'0','.1', '.2', '.3', '.4', '.5', '.6', '.7', '.8', '.9','1.0'});
+% xlabel('R2* (ms^-^1)','FontSize',12)
+% yticks([0 .1 .2 .3 .4 .5 .6 .7 .8 .9 1.0]);
+% yticklabels({'0','10','20','30','40','50','60','70','80','90','100'});
+% ylabel('Fat fraction (%)','FontSize',12)
+% title('FF values')
+% colorbar
+% view(0,90)
+% 
+% s1=subplot(3,2,4)
+% trisurf(tri,yTest(:,2),yTest(:,1),predictionVecR2,'LineStyle','none');
+% ax=gca;
+% ax.CLim=[-1 1];
+% xticks([0 .1 .2 .3 .4 .5 .6 .7 .8 .9 1.0]);
+% xticklabels({'0','.1', '.2', '.3', '.4', '.5', '.6', '.7', '.8', '.9','1.0'});
+% xlabel('R2* (ms^-^1)','FontSize',12)
+% yticks([0 .1 .2 .3 .4 .5 .6 .7 .8 .9 1.0]);
+% yticklabels({'0','10','20','30','40','50','60','70','80','90','100'});
+% ylabel('Fat fraction (%)','FontSize',12)
+% title('R2* values')
+% colorbar
+% view(0,90)
+% 
+% 
+% s1=subplot(3,2,5)
+% trisurf(tri,yTest(:,2),yTest(:,1),FFerrorVec,'LineStyle','none');
+% ax=gca;
+% ax.CLim=[-1 1];
+% xticks([1 2 3 4 5 6 7 8 9 10 11]);
+% xticklabels({'0','.1', '.2', '.3', '.4', '.5', '.6', '.7', '.8', '.9','1.0'});
+% xlabel('R2* (ms^-^1)','FontSize',12)
+% yticks([1 6 11 16 21 26 31 36 41 46 51]);
+% yticklabels({'0','10','20','30','40','50','60','70','80','90','100'});
+% ylabel('Fat fraction (%)','FontSize',12)
+% title('FF error')
+% colorbar
+% view(0,90)
+% 
+% s1=subplot(3,2,6)
+% trisurf(tri,yTest(:,2),yTest(:,1),R2starErrorVec,'LineStyle','none');
+% ax=gca;
+% ax.CLim=[-1 1];
+% xticks([1 2 3 4 5 6 7 8 9 10 11]);
+% xticklabels({'0','.1', '.2', '.3', '.4', '.5', '.6', '.7', '.8', '.9','1.0'});
+% xlabel('R2* (ms^-^1)','FontSize',12)
+% yticks([1 6 11 16 21 26 31 36 41 46 51]);
+% yticklabels({'0','10','20','30','40','50','60','70','80','90','100'});
+% ylabel('Fat fraction (%)','FontSize',12)
+% title('R2* error')
+% colorbar
+% view(0,90)
 
 %% 7.0 Inspect the trained network
 
