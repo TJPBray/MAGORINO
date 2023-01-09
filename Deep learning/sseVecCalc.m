@@ -33,10 +33,15 @@ Smeasured=S(k,:);
 
 
     %2.2 Calculate likelihood (use Gaussian initially)
-    [likVec(k),sseVec(k)] = R2Obj(p,echotimes,tesla,Smeasured,0);
+    [gaussianLikVec(k),sseVec(k)] = R2Obj(p,echotimes,tesla,Smeasured,sigma); %Use sigma of 0 - note that likelilihood values with be NaN
    
+    %2.2 Calculate likelihood (Rician)
+     %2.2 Calculate likelihood (use Gaussian initially)
+    [ricianLikVec(k),sseVec(k)] = R2Obj(p,echotimes,tesla,Smeasured,sigma); %Use sigma of 0 - note that likelilihood values with be NaN
 
 end
+
+likVec = ricianLikVec;
 
 end
 
