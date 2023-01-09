@@ -84,8 +84,6 @@ FigLabels;
 title('Rician magnitude R2* error')
 colorbar;
 
-
-
 subplot(3,3,6)
 image(1000*errormaps.R2complex,'CDataMapping','scaled')
 ax=gca;
@@ -93,8 +91,6 @@ ax.CLim=[-1000 1000];
 FigLabels;
 title('Complex fitting R2* error')
 colorbar;
-
-
 
 % 1.3 S0 error
 
