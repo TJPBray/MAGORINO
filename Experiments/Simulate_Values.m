@@ -27,14 +27,23 @@ function [FFmaps,errormaps,sdmaps,residuals] = Simulate_Values(SNR, sigmaError, 
 %Specify S0
 S0=100;
 
+%Specify FFmax, R2max and intervals
+FFmax = 1;
+FFinterval = 0.02;
+FFvals = [0:FFinterval:FFmax];
+
+R2max = 1;
+R2interval=0.1;
+R2vals=[0:R2interval:R2max];
+
 %Create grids of ground truth values
-FFgrid=repelem([0:0.02:1]',1,11);
+FFgrid=repelem(FFvals',1,numel(R2vals));
 
 Fgrid=S0*FFgrid;
 
 Wgrid=S0-Fgrid;
 
-vgrid=repelem(0:0.1:1,51,1);%1ms-1 upper limit chosen to reflect Hernando et al. (went up to 1.2)
+vgrid=repelem(0:R2interval:R2max,numel(FFvals),1);%1ms-1 upper limit chosen to reflect Hernando et al. (went up to 1.2)
 
 %% Specify parameter values
 
