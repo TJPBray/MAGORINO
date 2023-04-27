@@ -5,28 +5,36 @@
 % 1.1 set the tissue parameters
 % [Sf(au),  Sw(au), R2*(kHz), fB(kHz)]
 
+tissueChoices = [8]
+
+for l = 1:numel(tissueChoices)
+
 %Define S0
     S0=100;
 
     %1. Pure water, low R2*
     params(1,:) =    [0, S0, 0, 0];
+
+
     %2. Low FF, low R2*
     params(2,:  )=   [0.2*S0, 0.8*S0, 0, 0];
     %3. Middle FF, low R2*
-    params(3,:)  =   [0.4*S0, 0.4*S0, 0, 0];
+    params(3,:)  =   [0.5*S0, 0.5*S0, 0, 0];
+    %4. High FF, low R2*
+    params(4,:)  =   [0.8*S0, 0.2*S0, 0, 0];
     %4. Pure fat, 0 R2*
-    params(4,:)  =   [1*S0, 0*S0, 0, 0];
+    params(5,:)  =   [1*S0, 0*S0, 0, 0];
     %5. Zero FF, high R2*
-    params(5,:)  =   [0*S0, 1*S0, 0.5, 0];
+    params(6,:)  =   [0*S0, 1*S0, 0.5, 0];
     %6. Low FF, high R2*
-    params(6,:)  =   [0.2*S0, 0.8*S0, 0.5, 0];
+    params(7,:)  =   [0.2*S0, 0.8*S0, 0.5, 0];
     %7. Middle FF, high R2*
-    params(7,:)  =   [0.5*S0, 0.5*S0, 0.5, 0];
-    %8. Pure fat, high R2*
-    params(8,:)   =  [0.9*S0, 0.1*S0, 0.5, 0];
+    params(8,:)  =   [0.5*S0, 0.5*S0, 0.2, 0];
+    %8. Pure fat, 0 R2*
+    params(9,:)   =  [S0, 0, 0, 0];
 
     %Pick tissue type
-    tissue=4;
+    tissue=tissueChoices(l);
     
     %Define parameter vector
     p=params(tissue,:)';
@@ -41,7 +49,7 @@
 fieldStrength = 3;
 
 % echo times (ms) - densely sampled here for visualisation purposes
-denseEchoTimes = (0:0.1:11)';
+denseEchoTimes = (0:0.01:11)';
 
 %Sampling scheme
 sampling=[12:11:111];
@@ -62,24 +70,28 @@ GT.S=signalNoiseFree;
 
 % 1.4 visualise the signal
 figure;
-h1 = subplot(2, 2, 1);
+h1 = subplot(2, 1, 1);
 hold on;
-plot(denseEchoTimes, real(signalNoiseFreeDense), 'r-');
-plot(denseEchoTimes, imag(signalNoiseFreeDense), 'b-');
-xlabel('echo time (ms)');
-ylabel('signal');
-legend('noise-free real', 'noise-free imag');
-
-% 1.5 convert to magnitude and phase
-signalMagnNoiseFree = abs(signalNoiseFreeDense);
-h3 = subplot(2, 2, 3);
-hold on;
-plot(denseEchoTimes, signalMagnNoiseFree, 'r-');
-xlabel('echo time (ms)');
-ylabel('signal');
-legend('noise-free magnitude');
+plot(denseEchoTimes, abs(signalNoiseFreeDense), 'r-','LineWidth',2);
+xlabel('Echo time (ms)');
+ylabel('Signal');
+ylim([0 1.1*S0])
 
 signalPhaseNoiseFree = angle(signalNoiseFree);
+
+% 1.5 visualise in 3d
+h2 = subplot(2,1,2)
+plot3(denseEchoTimes,real(signalNoiseFreeDense),imag(signalNoiseFreeDense),'r-','LineWidth',2)
+xlabel('Echo time (ms)')
+ylabel('x')
+zlabel('y')
+zlim([-100 100])
+ylim([-100 100])
+hold on
+
+end
+
+hold off
 
 %% 2. Simulate noisy measured signal from noise free data
 
@@ -135,14 +147,12 @@ xlabel('noise (rotated)');
 ylabel('count');
 legend('real', 'imag');
 
-
-
 %% Visualise likelihood for each parameter
 
 
 %% 3. Fit the model to the data
 
-estimatedParas = R2fitting(echoTimes, fieldStrength, signalNoisy, sigma, GT);
+estimatedParas = FittingWrapper(echoTimes, fieldStrength, signalNoisy, sigma, GT);
 
 %% Visualise predicted signal relative to ground truth and noisy measured signal 
 figure
@@ -171,3 +181,40 @@ plot(denseEchoTimes, abs(complexPredictedSignal), 'g--','Linewidth',2)
 hold off 
 
 legend('Noise-free signal','Noisy sampled signal', 'Gaussian fit','Rician fit', 'Complex fit')
+
+
+%% Simple plot for figure generation
+
+%Use initial guess for parameters to show that initial prediction does not match signal
+
+
+predictedSignalGuess1 = MultiPeakFatSingleR2(denseEchoTimes, fieldStrength, 5, 95, 0.05, 0);
+predictedSignalGuess2 = MultiPeakFatSingleR2(denseEchoTimes, fieldStrength, 10, 90, 0.1, 0);
+predictedSignalGuess3 = MultiPeakFatSingleR2(denseEchoTimes, fieldStrength, 20, 80, 0.15, 0);
+
+%Plot
+figure 
+
+subplot(1,3,1)
+scatter(echoTimes, abs(signalNoisy),'filled','r');
+ylabel('Signal')
+xlabel('Echo time')
+ylim([0 100])
+
+subplot(1,3,2)
+plot(denseEchoTimes, abs(predictedSignalGuess1), 'b-','Linewidth',2)
+ylabel('Signal')
+xlabel('Echo time')
+ylim([0 100])
+
+subplot(1,3,3)
+scatter(echoTimes, abs(signalNoisy),'filled','r');
+hold on
+plot(denseEchoTimes, abs(predictedSignalGuess1), 'b--','Linewidth',0.5)
+plot(denseEchoTimes, abs(predictedSignalGuess2), 'b--','Linewidth',1)
+plot(denseEchoTimes, abs(predictedSignalGuess3), 'b--','Linewidth',1.5)
+plot(denseEchoTimes, abs(ricianPredictedSignal), 'b-','Linewidth',2)
+hold off
+ylabel('Signal')
+xlabel('Echo time')
+ylim([0 100])
