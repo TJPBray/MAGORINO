@@ -1,6 +1,6 @@
 %% roiStats
 
-function [meanVec, sdVec, nVec] = RoiStats(map,ROIs)
+function [meanVec, medianVec, sdVec, nVec] = RoiStats(map,ROIs)
 %% function [meanVec, sdVec, nVec] = RoiStats(map,ROIs)
 
 %function to extract stats for each label in ROI map
@@ -24,6 +24,8 @@ for l = 1:(L-1) %Ignore last ROI as placed outside tubes
     nVec(l,1)=sum(ROIs==l,'all');
 
     meanVec(l,1) = sum(maskedMap,'all')/nVec(l,1);
+
+    medianVec(l,1) = median(maskedMap);
 
     sdVec(l,1) =std(double(nonzeros(maskedMap)));
 
