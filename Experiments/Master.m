@@ -65,6 +65,17 @@ reps=1000;
 CreatefigUncertainty(errormaps,errormaps1,errormaps2)
 
 
+%% 2. Run  fitting for subject data
+
+%2.1 First get sigma correction factor from simulation
+fieldStrength = 3; 
+sigmaCorrection = SigmaEstimationSim(10,fieldStrength);
+
+%2.2 Save sigmaCorrection for future use
+saveFolder ='/Users/tjb57/Dropbox/MATLAB/Fat-water MAGORINO/Fitting';
+saveFileName = 'sigmaCorrection';
+save(fullfile(saveFolder,saveFileName), 'sigmaCorrection');
+
 %% 2a. Run  fitting for subject data (FW101)
 
 %2a.1 Load data 
@@ -269,7 +280,6 @@ end
 %3.5 Phantom ROI analysis
 [ff{n},regressionModels{n}] = PhantomRoiAnalysis(maps,phantomROIs(:,:,sl),ReferenceValues,fwmc_ff,fwmc_r2star);
 end
-
 
 %3.7 Tabulate coefficients and get figures
 site = [1 1 1 1 7 7 7 7 2 2 2 2 3 3 3 3 4 4 4 4 5 5 5 5 6 6 6 6];
