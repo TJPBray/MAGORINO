@@ -62,14 +62,14 @@ reps=1000;
 [FFmaps2,errormaps2,sdmaps2,residuals2] = Simulate_Values(60, -0.3, 1000);
 
 %1.6 Generate plots showing effect of sigma uncertainty on estimates
-CreatefigUncertainty(errormaps,errormaps1,errormaps2)
+CreatefigUncertainty(errormaps,errormaps1,errormaps2);
 
 
 %% 2. Run  fitting for subject data
 
 %2.1 First get sigma correction factor from simulation
 fieldStrength = 3; 
-sigmaCorrection = SigmaEstimationSim(10,fieldStrength);
+sigmaCorrection = SigmaEstimationSim(100,fieldStrength);
 
 %2.2 Save sigmaCorrection for future use
 saveFolder ='/Users/tjb57/Dropbox/MATLAB/Fat-water MAGORINO/Fitting';
