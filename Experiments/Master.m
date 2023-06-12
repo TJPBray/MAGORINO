@@ -69,11 +69,12 @@ CreatefigUncertainty(errormaps,errormaps1,errormaps2);
 
 %2.1 First get sigma correction factor from simulation
 fieldStrength = 3; 
-sigmaCorrection = SigmaEstimationSim(100,fieldStrength);
+reps = 100;
+sigmaCorrection = SigmaEstimationSim(reps,fieldStrength);
 
 %2.2 Save sigmaCorrection for future use
 saveFolder ='/Users/tjb57/Dropbox/MATLAB/Fat-water MAGORINO/Fitting';
-saveFileName = 'sigmaCorrection';
+saveFileName = 'sigmaCorrectionTest';
 save(fullfile(saveFolder,saveFileName), 'sigmaCorrection');
 
 %% 2a. Run  fitting for subject data (FW101)
