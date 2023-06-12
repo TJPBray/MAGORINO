@@ -2,12 +2,12 @@
 % Simulates varying sigma and then estimates sigma by fitting
 % An extension of sigma demo
 
-function sigmaCorrection = SigmaEstimationSim(reps)
+function sigmaCorrection = SigmaEstimationSim(reps,fieldStrength)
 %function SigmaEstimationSim(reps)
 
 %Inputs:
 %reps specifies number of noise instantiations
-% inhomogeneityFactor specifies gradient across virtual ROI
+%fieldStrength specifies main magnetic field strength in tesla
 
 %Outputs:
 %Value of correction factor needed to compensate for sigma overfitting
@@ -190,7 +190,7 @@ xlabel('True sigma','FontSize',12)
 ylabel('Estimated sigma','FontSize',12)
 legend('True sigma (Unity)','Fitted Sigma','Corrected fitted sigma','ROI sigma')
 hold off
-title(strcat('Inhomogeneity factor =   ',num2str(inhomogeneityFactor(inh)))
+title(strcat('Inhomogeneity factor =   ',num2str(inhomogeneityFactor(inh))))
 
 else %do not plot
     ;

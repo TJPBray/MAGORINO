@@ -32,7 +32,6 @@ matSize=size(imData.images,1);
 indent = imData.fittingIndent;
 
 
-
 %% 1. Estimate sigma for roi
 [mapsWithSigma,sigmaFromRoi,sigmaFromFit] = FitImageSigma(imData,roi); %Reduce indent by filtersize for first step to avoid introducing 0s with median filter
 
