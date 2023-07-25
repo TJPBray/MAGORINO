@@ -35,7 +35,7 @@ function [maps,sigmaFromRoi,sigmaFromFit] = FitImageSigma(imData,roi)
 %1.1 Convert TE to ms
 TE=1000*imData.TE;
 
-TE=reshape(TE,6,1);
+TE=reshape(TE,numel(TE),1);
 
 %1.2 Get indent
 indent = imData.fittingIndent;
@@ -61,7 +61,7 @@ s0Estimates=zeros(size(Smag_slice,1),size(Smag_slice,2));
 
 % Set ground truth values to 0
 GT.p=[0 0 0 0];
-GT.S=[0 0 0 0 0 0];
+GT.S=zeros(1,numel(TE));
 
 %% 4. Determine sigma value from raw signal intensities in the ROI (use the data from the echo time closest to in phase)
 
@@ -92,7 +92,7 @@ for k = 1:numel(x) %numel x is number of pixels in mask
     
 %5.4 Get pixel data for single pixel
 Smag=Smag_slice(posY,posX,:);
-Smag=reshape(Smag,1,6);
+Smag=reshape(Smag,1,numel(Smag));
 
 %5.5 Specify initialisation values and bounds 
 algoparams = setAlgoparams(Smag,sigmaFromRoi,2); %opt=2 specifies inclusion of bounds for sigma in algoParams
