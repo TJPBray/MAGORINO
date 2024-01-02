@@ -1,6 +1,6 @@
 
-function [maps,noisestats] = FitImage(imData,slice,sigma)
-% function [maps,noisestats] = FitImage(imData,slice,sigma)
+function [maps] = FitImage(imData,slice,sigma)
+% function [maps] = FitImage(imData,slice,sigma)
     
 %Takes data in imData structure and generates maps
 
@@ -28,7 +28,7 @@ function [maps,noisestats] = FitImage(imData,slice,sigma)
 %Convert TE to ms
 TE=1000*imData.TE;
 
-TE=reshape(TE,6,1);
+TE=reshape(TE,numel(TE),1);
 
 indent=imData.fittingIndent;
 
@@ -76,16 +76,16 @@ S0complex=zeros(size(Smag_slice,1),size(Smag_slice,2));
 
 %% Set ground truth values to 0
 GT.p=[0 0 0 0];
-GT.S=[0 0 0 0 0 0];
+GT.S=zeros(numel(TE),1)';
 
 %% 4. Loop over voxels in image and fit each one 
 
 for posX=(1+indent):(size(Smag_slice,2)-indent)     %Describes location of chosen pixel
-parfor posY=(1+indent):(size(Smag_slice,1)-indent)
+for posY=(1+indent):(size(Smag_slice,1)-indent)
     
 %4.1 Get pixel data for specified pixel
 Smag=Smag_slice(posY,posX,:);
-Smag=reshape(Smag,1,6);
+Smag=reshape(Smag,1,numel(Smag));
 
 
 %% 5. Implement fitting
@@ -98,18 +98,27 @@ if prod(Smag)>0
 %5.2 Perform fitting
 outparams = FittingWrapper(TE, imData.FieldStrength, Smag, sigma, GT); %echotimes, fieldstrength, measured signal, measured sigma
 
-%5.3 Add values to parameter maps 
+%5.3 Add values to parameter maps (if they have been generated)
+try
 FFrician(posY,posX)=outparams.Rician.F/(outparams.Rician.F+outparams.Rician.W);
-FFstandard(posY,posX)=outparams.standard.F/(outparams.standard.F+outparams.standard.W);
-FFcomplex(posY,posX)=outparams.complex.F/(outparams.complex.F+outparams.complex.W);
-
 R2rician(posY,posX)=outparams.Rician.R2;
-R2standard(posY,posX)=outparams.standard.R2;
-R2complex(posY,posX)=outparams.complex.R2;
-
 S0rician(posY,posX)=outparams.Rician.F + outparams.Rician.W;
+catch 
+end
+
+try 
+FFstandard(posY,posX)=outparams.standard.F/(outparams.standard.F+outparams.standard.W);
+R2standard(posY,posX)=outparams.standard.R2;
 S0standard(posY,posX)=outparams.standard.F + outparams.standard.W;
+catch
+end
+
+try
+FFcomplex(posY,posX)=outparams.complex.F/(outparams.complex.F+outparams.complex.W);
+R2complex(posY,posX)=outparams.complex.R2;
 R2complex(posY,posX)=outparams.complex.F + outparams.complex.W;
+catch 
+end
 
 posX
 
