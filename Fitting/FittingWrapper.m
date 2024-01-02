@@ -16,8 +16,14 @@ function outparams = FittingWrapper (echotimes, tesla, Smeasured, sig, GT) %nois
 
 % Author: Tim Bray t.bray@ucl.ac.uk
 
+%% Define signal for use
 Scomplex=Smeasured; %retain complex data for use in complex fitting
 Smagnitude=abs(Smeasured); %otherwise use magnitude
+
+%% Decide which fitting to run
+gaussianFitting = 0; 
+ricianFitting = 1;
+complexFitting = 0; 
 
 %% Set algorithm parameters (initialisation values and bounds, choose optimiser)
 
@@ -26,14 +32,26 @@ algoparams = setAlgoparams (Smagnitude,sig,1); % Choose 1 for standard fitting w
 
 %% Gaussian ('standard') magnitude fitting
 
+if gaussianFitting == 1
+
 % Call GaussianMagnitudeFitting
 outparams.standard = GaussianMagnitudeFitting(echotimes, tesla, Smagnitude, sig, GT, algoparams);
 
+else ; 
+end
+
 %% Rician magnitude fitting with sigma known a priori
+
+if ricianFitting == 1
 
 outparams.Rician = RicianMagnitudeFitting (echotimes, tesla, Smagnitude, sig, GT, algoparams);
 
+else ; 
+end
+
 %% Complex fitting
+
+if complexFitting == 1
 
 % 1. Perform with variable fB
     %Set new algoparams
@@ -50,6 +68,8 @@ outparams.Rician = RicianMagnitudeFitting (echotimes, tesla, Smagnitude, sig, GT
 %     % Call ComplexFitting
 %     outparams.complexFixed = ComplexFitting (echotimes, tesla, Scomplex, sig, GT, algoparams);
 
+else ; 
+end
 
 end
 
