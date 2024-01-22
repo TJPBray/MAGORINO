@@ -197,12 +197,12 @@ title('PDFF Rician - PDFF Gaussian')
 colorbar 
 
 subplot(3,3,4)
-imshow((1000*maps.R2standard),[0 250])
+imshow((1000*maps.R2standard),[0 200])
 title('R2* Gaussian')
 colorbar 
 
 subplot(3,3,5)
-imshow((1000*maps.R2rician),[0 250])
+imshow((1000*maps.R2rician),[0 200])
 title('R2* Rician')
 colorbar 
 
@@ -226,13 +226,106 @@ imshow((maps.S0rician - maps.S0standard),[-0.01*max(maps.S0standard,[],'all') 0.
 title('S0 Rician - S0 Gaussian')
 colorbar 
 
+%% 6. Incorporate spatial smoothing of likelihood difference map
 
+%Filter
+filtMaps = filterMaps(maps);
 
+% Visualise options
 
+figure
+title('Low fat and high fat solutions')
 
+subplot(4,3,1)
+imshow(maps.FFricianOpt1,[0 1])
+title('PDFF Rician Opt1')
+colormap('parula')
+colorbar
 
+subplot(4,3,2)
+imshow(maps.FFricianOpt2,[0 1])
+title('PDFF Rician Opt2')
+colormap('parula')
+colorbar
 
+subplot(4,3,3)
+imshow(maps.FFrician,[0 1])
+title('PDFF Rician Opt2')
+colormap('parula')
+colorbar
 
+subplot(4,3,4)
+imshow(1000*maps.R2ricianOpt1,[0 200])
+title('R2* Rician Opt1')
+colorbar
+
+subplot(4,3,5)
+imshow(1000*maps.R2ricianOpt2,[0 200])
+title('R2* Rician Opt2')
+colorbar
+
+subplot(4,3,6)
+imshow(1000*maps.R2rician,[0 200])
+title('R2* Rician Opt2')
+colorbar
+
+subplot(4,3,7)
+imshow(maps.likDiff,[])
+title('Likelihood difference')
+colorbar
+
+subplot(4,3,8)
+imshow(filtMaps.likDiff1,[-10 10])
+title('Box-filtered likelihood difference 3')
+colorbar
+
+subplot(4,3,9)
+imshow(filtMaps.likDiff2,[-10 10])
+title('Box-filtered likelihood difference 5')
+colorbar
+
+subplot(4,3,11)
+imshow(filtMaps.likDiff3,[-10 10])
+title('Gaussian-filtered likelihood difference')
+colorbar
+
+subplot(4,3,12)
+imshow(filtMaps.likDiff4,[-10 10])
+title('Gaussian-filtered likelihood difference')
+colorbar
+
+%Show PDFF maps with different filters
+figure
+title('PDFF with different filters')
+
+subplot(2,3,1)
+imshow(maps.FFrician,[0 1])
+title('PDFF with no filtering')
+colorbar
+
+subplot(2,3,2)
+imshow(filtMaps.PDFF.box,[0 1])
+title('PDFF with box filtering')
+colorbar
+
+subplot(2,3,3)
+imshow(filtMaps.PDFF.box5,[0 1])
+title('PDFF with box filtering 5')
+colorbar
+
+subplot(2,3,5)
+imshow(filtMaps.PDFF.gauss,[0 1])
+title('PDFF with Gaussian filtering')
+colorbar
+
+subplot(2,3,6)
+imshow(filtMaps.PDFF.gauss5,[0 1])
+title('PDFF with Gaussian filtering')
+colorbar
+
+%Export filtered maps to maps structure
+
+maps.filtMaps = filtMaps;
 
 
 

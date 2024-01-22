@@ -63,6 +63,10 @@ Smag_slice=abs(Scomplex_slice);
 % noisestats.SNR=noisestats.meanS/sig;
 
 %% 3. Prefill arrays prior to fitting
+
+%Define individually to solve variable classification issue with parfor
+%loop below 
+
 FFrician=zeros(size(Smag_slice,1),size(Smag_slice,2));
 FFstandard=zeros(size(Smag_slice,1),size(Smag_slice,2));
 FFcomplex=zeros(size(Smag_slice,1),size(Smag_slice,2));
@@ -73,6 +77,14 @@ S0rician=zeros(size(Smag_slice,1),size(Smag_slice,2));
 S0standard=zeros(size(Smag_slice,1),size(Smag_slice,2));
 S0complex=zeros(size(Smag_slice,1),size(Smag_slice,2));
 
+FFricianOpt1 = FFrician;
+FFricianOpt2 = FFrician;
+R2ricianOpt1 = FFrician;
+R2ricianOpt2 = FFrician;
+S0ricianOpt1 = FFrician;
+S0ricianOpt2 = FFrician;
+
+likDiff = FFrician;
 
 %% Set ground truth values to 0
 GT.p=[0 0 0 0];
@@ -81,7 +93,7 @@ GT.S=zeros(numel(TE),1)';
 %% 4. Loop over voxels in image and fit each one 
 
 for posX=(1+indent):(size(Smag_slice,2)-indent)     %Describes location of chosen pixel
-for posY=(1+indent):(size(Smag_slice,1)-indent)
+parfor posY=(1+indent):(size(Smag_slice,1)-indent)
     
 %4.1 Get pixel data for specified pixel
 Smag=Smag_slice(posY,posX,:);
@@ -103,6 +115,17 @@ try
 FFrician(posY,posX)=outparams.Rician.F/(outparams.Rician.F+outparams.Rician.W);
 R2rician(posY,posX)=outparams.Rician.R2;
 S0rician(posY,posX)=outparams.Rician.F + outparams.Rician.W;
+
+FFricianOpt1(posY,posX)=outparams.Rician.pmin1(1)/(outparams.Rician.pmin1(1)+outparams.Rician.pmin1(2));
+R2ricianOpt1(posY,posX)=outparams.Rician.pmin1(3);
+S0ricianOpt1(posY,posX)=outparams.Rician.pmin1(1) + outparams.Rician.pmin1(1);
+
+FFricianOpt2(posY,posX)=outparams.Rician.pmin2(1)/(outparams.Rician.pmin2(1)+outparams.Rician.pmin2(2));
+R2ricianOpt2(posY,posX)=outparams.Rician.pmin2(3);
+S0ricianOpt2(posY,posX)=outparams.Rician.pmin2(1) + outparams.Rician.pmin2(1);
+
+likDiff(posY,posX) = outparams.Rician.fmin1 - outparams.Rician.fmin2; %Negative likdiff means fmin1 has higher likelihood and is the optimal choice
+
 catch 
 end
 
@@ -126,21 +149,29 @@ else;
 end
 
 end
-
 end
 
-%Add maps to images structure
-maps.FFrician=FFrician;
-maps.FFstandard=FFstandard;
-maps.FFcomplex=FFcomplex;
-maps.R2rician=R2rician;
-maps.R2standard=R2standard;
-maps.R2complex=R2complex;
-maps.S0rician=S0rician;
-maps.S0standard=S0standard;
-maps.S0complex=S0complex;
+maps.FFrician = FFrician;
+maps.FFstandard = FFstandard;
+maps.FFcomplex = FFcomplex;
+maps.R2rician = R2rician;
+maps.R2standard = R2standard;
+maps.R2complex = R2complex;
+maps.S0rician = S0rician;
+maps.S0standard = S0standard;
+maps.S0complex = S0complex;
 
-%% Create figures
+maps.FFricianOpt1 = FFricianOpt1;
+maps.FFricianOpt2 = FFricianOpt2;
+maps.R2ricianOpt1 = R2ricianOpt1;
+maps.R2ricianOpt2 = R2ricianOpt2;
+maps.S0ricianOpt1 = S0ricianOpt1;
+maps.S0ricianOpt2 = S0ricianOpt2;
+
+maps.likDiff = likDiff;
+
+%% Create figures for comparison of methods
+
 figure
 subplot(3,3,1)
 imshow(maps.FFstandard,[0 1])
@@ -188,6 +219,7 @@ subplot(3,3,9)
 imshow(maps.S0rician - maps.S0standard,[-0.01*max(maps.S0standard,[],'all') 0.01*max(maps.S0standard,[],'all')])
 title('S0 Rician - S0 Gaussian')
 colorbar 
+
 
 
 end
