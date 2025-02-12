@@ -20,7 +20,7 @@ function algoparams = setAlgoparams (S,sigmaEstimateFromRoi,opt)
 
 %1.1 Set initialisation value for R2*: vinit
 vinit=0.1;
-algoparams.vinit=0.1;
+algoparams.vinit=vinit;
 
 vmax=2;
 vmin=0;
@@ -63,7 +63,7 @@ algoparams.ub = [3*Sinit, 3*Sinit, vmax, sigUB]';
 elseif opt==3
 
 % set the parameter lower bound
-algoparams.lb = [0, 0, vmin, -Inf]';
+algoparams.lb = [0, 0, vmin, -Inf]'; %Consider that fat-water shift is 500Hz at 3T, constrain fB to this order of magnitude (e.g +/- 1000)
 
 % % set the parameter upper bound
 algoparams.ub = [3*Sinit, 3*Sinit, vmax, Inf]'; 

@@ -9,6 +9,7 @@ function signalStruct = MultiPeakFatSingleR2_IllustrationVersion(t,tesla,F,W,R2s
 %W is water density (can be a single value or an m-by-1 vector, where m is the number of examples)
 %F is fat density (can be a single value or an m-by-1 vector, where m is the number of examples)
 %R2star is system R2* (single term for both fat and water; can be a single value or an m-by-1 vector, where m is the number of examples)
+%fB is field imhomogeneity in Hz
 
 %Model:
 %Multipeak fat spectrum with frequency shifts and amplitudes as detailed
@@ -97,6 +98,9 @@ S=  F*Fatamps(1)*exp((i*Fatw(1))*t')+...
 
 
 %% Multiply signal by R2* term 
+
+%First convert fB from Hz to cycles / ms 
+fB = fB/1000;
 
 S=S.*exp(-R2star*t'); %R2star term
 S=S.*exp(i*2*pi*fB*t'); %B0 inhomogeneity

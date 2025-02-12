@@ -21,9 +21,9 @@ Scomplex=Smeasured; %retain complex data for use in complex fitting
 Smagnitude=abs(Smeasured); %otherwise use magnitude
 
 %% Decide which fitting to run
-gaussianFitting = 0; 
+gaussianFitting = 1; 
 ricianFitting = 1;
-complexFitting = 0; 
+complexFitting = 1; 
 
 %% Set algorithm parameters (initialisation values and bounds, choose optimiser)
 

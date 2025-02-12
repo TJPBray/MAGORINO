@@ -4,11 +4,12 @@ function S=SinglePeakFatSingleR2(t,tesla,F,W,R2star,fB);
 %function S=SinglePeakFatSingleR2(t,tesla,F,W,v,fB);
 
 %Inputs:
-%t is T-by-1 vector of echo times, where T is the total number of echo
+%t is T-by-1 vector of echo times in ms, where T is the total number of echo
 %times
 %W is water density (can be a single value or an m-by-1 vector, where m is the number of examples)
 %F is fat density (can be a single value or an m-by-1 vector, where m is the number of examples)
 %R2star is system R2* (single term for both fat and water; can be a single value or an m-by-1 vector, where m is the number of examples)
+%fB is field imhomogeneity in Hz
 
 %Model:
 %Multipeak fat spectrum with frequency shifts and amplitudes as detailed
@@ -62,7 +63,7 @@ larmor=tesla*gyro;
 %Spectrum based on Hernando et al. multisite: 
 
 Fatamps = [0; 1; 0; 0; 0; 0]; %relative fat amplitudes
-Fatshift = [-3.9; -3.5; -2.7; -2.04; -0.49; 0.50 ];
+Fatshift = [-3.9; -3.5; -2.7; -2.04; -0.49; 0.50 ]; %ppm
 Fatw= Fatshift*larmor*2*pi/1000; %Fatw is angular frequency
 
 Watershift = 0;
@@ -80,6 +81,12 @@ S=  F*Fatamps(1)*exp((i*Fatw(1))*t')+...
 
 
 S=S.*exp(-R2star*t'); %R2star term
+
+
+%% Multiply signal by fB term 
+
+%Convert fB to cycles / ms
+fB = fB/1000;
 
 S=S.*exp(i*2*pi*fB*t'); %B0 inhomogeneity
 
