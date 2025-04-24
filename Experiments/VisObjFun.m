@@ -2,7 +2,7 @@
 
 function [outparams] = VisObjFun(FF,v,SNR,figshow)
 
-% function [outparams] = VisObjFun(FF,v,figshow)
+% function [outparams] = VisObjFun(FF,v,SNR,figshow)
 
 % Description:
 % Enables visualisation of objective function for signal intensities
@@ -11,6 +11,8 @@ function [outparams] = VisObjFun(FF,v,SNR,figshow)
 
 % Input: 
 % Specified FF (specify as a fraction), R2* (v) and SNR 
+% imDataParams is a structure containing acquisition parameters (as well as
+% image - not used) 
 % figshow specifies whether likelihood map is displayed
 
 % Output: 
@@ -32,7 +34,12 @@ GT.p = [FF*S0, (1-FF)*S0 v 0];
 %  Specify echotime values
 % MAGO paper at 3T used 12 echoes (TE1 1.1, dTE 1.1)
 % MAGO paper at 1.5T used 6 echoes (TE1 1.2, dTE 2)
-echotimes=(1.1:1.1:13.2)';
+
+load('/Users/tjb57/Dropbox/MATLAB/Fat-water MAGORINO/Data/Hernando data/site1_begin_3T_protocol1.mat')
+imDataParams = imDataAll; 
+echotimes= 1000*imDataParams.TE; 
+
+% echotimes = [1.1:1.1:13.2]';
 
 %Specify field strength
 tesla=3;
@@ -44,7 +51,7 @@ tesla=3;
 
 % The SNR is a function input. SNR=60 is typical for 3T.
 
-noiseSD=1/SNR; %here assume total signal is 100 for simplicity (since FF maps are used as input)
+noiseSD=S0/SNR; %here assume total signal is 100 for simplicity (since FF maps are used as input)
 
 
 %% Simulate signal
@@ -358,6 +365,23 @@ end
 set(lgnd,'color','none','TextColor','white');
 hold off
 
+% Create surf plot
+lowerLim = -30*abs(max(loglikRic,[],'all'))
+croppedloglikRic = loglikRic;
+croppedloglikRic(croppedloglikRic < lowerLim ) = NaN;
+% 
+% figure
+% surf(croppedloglikRic)
+% xlim([0 100])
+% ylim([0 100])
+% zlim([lowerLim 1.05*max(loglikRic,[],'all')])
+% ylabel('PDFF')
+% xlabel('R_2^* (s^-^1)')
+% zlabel('Log likelihood')
+% yticklabels([ 0 0.2 0.4 0.6 0.8 1])
+% xticklabels([ 0 200 400 600 800 1000])
+
+
 %% 3 For complex
 
 subplot(1,3,3)
@@ -392,9 +416,6 @@ plot(coords.gridsearch.complex.maxima.globalmax.coords.R2,coords.gridsearch.comp
 
 %Breakpoint here to generate simplified figure without contours and labels
 
-
-
-
 % Show path result if fitpath==1
 if fitpath==1
 %Add path on objective function
@@ -414,12 +435,11 @@ plot(coords.pmin2.complex.R2,coords.pmin2.complex.FF,'r+','MarkerSize',12,'LineW
 %Add solution from fitting
 plot(coords.chosen.complex.R2, coords.chosen.complex.FF,'ro','MarkerSize',12,'LineWidth',2) %NB
 
-lgnd=legend('Contour','Ground truth R2*','Ground truth FF', 'MLE (grid search)','Local optimum (grid search)','fitpath1','fitpath2','opt1', 'opt2', 'Fit output');
+lgnd=legend('Contour','Ground truth R2*','Ground truth FF', 'MLE (grid search)','fitpath1','fitpath2','opt1', 'opt2', 'Fit output');
 
 else ;
     
 lgnd=legend('Contour','Ground truth R2*','Ground truth FF', 'MLE (grid search)','Fit output');
-
 
 end
 
