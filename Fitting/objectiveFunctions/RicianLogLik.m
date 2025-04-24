@@ -47,4 +47,4 @@ lb0 = logbesseli0(scp);
 logliks = log(measurements) - log(sigmaSquared) - sumsqsc + lb0;
 
 % total log likelihood
-loglik = sum(logliks);
+loglik = sum(logliks,2);

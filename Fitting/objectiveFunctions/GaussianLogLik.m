@@ -41,4 +41,4 @@ chiSquaredErrors = squaredErrors./sigmaSquared;
 logliks = -0.5*log((2*pi)*sigmaSquared) - 0.5*chiSquaredErrors;
 
 % total log likelihood
-loglik = sum(logliks);
+loglik = sum(logliks,2);

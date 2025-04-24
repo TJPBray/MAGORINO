@@ -5,25 +5,29 @@ function [loglik,sse] = R2ComplexObj(p,echotimes,tesla,Smeasured,sig)
 % predicted data based on the parameters and fat model 
 %
 % Input:
-%   p - the n-by-1 model parameter vector: 
-%   p(1) is fat density
-%   p(2) is water density
-%   p(3) is R2*
-%   p(4) is fB0 - ignored for now
+%   p - the n-by-m model parameter vector, where n is the number of parameters and 
+%   m is the number of examples (note that this was extended from n-by-1 to allow vectorised implementations): 
+%   p(1,:) is fat density
+%   p(2,:) is water density
+%   p(3,:) is R2*
+%   p(4,:) is fB0
 %
 %   echotimes - the T-by-1 echo times, wherre T is the total number of echo
 %   times
 %
-%   Smeasured - the 1-by-T vector of measured signals for each echo time 
+%   Smeasured - the m-by-T vector of measured signals for each echo time 
 %
 %   sig is the standard deviation of the Gaussian distributions.
 %
 % Model:
-%   
+% Gaussian noise for complex data
 %
 %
 % Output:
-%   SSE
+% loglik - either a scalar value (optimised by fmincon) or an m-by-1 parameter vector
+% sse - either a scalar value (optimised by fmincon) or an m-by-1
+% parameter vector; should be ignored by fmincon but can be obtained in a separate call to the function
+%
 %
 % Author: Tim Bray t.bray@ucl.ac.uk
 
@@ -51,6 +55,9 @@ end
 errors = Smeasured - Spredicted;
 
 sse = errors'*errors; %NB for complex matrices the transpose operation given the conjugate transpose (Hermitian transpose) - i.e. the complex conjugate of each element in the transpose - this dictates that the products of the individual imaginary components are positive
+%NB - this is designed for a single examples and will need modification for
+%multiple examples
+
 
 %% Calculate likelihood
 
