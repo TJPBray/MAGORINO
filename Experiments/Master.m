@@ -5,7 +5,7 @@
 %% 1. Simulations
 
 % 1.1 Set number of reps across simulations
-reps=1000;
+reps=100;
 
 % 1.2 Run simulations for varying FF and SNR with R2* = 0
 % [FFmaps,errormaps,sdmaps] = Simulate_Values_SNR(v,reps)
@@ -13,22 +13,26 @@ reps=1000;
 
 %1.3 Run simulations for varying FF and R2* with SNR = 60
 % [FFmaps,errormaps,sdmaps] = Simulate_Values(SNR,reps)
-
-[FFmaps,errormaps,sdmaps,residuals] = Simulate_Values(60,0,reps)
+[FFmaps,R2maps,errormaps,sdmaps,residuals] = Simulate_Values(60,0,reps)
 
 %1.4 Run simulations for varying FF and R2* with SNR = 20
 % [FFmaps,errormaps,sdmaps] = Simulate_Values(SNR,reps)
-
-[FFmaps,errormaps,sdmaps,residuals] = Simulate_Values(20,0,reps)
+[FFmaps,R2maps,errormaps,sdmaps,residuals] = Simulate_Values(20,0,reps)
 
 %1.5 Run likelihood function analysis for chosen FF, R2*, SNR
 % [outparams] = Likelihood(FF,R2*,SNR,figshow) %Set figshow=1 for display
 
 %1.5.1 Combination 1 (R2*=0, both methods likely to succeed): 
     %Run likelihood function analysis
-    [outparams] = VisObjFun(0.2,0,40,1)
+%     settings.echotimes = [1.1:1.1:13.2]';
+    load('/Users/tjb57/Dropbox/MATLAB/Fat-water MAGORINO/Data/Hernando data/site1_begin_3T_protocol1.mat')
+    imDataParams = imDataAll; 
+    [outparams] = VisObjFun(0.3,0.2,60,1)
+
     %Show proportion of successful fits
-    Fitsuccess(0.2,0,60,200)
+    Fitsuccess(0.2,0.3,60,200)
+
+    Fitsuccess(0.2,0.3,60,10)
 
 %1.5.2 Combination 2 (Moderate R2*, Rician may outperform): 
     %Run likelihood function analysis
@@ -79,6 +83,8 @@ save(fullfile(saveFolder,saveFileName), 'sigmaCorrection');
 
 %% 2a. Run  fitting for subject data (FW101)
 
+load('/Users/tjb57/Dropbox/MATLAB/Fat-water MAGORINO/Fitting/sigmaCorrection.mat')
+
 %2a.1 Load data 
 subjFolder='/Users/tjb57/Dropbox/MATLAB/Fat-water MAGORINO/Data/Subjects';
 subjFileName='FW101_bipolar.mat';
@@ -94,14 +100,19 @@ roi.size=sz_vol;
 
 %2a.3 Specify indent (to avoid fitting dead space at edge of phantom) and
 %add to imData
-imDataParams.fittingIndent=2;
+imDataParams.fittingIndent=0;
 
 %2a.2 Run fitting to generate maps
 maps = MultistepFitImage(imDataParams,roi);
 
+%Showed filtered image (use Gauss5 filter)
+figure, imshow(maps.filtMaps.PDFF.gauss5,[0 1])
+colormap('parula')
+colorbar
+
 %2a.3 Display / graphical analysis of in vivo distribution
-indent=100;
-[fittedSimFF,fittedSimR2] = InVivoAnalysis(imDataParams, maps, indent);
+
+[fittedSimFF,fittedSimR2] = InVivoAnalysis(imDataParams, maps, imDataParams.fittingIndent);
 
 %% 2b. Run  fitting for subject data (FW111)
 
@@ -146,13 +157,50 @@ roi.size=sz_vol;
 
 %2c.3 Specify indent (to avoid fitting dead space at edge of phantom) and
 %add to imData
-imDataParams.fittingIndent=2;
+imDataParams.fittingIndent=0;
 
 %2c.2 Run fitting to generate maps
 maps = MultistepFitImage(imDataParams,roi);
 
 %2c.3 Display / graphical analysis of in vivo distribution
 % [fittedSimFF,fittedSimR2] = InVivoAnalysis(imDataParams, maps,indent);
+
+%% 2d. Run  fitting for Michal 7T animal data
+
+%2d.1 Load data 
+subjFolder='/Users/tjb57/Dropbox/MATLAB/Fat-water MAGORINO/Data/Subjects';
+subjFileName='michalTestData10TE.mat';
+load(fullfile(subjFolder,subjFileName));
+
+%2c.3 Specify indent (to avoid fitting dead space at edge of phantom) and
+%add to imData
+imdata.fittingIndent=40;
+
+%2d.2 Run fitting to generate maps
+maps = MultistepFitImage(imdata,roistr);
+
+%% 2e. Run  fitting for thorax WBMRI data
+
+%2e.1 Load data 
+load('/Users/tjb57/Dropbox/MATLAB/Fat-water MAGORINO/Data/Subjects/wbMriThorax.mat'); 
+load('/Users/tjb57/Dropbox/MATLAB/Fat-water MAGORINO/Data/Subjects/wbMriThorax_sigmaRoi.mat')
+slice = 40; 
+
+%Convert ROI to single structure
+roi.mask=BW{1};
+roi.slice=slice;
+roi.size=sz_vol;
+
+%2c.3 Specify indent (to avoid fitting dead space at edge of phantom) and
+%add to imData
+imDataParams.fittingIndent=0;
+
+%2c.2 Run fitting to generate maps
+maps = MultistepFitImage(imDataParams,roi);
+
+%2c.3 Display / graphical analysis of in vivo distribution
+% [fittedSimFF,fittedSimR2] = InVivoAnalysis(imDataParams, maps,indent);
+
 
 
 %% 3. Run  fitting for Hernando phantom data
@@ -178,6 +226,7 @@ ReferenceValues.FF = ([0; 0.026; 0.053; 0.079; 0.105; 0.157; 0.209; 0.312; 0.413
 sl=2;
 
 %3.5 Loop over datasets to fit each dataset
+tic
 for n=1:28
 
 %3.5 Define filenames for multiecho data and ROIs
@@ -219,10 +268,14 @@ roi.slice=sl;
 
 %3.8 Specify indent (to avoid fitting dead space at edge of phantom) and
 %filtersize
-imData.fittingIndent=30;
+imData.fittingIndent=0;
 
 %3.9 Perform multistep fitting
-maps = MultistepFitImage(imData,roi);
+% Estimate sigma first
+% maps = MultistepFitImage(imData,roi);
+
+%Or use known sigma
+maps = FitImage(imData,sl,sigmaEstimates(n));
 
 %3.10 Save variables (mapsWithSigma,filteredSigma,maps)
 %Specify folder name
@@ -230,6 +283,7 @@ saveFileName = strcat('MAPS_', dataFileName);
 save(fullfile(saveFolder,saveFileName), 'maps');
 
 end
+toc
 
 %% 3. Hernando phantom data ROI analysis (split off to enable rapid modification of figures)
 
