@@ -11,7 +11,7 @@ function [maps,sigmaFromRoi,sigmaFromFit] = FitImageSigma(imData,roi)
 %1. imData
 
     %imData.images is a 5-D array of size (nx,ny,nz,ncoils,nTE)
-    %imData.TE is 1-by-n vector of echotime values
+    %imData.TE is 1-by-n vector of echotime values in seconds
     %imData.FieldStrength is field strength in Tesla
 
 %2. slice is specified by user (integer value)
@@ -30,20 +30,22 @@ function [maps,sigmaFromRoi,sigmaFromFit] = FitImageSigma(imData,roi)
 %sigmaFromRoi is sigma from signal intensity values in ROI
 %sigmaFromFit is sigma value from fit corrected by sigmaCorrection factor
 
-%% 1. Reformat data where needed / preliminary steps 
+%% 1. Reformat data where needed / preliminary processing steps 
 
-%1.1 Convert TE to ms
-TE=1000*imData.TE;
-
-TE=reshape(TE,numel(TE),1);
-
-%1.2 Get indent
-indent = imData.fittingIndent;
 slice = roi.slice;
 
+try
+echotimes = imData.echotimes';
+catch
+end
+
+try 
+echotimes = imData.TE';
+catch 
+end
 
 %% 2. Get image data for the chosen slice
-for echoN=1:numel(TE)  
+for echoN=1:numel(echotimes)  
 Scomplex_slice(:,:,echoN)=imData.images(:,:,slice,1,echoN);
 end
 
@@ -61,7 +63,7 @@ s0Estimates=zeros(size(Smag_slice,1),size(Smag_slice,2));
 
 % Set ground truth values to 0
 GT.p=[0 0 0 0];
-GT.S=zeros(1,numel(TE));
+GT.S=zeros(1,numel(echotimes));
 
 %% 4. Determine sigma value from raw signal intensities in the ROI (use the data from the echo time closest to in phase)
 
@@ -105,7 +107,7 @@ algoparams = setAlgoparams(Smag,sigmaFromRoi,2); %opt=2 specifies inclusion of b
 if prod(Smag)>0
 
 %6.2 Run Rician fitting with sigma included as a parameter to estimate the value of sigma
-outparams = RicianMagnitudeFitting_WithSigma(TE, imData.FieldStrength, Smag, algoparams.sigEst, GT, algoparams); %echotimes, fieldstrength, measured signal, initial estimate of sigma, ground truth initialisation, algoparams
+outparams = RicianMagnitudeFitting_WithSigma(echotimes, imData.FieldStrength, Smag, algoparams.sigEst, GT, algoparams); %echotimes, fieldstrength, measured signal, initial estimate of sigma, ground truth initialisation, algoparams
 
 %6.3 Add values to parameter maps 
 FFrician(posY,posX)=outparams.F/(outparams.F+outparams.W);

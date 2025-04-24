@@ -6,29 +6,36 @@ figure
 % Gaussian subplots
 g(1)=subplot(4,2,1)
 plot(ReferenceValues.FF,ReferenceValues.FF,'k-','LineWidth',1)
+title('1.5T protocol 1')
 
 g(2)=subplot(4,2,3)
 plot(ReferenceValues.FF,ReferenceValues.FF,'k-','LineWidth',1)
+title('1.5T protocol 2')
 
 g(3)=subplot(4,2,5)
 plot(ReferenceValues.FF,ReferenceValues.FF,'k-','LineWidth',1)
+title('3T protocol 3')
 
 g(4)=subplot(4,2,7)
 plot(ReferenceValues.FF,ReferenceValues.FF,'k-','LineWidth',1)
+title('3T protocol 4')
 
 % Rician subplots
 r(1)=subplot(4,2,2)
 plot(ReferenceValues.FF,ReferenceValues.FF,'k-','LineWidth',1)
+title('1.5T protocol 1')
 
 r(2)=subplot(4,2,4)
 plot(ReferenceValues.FF,ReferenceValues.FF,'k-','LineWidth',1)
+title('1.5T protocol 2')
 
 r(3)=subplot(4,2,6)
 plot(ReferenceValues.FF,ReferenceValues.FF,'k-','LineWidth',1)
+title('3T protocol 3')
 
 r(4)=subplot(4,2,8)
 plot(ReferenceValues.FF,ReferenceValues.FF,'k-','LineWidth',1)
-
+title('3T protocol 4')
 
 %% Create colours and symbols for display in loops
 colours = [1 0 0; 0 1 0; 0 0 1; 0 1 1; 1 0 1; 1 1 0; 0 0.4 0.7]; %red green blue cyan magenta yellow otherblue (semitransparent)
@@ -54,19 +61,19 @@ slopeUpperCI.gaussian(n,1)=cis(2,2);
 interceptLowerCI.gaussian(n,1)=cis(1,1);
 interceptUpperCI.gaussian(n,1)=cis(1,2);
 
-axes(g(protocol(n))) %Select axis for relevant site
-hold on 
-plot(ReferenceValues.FF,ff{n}.standard.mean,'--','LineWidth',1,'Color',colours(site(n),:),'Marker',symbols{site(n)},'MarkerSize',sizes(site(n)))
-xlabel('Reference FF','FontSize',12)
-ylabel('Gaussian PDFF','FontSize',12)
-xlim([0 1])
-ylim([0 1])
-% %Add legend at last protocol
-% if protocol(n)==4
-%     legend('ReferenceFF','Protocol 1','Protocol 2','Protocol 3', 'Protocol 4')
-% else ;
-% end
-hold off
+% axes(g(protocol(n))) %Select axis for relevant site
+% hold on 
+% plot(ReferenceValues.FF,ff{n}.standard.mean,'--','LineWidth',1,'Color',colours(site(n),:),'Marker',symbols{site(n)},'MarkerSize',sizes(site(n)))
+% xlabel('Reference FF','FontSize',12)
+% ylabel('Gaussian PDFF','FontSize',12)
+% xlim([0 1])
+% ylim([0 1])
+% % %Add legend at last protocol
+% % if protocol(n)==4
+% %     legend('ReferenceFF','Protocol 1','Protocol 2','Protocol 3', 'Protocol 4')
+% % else ;
+% % end
+% hold off
 
 %% 2. For Rician
 
@@ -88,7 +95,7 @@ axes(r(protocol(n))) %Select axis for relevant site
 hold on 
 plot(ReferenceValues.FF,ff{n}.rician.mean,'--','LineWidth',1,'Color',colours(site(n),:),'Marker',symbols{site(n)},'MarkerSize',sizes(site(n)))
 xlabel('Reference FF','FontSize',12)
-ylabel('Rician PDFF','FontSize',12)
+ylabel('Measured PDFF','FontSize',12)
 xlim([0 1])
 ylim([0 1])
 %Add legend at last protocol

@@ -9,7 +9,7 @@ function [maps] = FitImage(imData,slice,sigma)
 %1. imData
 
     %imData.images is a 5-D array of size (nx,ny,nz,ncoils,nTE)
-    %imData.TE is 1-by-n vector of echotime values
+    %imData.TE is 1-by-n vector of echotime values in seconds
     %imData.FieldStrength is field strength in Tesla
     %imData.fittingIndent is indent for fitting
 
