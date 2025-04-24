@@ -1,5 +1,5 @@
 
-function [FFmaps,errormaps,sdmaps,residuals] = Simulate_Values(SNR, sigmaError, reps)
+function [FFmaps,R2maps,errormaps,sdmaps,residuals] = Simulate_Values(SNR, sigmaError, reps)
 % function [FFmaps,errormaps,sdmaps,residuals] = Simulate_Values(SNR)
 
 % Description:
@@ -17,7 +17,7 @@ function [FFmaps,errormaps,sdmaps,residuals] = Simulate_Values(SNR, sigmaError, 
 % reps is number of simulation instantiations
 
 % Output: 
-% FF, error, standard deviation and residuals over a range of FF and R2* values
+% FF, R2*, error, standard deviation and residuals over a range of FF and R2* values
 
 % Author:
 % Tim Bray, t.bray@ucl.ac.uk
@@ -25,16 +25,27 @@ function [FFmaps,errormaps,sdmaps,residuals] = Simulate_Values(SNR, sigmaError, 
 %% Create grid for different options of each param
 
 %Specify S0
-S0=100;
+S0=1;
 
 %Specify FFmax, R2max and intervals
-FFmax = 1;
-FFinterval = 0.02;
-FFvals = [0:FFinterval:FFmax];
+% 
+%     %Default (used for MAGORINO)
+%     FFmax = 1;
+%     FFinterval = 0.02;
+%     FFvals = [0:FFinterval:FFmax];
+%     
+%     R2max = 1;
+%     R2interval=0.1;
+%     R2vals=[0:R2interval:R2max];
 
-R2max = 1;
-R2interval=0.1;
-R2vals=[0:R2interval:R2max];
+    %Modification for DL comparison
+    FFmax = 1;
+    FFinterval = 0.01;
+    FFvals = [0:FFinterval:FFmax];
+    
+    R2max = 0.5;
+    R2interval=0.1;
+    R2vals=[0:0.025:R2max];
 
 %Create grids of ground truth values
 FFgrid=repelem(FFvals',1,numel(R2vals));
@@ -43,14 +54,19 @@ Fgrid=S0*FFgrid;
 
 Wgrid=S0-Fgrid;
 
-vgrid=repelem(0:R2interval:R2max,numel(FFvals),1);%1ms-1 upper limit chosen to reflect Hernando et al. (went up to 1.2)
+vgrid=repelem(R2vals,numel(FFvals),1);%1ms-1 upper limit chosen to reflect Hernando et al. (went up to 1.2)
 
 %% Specify parameter values
 
 % Specify echotimes
 % MAGO paper at 3T used 12 echoes (TE1 1.1, dTE 1.1)
 % MAGO paper at 1.5T used 6 echoes (TE1 1.2, dTE 2)
-echotimes=[1.1:1.1:13.2]';
+% echotimes=[1.1:1.1:13.2]';
+% echotimes=[1.172:0.92:5.772]';
+
+load('/Users/tjb57/Dropbox/MATLAB/Fat-water MAGORINO/Data/Hernando data/site1_begin_3T_protocol1.mat')
+echotimes = (1000*imDataAll.TE);
+
 %echotimes=1.2:2:11.2;
 
 %Define fB
@@ -131,13 +147,13 @@ noise_grid = noiseReal_grid + 1i*noiseImag_grid;
 % NoiseROI= normrnd(0,noiseSD,[200 1]) + i*normrnd(0,noiseSD,[200 1]);
 % sigma=std(real(NoiseROI));
 
-
-
 %% Loop through values
 
 %Add waitbar
 w1 = waitbar(0,'Progress in R2* dimension of parameter space');
 w2 = waitbar(0,'Progress in FF dimension of parameter space');
+
+tic
 
 for x=1:size(Fgrid,2)
 for y=1:size(Fgrid,1)
@@ -155,6 +171,7 @@ GT.S = Snoisefree;
 
 %Specify ground truth parameter values
 GT.p = [F W v 0];
+
 
 %%Loop through reps
 parfor r=1:reps
@@ -188,21 +205,21 @@ FF_standard(y,x,r)=outparams.standard.F/(outparams.standard.W+outparams.standard
 FF_Rician(y,x,r)=outparams.Rician.F/(outparams.Rician.W+outparams.Rician.F);
 % FF_RicianWithSigma(y,x,r)=outparams.RicianWithSigma.F/(outparams.RicianWithSigma.W+outparams.RicianWithSigma.F);
 FF_complex(y,x,r)=outparams.complex.F/(outparams.complex.W+outparams.complex.F);
-% FF_complexFixed(y,x,r)=outparams.complexFixed.F/(outparams.complexFixed.W+outparams.complexFixed.F);
+FF_complexFixed(y,x,r)=outparams.complexFixed.F/(outparams.complexFixed.W+outparams.complexFixed.F);
 
 %For R2*
 vhat_standard(y,x,r)=outparams.standard.R2;
 vhat_Rician(y,x,r)=outparams.Rician.R2;
 % vhat_RicianWithSigma(y,x,r)=outparams.RicianWithSigma.R2;
 vhat_complex(y,x,r)=outparams.complex.R2;
-% vhat_complexFixed(y,x,r)=outparams.complexFixed.R2;
+vhat_complexFixed(y,x,r)=outparams.complexFixed.R2;
 
 %For S0
 S0_standard(y,x,r)=outparams.standard.F+outparams.standard.W;
 S0_Rician(y,x,r)=outparams.Rician.F+outparams.Rician.W;
 % S0_RicianWithSigma(y,x,r)=outparams.RicianWithSigma.F+outparams.RicianWithSigma.W;
 S0_complex(y,x,r)=outparams.complex.F+outparams.complex.W;
-% S0_complexFixed(y,x,r)=outparams.complexFixed.F+outparams.complexFixed.W;
+S0_complexFixed(y,x,r)=outparams.complexFixed.F+outparams.complexFixed.W;
 
 % %For ground-truth initialised values
 % 
@@ -236,35 +253,35 @@ fmin3Rician(y,x,r)=outparams.Rician.fmin3;
 % fmin1RicianWithSigma(y,x,r)=outparams.RicianWithSigma.fmin1;
 % fmin2RicianWithSigma(y,x,r)=outparams.RicianWithSigma.fmin2;
 % fmin3RicianWithSigma(y,x,r)=outparams.RicianWithSigma.fmin3;
-
+% 
 fmin1complex(y,x,r)=outparams.complex.fmin1;
 fmin2complex(y,x,r)=outparams.complex.fmin2;
 fmin3complex(y,x,r)=outparams.complex.fmin3;
 
-% fmin1complexFixed(y,x,r)=outparams.complexFixed.fmin1;
-% fmin2complexFixed(y,x,r)=outparams.complexFixed.fmin2;
-% fmin3complexFixed(y,x,r)=outparams.complexFixed.fmin3;
+fmin1complexFixed(y,x,r)=outparams.complexFixed.fmin1;
+fmin2complexFixed(y,x,r)=outparams.complexFixed.fmin2;
+fmin3complexFixed(y,x,r)=outparams.complexFixed.fmin3;
 
 %SSE 
 SSEstandard(y,x,r)=outparams.standard.SSE; %NB SSE matches the lower of the two residuals above (i.e. the chosen likelihood maximum / error minimum)
 SSERician(y,x,r)=outparams.Rician.SSE;
 % SSERicianWithSigma(y,x,r)=outparams.RicianWithSigma.SSE;
 SSEcomplex(y,x,r)=outparams.complex.SSE;
-% SSEcomplexFixed(y,x,r)=outparams.complexFixed.SSE;
+SSEcomplexFixed(y,x,r)=outparams.complexFixed.SSE;
 
 %SSE true (relative to ground truth noise-free signal)
 SSEtrue_standard(y,x,r)=outparams.standard.SSEtrue;
 SSEtrue_Rician(y,x,r)=outparams.Rician.SSEtrue;
 % SSEtrue_RicianWithSigma(y,x,r)=outparams.RicianWithSigma.SSEtrue;
 SSEtrue_complex(y,x,r)=outparams.complex.SSEtrue;
-% SSEtrue_complexFixed(y,x,r)=outparams.complexFixed.SSEtrue;
+SSEtrue_complexFixed(y,x,r)=outparams.complexFixed.SSEtrue;
 
 %SSE versus true noise 
 SSEvsTrueNoise_standard(y,x,r)=outparams.standard.SSE / (noise*noise'); %Use conjugate transpose for calculation of 'noise SSE' (denominator)
 SSEvsTrueNoise_Rician(y,x,r)=outparams.Rician.SSE / (noise*noise');
 % SSEvsTrueNoise_RicianWithSigma(y,x,r)=outparams.RicianWithSigma.SSE / (noise*noise');
 SSEvsTrueNoise_complex(y,x,r)=outparams.complex.SSE / (noise*noise');
-% SSEvsTrueNoise_complexFixed(y,x,r)=outparams.complexFixed.SSE / (noise*noise');
+SSEvsTrueNoise_complexFixed(y,x,r)=outparams.complexFixed.SSE / (noise*noise');
 
 % %SSE with ground-truth initialisation 
 % SSEgtinit_standard(y,x,r)=outparams.standard.SSEgtinit;
@@ -295,6 +312,8 @@ waitbar(x/size(Fgrid,2),w1)
 
 end
 
+toc 
+
 close all 
 
 %% Average grids over repetitions
@@ -304,19 +323,19 @@ FFmaps.standard=mean(FF_standard,3); %Convert to percentage
 FFmaps.Rician=mean(FF_Rician,3);
 % FFmaps.RicianWithSigma=mean(FF_RicianWithSigma,3);
 FFmaps.complex=mean(FF_complex,3);
-% FFmaps.complexFixed=mean(FF_complexFixed,3);
+FFmaps.complexFixed=mean(FF_complexFixed,3);
 
 R2maps.standard=mean(vhat_standard,3);
 R2maps.Rician=mean(vhat_Rician,3);
 % R2maps.RicianWithSigma=mean(vhat_RicianWithSigma,3);
 R2maps.complex=mean(vhat_complex,3);
-% R2maps.complexFixed=mean(vhat_complexFixed,3);
-
+R2maps.complexFixed=mean(vhat_complexFixed,3);
+% 
 S0maps.standard=mean(S0_standard,3);
 S0maps.Rician=mean(S0_Rician,3);
 % S0maps.RicianWithSigma=mean(S0_RicianWithSigma,3);
 S0maps.complex=mean(S0_complex,3);
-% S0maps.complexFixed=mean(S0_complexFixed,3);
+S0maps.complexFixed=mean(S0_complexFixed,3);
 
 % %For ground truth initialisation
 % FFmaps.standard_gtinitialised=mean(FF_standard_gtinitialised,3); %Convert to percentage
@@ -341,19 +360,19 @@ errormaps.FFstandard=FFmaps.standard-FFgrid;
 errormaps.FFRician=FFmaps.Rician-FFgrid;
 % errormaps.FFRicianWithSigma=FFmaps.RicianWithSigma-FFgrid;
 errormaps.FFcomplex=FFmaps.complex-FFgrid;
-% errormaps.FFcomplexFixed=FFmaps.complexFixed-FFgrid;
+errormaps.FFcomplexFixed=FFmaps.complexFixed-FFgrid;
 
 errormaps.R2standard=R2maps.standard-vgrid;
 errormaps.R2Rician=R2maps.Rician-vgrid;
 % errormaps.R2RicianWithSigma=R2maps.RicianWithSigma-vgrid;
 errormaps.R2complex=R2maps.complex-vgrid;
-% errormaps.R2complexFixed=R2maps.complexFixed-vgrid;
-
+errormaps.R2complexFixed=R2maps.complexFixed-vgrid;
+% 
 errormaps.S0standard=(S0maps.standard-S0)/S0;
 errormaps.S0Rician=(S0maps.Rician-S0)/S0;
 % errormaps.S0RicianWithSigma=(S0maps.RicianWithSigma-S0)/S0;
 errormaps.S0complex=(S0maps.complex-S0)/S0;
-% errormaps.S0complexFixed=(S0maps.complexFixed-S0)/S0;
+errormaps.S0complexFixed=(S0maps.complexFixed-S0)/S0;
 
 % %For ground-truth initialisation
 % errormaps.FFstandard_gtinitialised=FFmaps.standard_gtinitialised-FFgrid;
@@ -379,19 +398,19 @@ sdmaps.R2standard=std(vhat_standard,0,3);
 sdmaps.R2Rician=std(vhat_Rician,0,3);
 % sdmaps.R2RicianWithSigma=std(vhat_RicianWithSigma,0,3);
 sdmaps.R2complex=std(vhat_complex,0,3);
-% sdmaps.R2complexFixed=std(vhat_complexFixed,0,3);
-
+sdmaps.R2complexFixed=std(vhat_complexFixed,0,3);
+% 
 sdmaps.FFstandard=std(FF_standard,0,3);
 sdmaps.FFRician=std(FF_Rician,0,3);
 % sdmaps.FFRicianWithSigma=std(FF_RicianWithSigma,0,3);
 sdmaps.FFcomplex=std(FF_complex,0,3);
-% sdmaps.FFcomplexFixed=std(FF_complexFixed,0,3);
+sdmaps.FFcomplexFixed=std(FF_complexFixed,0,3);
 
 sdmaps.S0standard=std(S0_standard,0,3)/S0; 
 sdmaps.S0Rician=std(S0_Rician,0,3)/S0;
 % sdmaps.S0RicianWithSigma=std(S0_RicianWithSigma,0,3)/S0;
 sdmaps.S0complex=std(S0_complex,0,3)/S0;
-% sdmaps.S0complexFixed=std(S0_complexFixed,0,3)/S0;
+sdmaps.S0complexFixed=std(S0_complexFixed,0,3)/S0;
 
 % %For ground-truth initialisation
 % sdmaps.R2standard_gtinitialised=std(vhat_standard_gtinitialised,0,3);
@@ -414,7 +433,7 @@ meanerror.standard=mean(abs(errormaps.FFstandard),'all');
 meanerror.Rician=mean(abs(errormaps.FFRician),'all');
 % meanerror.RicianWithSigma=mean(abs(errormaps.FFRicianWithSigma),'all');
 meanerror.complex=mean(abs(errormaps.FFcomplex),'all');
-% meanerror.complexFixed=mean(abs(errormaps.FFcomplexFixed),'all');
+meanerror.complexFixed=mean(abs(errormaps.FFcomplexFixed),'all');
 
 %% Residuals
 residuals.standard.fmin1=mean(fmin1standard,3);
@@ -443,7 +462,7 @@ residuals.Rician.SSEvstruenoise=mean(SSEvsTrueNoise_Rician,3);
 % residuals.RicianWithSigma.SSEgtinit=mean(SSEgtinit_Rician,3);
 % residuals.RicianWithSigma.SSEgtinit_true=mean(SSEgtinit_true_Rician,3);
 % residuals.RicianWithSigma.SSEgtinitvstruenoise=mean(SSEgtinitvsTrueNoise_Rician,3);
-
+% 
 residuals.complex.fmin1=mean(fmin1complex,3);
 residuals.complex.fmin2=mean(fmin2complex,3);
 residuals.complex.SSE=mean(SSEcomplex,3);
@@ -454,14 +473,50 @@ residuals.complex.SSEvstruenoise=mean(SSEvsTrueNoise_complex,3);
 % residuals.complex.SSEgtinitvstruenoise=mean(SSEgtinitvsTrueNoise_complex,3);
 
 
-% residuals.complexFixed.fmin1=mean(fmin1complexFixed,3);
-% residuals.complexFixed.fmin2=mean(fmin2complexFixed,3);
-% residuals.complexFixed.SSE=mean(SSEcomplexFixed,3);
-% residuals.complexFixed.SSEtrue=mean(SSEtrue_complexFixed,3);
-% residuals.complexFixed.SSEvstruenoise=mean(SSEvsTrueNoise_complexFixed,3);
+residuals.complexFixed.fmin1=mean(fmin1complexFixed,3);
+residuals.complexFixed.fmin2=mean(fmin2complexFixed,3);
+residuals.complexFixed.SSE=mean(SSEcomplexFixed,3);
+residuals.complexFixed.SSEtrue=mean(SSEtrue_complexFixed,3);
+residuals.complexFixed.SSEvstruenoise=mean(SSEvsTrueNoise_complexFixed,3);
 % % residuals.complexFixed.SSEgtinit=mean(SSEgtinit_complexFixed,3);
 % % residuals.complexFixed.SSEgtinit_true=mean(SSEgtinit_true_complexFixed,3);
 % % residuals.complexFixed.SSEgtinitvstruenoise=mean(SSEgtinitvsTrueNoise_complexFixed,3);
 
 %% Create figures
-Createfig(FFmaps,errormaps,sdmaps,residuals)
+% Createfig(FFmaps,errormaps,sdmaps,residuals)
+
+figure
+subplot(1,4,1)
+image(FFmaps.standard,'CDataMapping','scaled')
+ax=gca;
+ax.CLim=[0 1];
+FigLabels;
+title('Gaussian magnitude FF')
+colorbar
+
+subplot(1,4,2)
+image(FFmaps.Rician,'CDataMapping','scaled')
+ax=gca;
+ax.CLim=[0 1];
+FigLabels;
+title('Rician magnitude FF')
+colorbar
+
+subplot(1,4,3)
+image(FFmaps.complex,'CDataMapping','scaled')
+ax=gca;
+ax.CLim=[0 1];
+FigLabels;
+title('Complex FF')
+colorbar
+
+subplot(1,4,4)
+image(FFmaps.complexFixed,'CDataMapping','scaled')
+ax=gca;
+ax.CLim=[0 1];
+FigLabels;
+title('Complex FF fixed FB')
+colorbar
+
+
+
